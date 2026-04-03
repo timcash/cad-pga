@@ -84,6 +84,16 @@
             font-weight: 700;
         }
 
+        .highlight-hot {
+            color: #ff9a52;
+            font-weight: 700;
+        }
+
+        .highlight-cold {
+            color: #6cb8ff;
+            font-weight: 700;
+        }
+
         .value-grid {
             display: grid;
             grid-template-columns: auto auto;
@@ -159,6 +169,12 @@
             <span class="highlight-pink">Walk on Spheres</span> Monte Carlo process.
         </p>
 
+        <h2>Boundary conditions</h2>
+        <p>
+            Heat enters from the <span class="highlight-hot">top and left walls at 100°</span>. It leaves through the
+            <span class="highlight-cold">right wall, bottom wall, and center ice block at 0°</span>.
+        </p>
+
         <h2>Distance kernel</h2>
         <p>
             For the polygonal walls, the boundary distance is read algebraically from
@@ -198,21 +214,41 @@
             const pBL = point(-2.5, -2.5);
             const pBR = point(2.5, -2.5);
             const makeSegment = (x1, y1, x2, y2) => [point(x1, y1), point(x2, y2)];
+            const makeQuad = (x1, y1, x2, y2) => [
+                point(x1, y1),
+                point(x2, y1),
+                point(x2, y2),
+                point(x1, y2)
+            ];
 
             const bounds = [
-                { line: (pTL & pTR).Normalized, temp: 100, label: "Hot wall" },
-                { line: (pBL & pTL).Normalized, temp: 100, label: "Hot wall" },
-                { line: (pTR & pBR).Normalized, temp: 0, label: "Cold wall" },
-                { line: (pBR & pBL).Normalized, temp: 0, label: "Cold wall" }
+                { line: (pTL & pTR).Normalized, temp: 100, label: "Hot wall · 100°" },
+                { line: (pBL & pTL).Normalized, temp: 100, label: "Hot wall · 100°" },
+                { line: (pTR & pBR).Normalized, temp: 0, label: "Cold wall · 0°" },
+                { line: (pBR & pBL).Normalized, temp: 0, label: "Cold wall · 0°" }
             ];
 
             const circleRadius = 0.7;
+            const hotBands = [
+                makeQuad(-2.5, 2.18, 2.5, 2.5),
+                makeQuad(-2.5, -2.5, -2.18, 2.5)
+            ];
+            const coldBands = [
+                makeQuad(2.18, -2.5, 2.5, 2.5),
+                makeQuad(-2.5, -2.5, 2.5, -2.18)
+            ];
             const minorGridSegments = [];
             const majorGridSegments = [];
             const axisSegments = [
                 makeSegment(0, -8, 0, 8),
                 makeSegment(-8, 0, 8, 0)
             ];
+            const hotLabel = point(1.45, 1.9);
+            const coldLabels = [
+                point(3.15, 0.4),
+                point(1.45, -2.34)
+            ];
+            const iceLabel = point(0.98, 0.94);
 
             for (let value = -8; value <= 8; value += 0.5) {
                 const rounded = Math.round(value * 2) / 2;
@@ -228,6 +264,8 @@
             const heatSamplesPerSolve = 8;
             const heatSolveInterval = 2;
             const walkerStepInterval = 2;
+            const coldColor = { r: 40, g: 88, b: 255 };
+            const hotColor = { r: 255, g: 140, b: 70 };
 
             const getShortestDistance = (p) => {
                 let minD = Infinity;
@@ -250,7 +288,7 @@
                 if (Math.abs(distToCircle) < minD) {
                     minD = Math.abs(distToCircle);
                     hitTemp = 0;
-                    hitLabel = "Ice block";
+                    hitLabel = "Ice block · 0°";
                 }
 
                 return { d: minD, temp: hitTemp, label: hitLabel };
@@ -298,6 +336,14 @@
                 return pts;
             };
 
+            const lerp = (a, b, t) => a + (b - a) * t;
+            const mixColor = (a, b, t) => (
+                (Math.round(lerp(a.r, b.r, t)) << 16) |
+                (Math.round(lerp(a.g, b.g, t)) << 8) |
+                Math.round(lerp(a.b, b.b, t))
+            );
+            const heatColor = (temp) => mixColor(coldColor, hotColor, Math.max(0, Math.min(1, temp / 100)));
+
             const heatMap = [];
             const maxHeatSamples = 5000;
             let heatMapCursor = 0;
@@ -329,9 +375,7 @@
                     for (let i = 0; i < heatSamplesPerSolve; i += 1) {
                         const samplePoint = randomInteriorPoint();
                         const sampleTemp = solvePoint(getX(samplePoint), getY(samplePoint), 24);
-                        const red = Math.floor((sampleTemp / 100) * 255);
-                        const blue = 255 - red;
-                        pushHeatSample([(red << 16) | blue, samplePoint]);
+                        pushHeatSample([heatColor(sampleTemp), samplePoint]);
                     }
                 }
 
@@ -374,10 +418,14 @@
                     0x17191d, ...minorGridSegments,
                     0x20242a, ...majorGridSegments,
                     0x173330, ...axisSegments,
+                    0x30ff8c42, ...hotBands,
+                    0x2648b0ff, ...coldBands,
                     ...heatRender,
-                    0x00ffaa,
-                    [pTL, pTR], [pBL, pBR], [pTL, pBL], [pTR, pBR],
-                    0x48b0ff, drawCircle(point(0, 0), circleRadius),
+                    0xff9a52, [pTL, pTR], [pTL, pBL],
+                    0x6cb8ff, [pTR, pBR], [pBL, pBR],
+                    0x7cc6ff, drawCircle(point(0, 0), circleRadius),
+                    0xffc48c, hotLabel, "Hot 100°",
+                    0x9ed0ff, coldLabels[0], "Cold 0°", coldLabels[1], "Cold 0°", iceLabel, "Ice 0°",
                     ...walkerRender
                 ];
             }, graphOptions);
