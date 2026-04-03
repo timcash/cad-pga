@@ -2,7 +2,7 @@
   "id": "./",
   "name": "CAD PGA",
   "short_name": "CAD PGA",
-  "description": "Interactive projective geometric algebra demo gallery for CAD, CAM, and geometry visualization.",
+  "description": "Interactive projective geometric algebra example library with live demos and MathJax notes.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

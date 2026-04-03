@@ -98,11 +98,16 @@
             pointer-events: none;
         }
 
-        #home-link {
+        #nav-links {
             position: absolute;
             top: 20px;
             right: 20px;
             z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
             padding: 10px 14px;
             border-radius: 999px;
             border: 1px solid rgba(255,255,255,0.18);
@@ -116,7 +121,10 @@
     <script src="../demo-runtime.js"></script>
 </head>
 <body>
-    <a id="home-link" href="../">All Examples</a>
+    <div id="nav-links">
+        <a class="nav-link" href="./readme/">Math Notes</a>
+        <a class="nav-link" href="../">Library Home</a>
+    </div>
 
     <div id="ui-panel">
         <h1>PGA CNC Kernel Simulator</h1>
@@ -257,4 +265,3 @@
     </script>
 </body>
 </html>
-

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-sw-script="../../service-worker.js" data-sw-scope="../../">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
+    <link rel="manifest" href="../../manifest.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="application-name" content="cad-pga">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CAD PGA">
+    <meta name="description" content="Math notes for the Mesh Cleanup PGA example.">
+    <meta name="theme-color" content="#05070b">
+    <title>Mesh Cleanup Notes - CAD PGA</title>
+</head>
+<body>
+    <main class="page-shell">
+        <nav class="top-nav">
+            <a class="button button-secondary" href="../../">Library Home</a>
+            <a class="button" href="../">Open Demo</a>
+        </nav>
+
+        <section class="hero-card">
+            <div class="kicker-line">
+                <span class="eyebrow">Mesh Cleanup</span>
+                <span class="card-tag">Readme Route</span>
+            </div>
+            <h1>Why the net area stays constant while the cone changes.</h1>
+            <p class="lead">
+                The live demo triangulates a polygon boundary against a movable gauge point. The individual cone facets get
+                steeper or flatter as the apex moves, but the signed net area encoded by the full boundary remains fixed.
+            </p>
+        </section>
+
+        <section class="formula-grid">
+            <article class="formula-card">
+                <span class="formula-label">Boundary</span>
+                <div class="math-block">
+                    $$ \partial P = \sum_{i=1}^{n} E_i, \qquad E_i = p_i \vee p_{i+1} $$
+                </div>
+                <p class="formula-note">
+                    The polygon is represented by its oriented boundary edges. In the ganja.js code, the join is written with
+                    <code>&amp;</code> because we are working in dual 3D PGA.
+                </p>
+            </article>
+
+            <article class="formula-card">
+                <span class="formula-label">Gauge Join</span>
+                <div class="math-block">
+                    $$ \Pi(o) = o \vee \partial P $$
+                </div>
+                <p class="formula-note">
+                    Joining the boundary with a gauge point produces a plane-like object whose ideal part retains the planar
+                    area information while the Euclidean height contributions cancel in the sum.
+                </p>
+            </article>
+
+            <article class="formula-card">
+                <span class="formula-label">Invariant Area</span>
+                <div class="math-block">
+                    $$ A(P) = \frac{1}{2}\left\| o \vee \sum_i E_i \right\|_{\infty} $$
+                </div>
+                <p class="formula-note">
+                    This is the stable green value in the demo. The ideal norm extracts the true signed area of the base
+                    polygon, not the changing 3D cone area.
+                </p>
+            </article>
+        </section>
+
+        <section class="section-grid">
+            <article class="panel-card">
+                <div class="eyebrow">What The Red Number Means</div>
+                <h2>The cone facets are not the invariant quantity</h2>
+                <div class="math-block">
+                    $$ A_{\text{abs}}(o) = \frac{1}{2} \sum_{i=1}^{n} \left\| o \vee E_i \right\| $$
+                </div>
+                <p>
+                    This sum uses absolute Euclidean facet areas, so it grows or shrinks as the apex moves. That makes it a
+                    useful contrast to the boundary-based invariant but not a replacement for it.
+                </p>
+            </article>
+
+            <article class="panel-card">
+                <div class="eyebrow">What The Green Number Means</div>
+                <h2>The boundary sum remembers orientation</h2>
+                <p>
+                    Because the edges are oriented, the non-area height terms cancel when you add them before joining with
+                    the gauge point. What survives is the net signed content of the original polygon.
+                </p>
+                <p class="callout">
+                    Moving the apex changes the decomposition. It does not change the magnitude encoded by the oriented
+                    boundary.
+                </p>
+            </article>
+        </section>
+
+        <section class="note-grid">
+            <article class="note-card">
+                <div class="eyebrow">Code Mapping</div>
+                <h2>How the formulas map into the demo</h2>
+                <ul class="note-list">
+                    <li><code>edge = p1 &amp; p2</code> builds each oriented boundary edge.</li>
+                    <li><code>sumEdges</code> is the running total for \( \sum_i E_i \).</li>
+                    <li><code>netAreaPlane = apex &amp; sumEdges</code> computes \( o \vee \partial P \).</li>
+                    <li><code>0.5 * netAreaPlane.Length</code> is the displayed net area scalar.</li>
+                </ul>
+            </article>
+
+            <article class="note-card">
+                <div class="eyebrow">Geometric Takeaway</div>
+                <h2>Why this matters for cleanup problems</h2>
+                <p>
+                    Boundary-driven formulas are attractive in CAD because they can evaluate shape content without first
+                    forcing a fragile triangulation or picking one preferred fan decomposition.
+                </p>
+                <p>
+                    That makes the example a good foundation for future mesh, polygon, and topological editing demos in this
+                    library.
+                </p>
+            </article>
+        </section>
+    </main>
+
+    <script type="module" src="../../src/docs-entry.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-sw-script="./service-worker.js" data-sw-scope="./">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
@@ -10,211 +10,122 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
-    <meta name="description" content="Interactive Projective Geometric Algebra demo gallery for CAD, CAM, and geometry visualization.">
-    <meta name="theme-color" content="#0d1117">
-    <title>CAD PGA Examples</title>
-    <style>
-        :root {
-            color-scheme: dark;
-            --bg-0: #081019;
-            --bg-1: #0d1117;
-            --bg-2: #132033;
-            --ink: #f4f7fb;
-            --muted: #9fb1c4;
-            --line: rgba(164, 190, 218, 0.22);
-            --accent-a: #4bd8ff;
-            --accent-b: #ff8c42;
-            --accent-c: #63ffa5;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html, body {
-            margin: 0;
-            min-height: 100%;
-            background:
-                radial-gradient(circle at top left, rgba(75, 216, 255, 0.18), transparent 32%),
-                radial-gradient(circle at bottom right, rgba(255, 140, 66, 0.18), transparent 28%),
-                linear-gradient(160deg, var(--bg-0), var(--bg-1) 45%, #090d13);
-            color: var(--ink);
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            display: flex;
-            justify-content: center;
-            padding: 40px 20px 64px;
-        }
-
-        main {
-            width: min(1080px, 100%);
-        }
-
-        .hero {
-            position: relative;
-            overflow: hidden;
-            padding: 32px;
-            border: 1px solid var(--line);
-            border-radius: 28px;
-            background: linear-gradient(160deg, rgba(19, 32, 51, 0.82), rgba(10, 16, 25, 0.94));
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
-        }
-
-        .hero::after {
-            content: "";
-            position: absolute;
-            inset: auto -5% -30% 45%;
-            height: 260px;
-            background: radial-gradient(circle, rgba(99, 255, 165, 0.22), transparent 60%);
-            pointer-events: none;
-        }
-
-        .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 14px;
-            border-radius: 999px;
-            background: rgba(75, 216, 255, 0.12);
-            color: var(--accent-a);
-            font-size: 0.82rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        h1 {
-            margin: 18px 0 12px;
-            max-width: 760px;
-            font-size: clamp(2.2rem, 5vw, 4.2rem);
-            line-height: 0.96;
-        }
-
-        .lead {
-            max-width: 720px;
-            margin: 0;
-            color: var(--muted);
-            font-size: 1.04rem;
-            line-height: 1.7;
-        }
-
-        .examples {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 22px;
-            margin-top: 28px;
-        }
-
-        .card {
-            position: relative;
-            overflow: hidden;
-            border: 1px solid var(--line);
-            border-radius: 22px;
-            background: linear-gradient(180deg, rgba(16, 24, 37, 0.92), rgba(8, 13, 20, 0.96));
-            padding: 22px;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
-        }
-
-        .card:hover,
-        .card:focus-visible {
-            transform: translateY(-4px);
-            border-color: rgba(99, 255, 165, 0.5);
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
-            outline: none;
-        }
-
-        .card::before {
-            content: "";
-            position: absolute;
-            inset: -40% auto auto 55%;
-            width: 220px;
-            height: 220px;
-            background: radial-gradient(circle, rgba(75, 216, 255, 0.14), transparent 65%);
-            pointer-events: none;
-        }
-
-        .card-tag {
-            display: inline-block;
-            margin-bottom: 12px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--accent-b);
-            font-size: 0.78rem;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        .card h2 {
-            margin: 0 0 10px;
-            font-size: 1.38rem;
-        }
-
-        .card p {
-            margin: 0 0 18px;
-            color: var(--muted);
-            line-height: 1.65;
-            font-size: 0.95rem;
-        }
-
-        .path {
-            color: var(--accent-c);
-            font-family: "Courier New", Courier, monospace;
-            font-size: 0.88rem;
-        }
-
-        .notes {
-            margin-top: 22px;
-            color: var(--muted);
-            font-size: 0.92rem;
-            line-height: 1.6;
-        }
-    </style>
+    <meta name="description" content="A growing library of Projective Geometric Algebra examples with live demos and MathJax notes.">
+    <meta name="theme-color" content="#05070b">
+    <title>CAD PGA Library</title>
 </head>
 <body>
-    <main>
-        <section class="hero">
-            <div class="eyebrow">Projective Geometric Algebra Demo Gallery</div>
-            <h1>CAD, CAM, and geometry examples powered by PGA.</h1>
+    <main class="page-shell">
+        <section class="hero-card">
+            <div class="eyebrow">CAD PGA Library</div>
+            <h1>A growing library of Projective Geometric Algebra examples.</h1>
             <p class="lead">
-                This repo now publishes each demo as its own static GitHub Pages route. The examples below are self-contained,
-                run directly in the browser, and share the same local ganja.js runtime plus installable PWA shell.
+                Each entry in this repo is now split into a live interactive demo and a companion math notes page.
+                The goal is to make the geometry visible, executable, and easier to reason about as the library grows.
             </p>
 
-            <div class="examples">
-                <a class="card" href="./mesh-cleanup/">
-                    <div class="card-tag">Geometry</div>
-                    <h2>Mesh Cleanup</h2>
-                    <p>
-                        Interactive polygon cone decomposition showing how a simplicial extension in PGA preserves the net area
-                        even while the apex moves through 3D space.
+            <div class="hero-grid">
+                <article class="formula-card">
+                    <span class="formula-label">PGA Split</span>
+                    <div class="math-block">
+                        $$ A = A_E + \mathbf{e}_0 A_I $$
+                    </div>
+                    <p class="formula-note">
+                        In PGA, Euclidean content and ideal content live in the same algebra, which is why distance,
+                        direction, and incidence stay tightly coupled.
                     </p>
-                    <div class="path">/cad-pga/mesh-cleanup/</div>
-                </a>
+                </article>
 
-                <a class="card" href="./cnc-kernel-simulator/">
-                    <div class="card-tag">CAD / CAM</div>
-                    <h2>CNC Kernel Simulator</h2>
-                    <p>
-                        Motor-driven endmill animation demonstrating unified translation and spindle rotation, with a swept
-                        volume standing in for the algebraic cut path.
+                <article class="formula-card">
+                    <span class="formula-label">Rigid Motion</span>
+                    <div class="math-block">
+                        $$ \mathbf{M} = \mathbf{T}\mathbf{R}, \qquad X' = \mathbf{M} X \widetilde{\mathbf{M}} $$
+                    </div>
+                    <p class="formula-note">
+                        Translation and rotation compose into one motor, so the same sandwich action can move points,
+                        lines, planes, and full tool geometry.
                     </p>
-                    <div class="path">/cad-pga/cnc-kernel-simulator/</div>
-                </a>
+                </article>
             </div>
+        </section>
 
-            <p class="notes">
-                Install the app from this landing page if you want both demos available in one PWA entry point.
+        <section class="section-header">
+            <div class="eyebrow">Examples</div>
+            <h2>Every example gets a demo route and a readme route.</h2>
+            <p>
+                The homepage stays short, while each readme page carries the longer derivation and interpretation notes.
             </p>
+        </section>
+
+        <section class="library-grid">
+            <article class="library-card">
+                <div class="card-header">
+                    <span class="card-tag">Geometry</span>
+                    <h3>Mesh Cleanup</h3>
+                </div>
+                <p>
+                    This example tracks a polygon boundary in PGA and shows that the signed net area remains fixed even when
+                    the gauge point moves away from the polygon plane.
+                </p>
+                <div class="math-block compact-math">
+                    $$ A = \frac{1}{2}\left\| o \vee \sum_i E_i \right\|_{\infty} $$
+                </div>
+                <ul class="note-list">
+                    <li>The red number is the sum of absolute cone facets, so it changes with the apex.</li>
+                    <li>The green number is the ideal norm of the net signed plane sum, so it stays invariant.</li>
+                    <li>The demo is a concrete way to see boundary-based magnitude instead of triangulating by hand.</li>
+                </ul>
+                <div class="actions">
+                    <a class="button" href="./mesh-cleanup/">Open Demo</a>
+                    <a class="button button-secondary" href="./mesh-cleanup/readme/">Read Math Notes</a>
+                </div>
+            </article>
+
+            <article class="library-card">
+                <div class="card-header">
+                    <span class="card-tag">CAD / CAM</span>
+                    <h3>CNC Kernel Simulator</h3>
+                </div>
+                <p>
+                    This example turns spindle rotation and toolpath translation into one motor, then uses the resulting
+                    sweep to motivate how a PGA-native CAM kernel can describe cutting motion.
+                </p>
+                <div class="math-block compact-math">
+                    $$ \mathbf{M}(t) = \mathbf{T}(d_x(t))\,\mathbf{R}(\theta(t)) $$
+                </div>
+                <ul class="note-list">
+                    <li>The white endmill is transformed by one motor instead of separate matrix pipelines.</li>
+                    <li>The red cut volume stands in for a swept volume, the core shape a CAM kernel would subtract.</li>
+                    <li>The same framework extends cleanly toward multi-axis motion without Euler-angle singularities.</li>
+                </ul>
+                <div class="actions">
+                    <a class="button" href="./cnc-kernel-simulator/">Open Demo</a>
+                    <a class="button button-secondary" href="./cnc-kernel-simulator/readme/">Read Math Notes</a>
+                </div>
+            </article>
+        </section>
+
+        <section class="section-grid">
+            <article class="panel-card">
+                <div class="eyebrow">Library Pattern</div>
+                <h2>How new examples should fit in</h2>
+                <p>
+                    The structure from here is simple: one interactive route for intuition, one readme route for the
+                    algebra, and a short summary here on the homepage so visitors can browse the collection quickly.
+                </p>
+            </article>
+
+            <article class="panel-card">
+                <div class="eyebrow">Next Step</div>
+                <h2>The homepage now acts like an index</h2>
+                <p>
+                    As we add more PGA examples, this landing page can stay focused on the important idea and one key
+                    equation per example, while the deeper note pages hold the full mathematical walkthrough.
+                </p>
+            </article>
         </section>
     </main>
 
-    <script src="./demo-runtime.js"></script>
-    <script>
-        window.CadPgaDemo.registerServiceWorker("./service-worker.js", "./");
-    </script>
+    <script type="module" src="./src/docs-entry.js"></script>
 </body>
 </html>

@@ -11,7 +11,9 @@ export default defineConfig({
       input: {
         main: resolve(rootDir, 'index.html'),
         'mesh-cleanup': resolve(rootDir, 'mesh-cleanup/index.html'),
-        'cnc-kernel-simulator': resolve(rootDir, 'cnc-kernel-simulator/index.html')
+        'mesh-cleanup-readme': resolve(rootDir, 'mesh-cleanup/readme/index.html'),
+        'cnc-kernel-simulator': resolve(rootDir, 'cnc-kernel-simulator/index.html'),
+        'cnc-kernel-simulator-readme': resolve(rootDir, 'cnc-kernel-simulator/readme/index.html')
       }
     }
   },

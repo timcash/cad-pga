@@ -1,0 +1,345 @@
+:root {
+  color-scheme: dark;
+  --bg-0: #05070b;
+  --bg-1: #0b1018;
+  --bg-2: #121b29;
+  --panel: rgba(12, 18, 28, 0.9);
+  --panel-strong: rgba(18, 26, 38, 0.94);
+  --line: rgba(169, 192, 220, 0.2);
+  --ink: #f6f8fb;
+  --muted: #afbccd;
+  --accent-a: #5dd4ff;
+  --accent-b: #ffd166;
+  --accent-c: #7ff7bf;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+  --max-width: 1140px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(93, 212, 255, 0.16), transparent 30%),
+    radial-gradient(circle at top right, rgba(127, 247, 191, 0.09), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(255, 209, 102, 0.12), transparent 26%),
+    linear-gradient(180deg, var(--bg-0), var(--bg-1) 45%, #080c12 100%);
+  color: var(--ink);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  padding: 28px 20px 72px;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(circle at center, black 55%, transparent 100%);
+  pointer-events: none;
+  opacity: 0.25;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  width: min(var(--max-width), 100%);
+  margin: 0 auto;
+}
+
+a {
+  color: inherit;
+}
+
+.page-shell {
+  display: grid;
+  gap: 26px;
+}
+
+.hero-card,
+.panel-card,
+.library-card,
+.formula-card,
+.note-card {
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(18, 26, 38, 0.92), rgba(8, 12, 18, 0.96));
+  box-shadow: var(--shadow);
+}
+
+.hero-card {
+  overflow: hidden;
+  padding: 32px;
+}
+
+.panel-card,
+.library-card,
+.note-card {
+  padding: 24px;
+}
+
+.formula-card {
+  padding: 20px;
+  background: linear-gradient(180deg, rgba(14, 20, 31, 0.96), rgba(6, 9, 14, 0.98));
+}
+
+.eyebrow,
+.card-tag,
+.formula-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  background: rgba(93, 212, 255, 0.12);
+  color: var(--accent-a);
+}
+
+.card-tag {
+  background: rgba(255, 209, 102, 0.13);
+  color: var(--accent-b);
+}
+
+.formula-label {
+  background: rgba(127, 247, 191, 0.1);
+  color: var(--accent-c);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.02;
+}
+
+h1 {
+  margin-top: 18px;
+  max-width: 880px;
+  font-size: clamp(2.5rem, 6vw, 4.8rem);
+}
+
+h2 {
+  font-size: clamp(1.5rem, 3vw, 2.3rem);
+}
+
+h3 {
+  font-size: 1.45rem;
+}
+
+p,
+li {
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 0.98rem;
+}
+
+.lead {
+  max-width: 780px;
+  margin: 16px 0 0;
+  font-size: 1.06rem;
+}
+
+.hero-grid,
+.section-grid,
+.library-grid,
+.formula-grid,
+.note-grid {
+  display: grid;
+  gap: 22px;
+}
+
+.hero-grid,
+.section-grid,
+.formula-grid,
+.note-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.library-grid {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.section-header {
+  padding: 4px 4px 0;
+}
+
+.section-header h2 {
+  margin-top: 14px;
+}
+
+.section-header p {
+  max-width: 680px;
+  margin-bottom: 0;
+}
+
+.card-header {
+  display: grid;
+  gap: 14px;
+}
+
+.math-block {
+  margin-top: 14px;
+  border: 1px solid rgba(93, 212, 255, 0.16);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(13, 19, 29, 0.96), rgba(9, 14, 22, 0.98)),
+    radial-gradient(circle at top right, rgba(93, 212, 255, 0.09), transparent 40%);
+  padding: 16px 18px;
+}
+
+.compact-math {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.formula-note {
+  margin-bottom: 0;
+}
+
+.note-list {
+  margin: 16px 0 0;
+  padding-left: 18px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(93, 212, 255, 0.34);
+  background: linear-gradient(180deg, rgba(93, 212, 255, 0.17), rgba(93, 212, 255, 0.08));
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.button:hover,
+.button:focus-visible {
+  border-color: rgba(127, 247, 191, 0.48);
+  background: linear-gradient(180deg, rgba(127, 247, 191, 0.18), rgba(93, 212, 255, 0.12));
+  outline: none;
+}
+
+.button-secondary {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.top-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.top-nav .button {
+  min-height: 40px;
+}
+
+.kicker-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.meta-line {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.callout {
+  border-left: 3px solid var(--accent-c);
+  padding-left: 16px;
+  margin: 20px 0 0;
+}
+
+code {
+  padding: 0.14rem 0.35rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fefefe;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 0.92em;
+}
+
+html.math-loading body::after {
+  content: "Rendering math…";
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(93, 212, 255, 0.24);
+  background: rgba(7, 11, 17, 0.88);
+  color: var(--muted);
+  font-size: 0.85rem;
+  z-index: 10;
+}
+
+html.math-error body::after {
+  content: "MathJax failed to load.";
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+mjx-container[jax="CHTML"] {
+  color: var(--ink) !important;
+}
+
+mjx-container[jax="CHTML"][display="true"] {
+  margin: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.15rem;
+}
+
+@media (max-width: 720px) {
+  body {
+    padding: 20px 14px 56px;
+  }
+
+  .hero-card,
+  .panel-card,
+  .library-card,
+  .formula-card,
+  .note-card {
+    border-radius: 22px;
+  }
+
+  .hero-card,
+  .panel-card,
+  .library-card,
+  .note-card {
+    padding: 20px;
+  }
+
+  .formula-card {
+    padding: 18px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 12vw, 3.2rem);
+  }
+}
