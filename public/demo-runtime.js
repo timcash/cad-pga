@@ -15,22 +15,7 @@
     var settings = options || {};
     var minScale = settings.minScale || 0.35;
     var maxScale = settings.maxScale || 3;
-    var panSpeed = settings.panSpeed || 4;
-    var zoomSpeed = settings.zoomSpeed || 0.01;
     var desiredBackground = settings.backgroundColor;
-
-    var viewState = {
-      isRightPanning: false,
-      lastClientX: 0,
-      lastClientY: 0
-    };
-
-    var cameraState = {
-      rotation: null,
-      offsetX: 0,
-      offsetY: 0,
-      offsetZ: 0
-    };
 
     function clamp(value, min, max) {
       return Math.min(max, Math.max(min, value));
@@ -116,176 +101,23 @@
       applyGlBackground(backgroundColor);
     }
 
-    function canUseCameraMotor(camera) {
-      return !!(camera && typeof camera.Mul === "function" && camera.constructor);
-    }
-
-    function isPointCamera(camera) {
-      return !!(
-        camera &&
-        typeof camera.e123 === "number" &&
-        Math.abs(camera.e123) > 1e-8 &&
-        typeof camera.e012 === "number" &&
-        typeof camera.e013 === "number" &&
-        typeof camera.e023 === "number"
-      );
-    }
-
-    function makeTranslator(camera, dx, dy, dz) {
-      var translator = new camera.constructor();
-      translator[0] = 1;
-
-      if ("e01" in translator) {
-        translator.e01 = 0.5 * dx;
-        translator.e02 = 0.5 * dy;
-        translator.e03 = 0.5 * dz;
-      }
-
-      return translator;
-    }
-
-    function extractRotationMotor(camera) {
-      if (!canUseCameraMotor(camera)) {
-        return camera;
-      }
-
-      var rotation = new camera.constructor();
-      rotation[0] = typeof camera.s === "number" ? camera.s : camera[0] || 1;
-
-      if ("e12" in rotation) {
-        rotation.e12 = camera.e12 || 0;
-        rotation.e13 = camera.e13 || 0;
-        rotation.e23 = camera.e23 || 0;
-      }
-
-      return rotation.Normalized || rotation;
-    }
-
-    function extractTranslationState(camera) {
-      return {
-        x: camera && typeof camera.e01 === "number" ? 2 * camera.e01 : 0,
-        y: camera && typeof camera.e02 === "number" ? 2 * camera.e02 : 0,
-        z: camera && typeof camera.e03 === "number" ? 2 * camera.e03 : 0
-      };
-    }
-
-    function coerceCameraMotor(camera) {
-      if (!canUseCameraMotor(camera)) {
-        return camera;
-      }
-
-      if (!isPointCamera(camera)) {
-        return camera;
-      }
-
-      var x = -camera.e012 / camera.e123;
-      var y = camera.e013 / camera.e123;
-      var z = camera.e023 / camera.e123;
-
-      return makeTranslator(camera, x, y, z);
-    }
-
-    function syncCameraFromState() {
-      if (!canUseCameraMotor(cameraState.rotation)) {
-        return null;
-      }
-
-      var translation = makeTranslator(
-        cameraState.rotation,
-        cameraState.offsetX,
-        cameraState.offsetY,
-        cameraState.offsetZ
-      );
-      var camera = cameraState.rotation.Mul(translation);
-      graphOptions.camera = camera.Normalized || camera;
-      return graphOptions.camera;
-    }
-
-    function translateCameraLocal(dx, dy, dz) {
-      cameraState.offsetX += dx;
-      cameraState.offsetY += dy;
-      cameraState.offsetZ += dz;
-      return syncCameraFromState();
-    }
-
-    function stopRightPan() {
-      if (!viewState.isRightPanning) {
-        return;
-      }
-
-      viewState.isRightPanning = false;
-      canvas.style.cursor = "default";
-    }
-
     canvas.style.transformOrigin = "center center";
-    graphOptions.camera = coerceCameraMotor(graphOptions.camera);
-    cameraState.rotation = extractRotationMotor(graphOptions.camera);
-
-    if (canUseCameraMotor(graphOptions.camera)) {
-      var initialTranslation = extractTranslationState(graphOptions.camera);
-      cameraState.offsetX = initialTranslation.x;
-      cameraState.offsetY = initialTranslation.y;
-      cameraState.offsetZ = initialTranslation.z;
-      syncCameraFromState();
-    }
-
     applyCanvasTransform();
-
-    canvas.addEventListener("contextmenu", function (event) {
-      event.preventDefault();
-    }, { capture: true });
-
-    canvas.addEventListener("mousedown", function (event) {
-      if (event.button !== 2) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      viewState.isRightPanning = true;
-      viewState.lastClientX = event.clientX;
-      viewState.lastClientY = event.clientY;
-      canvas.style.cursor = "grabbing";
-    }, { capture: true });
 
     canvas.addEventListener("wheel", function (event) {
       event.preventDefault();
-      event.stopImmediatePropagation();
+      graphOptions.scale = clamp(
+        (graphOptions.scale || 1) * Math.exp(-event.deltaY * 0.0015),
+        minScale,
+        maxScale
+      );
 
-      var zoomFactor = Math.exp(-event.deltaY * 0.0015);
-      graphOptions.scale = clamp((graphOptions.scale || 1) * zoomFactor, minScale, maxScale);
-      translateCameraLocal(0, 0, event.deltaY * zoomSpeed);
+      if (!graphOptions.animate && typeof canvas.update === "function") {
+        requestAnimationFrame(function () {
+          canvas.update(canvas.value);
+        });
+      }
     }, { passive: false, capture: true });
-
-    window.addEventListener("mousemove", function (event) {
-      var rect = canvas.getBoundingClientRect();
-      var dx = event.clientX - viewState.lastClientX;
-      var dy = event.clientY - viewState.lastClientY;
-
-      if (viewState.isRightPanning) {
-        var normalizedX = dx / rect.width;
-        var normalizedY = dy / rect.height;
-        var currentScale = graphOptions.scale || 1;
-
-        translateCameraLocal(
-          (-normalizedX * panSpeed) / currentScale,
-          (normalizedY * panSpeed) / currentScale,
-          0
-        );
-
-        viewState.lastClientX = event.clientX;
-        viewState.lastClientY = event.clientY;
-        return;
-      }
-
-      if ((event.buttons & 1) !== 0 && canUseCameraMotor(graphOptions.camera)) {
-        cameraState.rotation = extractRotationMotor(graphOptions.camera);
-        syncCameraFromState();
-      }
-    });
-
-    window.addEventListener("mouseup", stopRightPan);
-    window.addEventListener("blur", stopRightPan);
   }
 
   window.CadPgaDemo = {

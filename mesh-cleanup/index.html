@@ -183,8 +183,7 @@
 
     <div id="instructions">
         <b>Controls:</b><br>
-        Left-drag background: rotate camera<br>
-        Right-drag: pan view<br>
+        Left-drag background: orbit view<br>
         Mouse wheel: zoom in or out<br>
         Drag points: move the apex or polygon vertices
     </div>
@@ -197,8 +196,9 @@
         Algebra(3, 0, 1, () => {
             const point = (x, y, z) => 1e123 - x * 1e012 + y * 1e013 + z * 1e023;
             const orbitRotor = (h, p) => (p * 1e23).Exp().Mul((h * 1e13).Exp());
-            const cameraTranslator = (x, y, z) => 1 + 0.5 * x * 1e01 + 0.5 * y * 1e02 + 0.5 * z * 1e03;
-            const view = { h: -0.42, p: -0.14, x: 0, y: 1, z: 6 };
+            const view = { h: -0.42, p: -0.14, scale: 0.92 };
+            const camera = 0e0;
+            camera.set(orbitRotor(view.h, view.p));
 
             let pts = [
                 point(0.0, 2.0, 0),
@@ -213,11 +213,10 @@
             const graphOptions = {
                 animate: true,
                 grid: true,
-                gl: true,
                 h: view.h,
                 p: view.p,
-                scale: 0.8,
-                camera: cameraTranslator(view.x, view.y, view.z).Mul(orbitRotor(view.h, view.p))
+                scale: view.scale,
+                camera
             };
 
             const canvas = this.graph(() => {
@@ -262,7 +261,8 @@
 
             window.CadPgaDemo.attachGraphInteractions(canvas, graphOptions, {
                 minScale: 0.35,
-                maxScale: 3
+                maxScale: 3,
+                backgroundColor: "#111111"
             });
         });
     </script>

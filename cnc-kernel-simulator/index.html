@@ -151,7 +151,7 @@
     </div>
 
     <div id="instructions">
-        <b>Controls:</b> left-drag rotate, right-drag pan, mouse wheel zoom
+        <b>Controls:</b> left-drag orbit, mouse wheel zoom
     </div>
 
     <div id="canvas-container"></div>
@@ -162,8 +162,9 @@
         Algebra(3, 0, 1, () => {
             const point = (x, y, z) => 1e123 - x * 1e012 + y * 1e013 + z * 1e023;
             const orbitRotor = (h, p) => (p * 1e23).Exp().Mul((h * 1e13).Exp());
-            const cameraTranslator = (x, y, z) => 1 + 0.5 * x * 1e01 + 0.5 * y * 1e02 + 0.5 * z * 1e03;
-            const view = { h: -0.28, p: -0.16, x: 0.75, y: 1.75, z: 4.5 };
+            const view = { h: -0.28, p: -0.16, scale: 1.1 };
+            const camera = 0e0;
+            camera.set(orbitRotor(view.h, view.p));
 
             const makeBoxWireframe = (w, h, d, cx = 0, cy = 0, cz = 0) => {
                 const p = (dx, dy, dz) => point(cx + dx, cy + dy, cz + dz);
@@ -230,12 +231,11 @@
 
             const graphOptions = {
                 animate: true,
-                gl: true,
                 grid: true,
                 h: view.h,
                 p: view.p,
-                scale: 0.9,
-                camera: cameraTranslator(view.x, view.y, view.z).Mul(orbitRotor(view.h, view.p))
+                scale: view.scale,
+                camera
             };
 
             const canvas = this.graph(() => {
@@ -264,7 +264,8 @@
 
             window.CadPgaDemo.attachGraphInteractions(canvas, graphOptions, {
                 minScale: 0.4,
-                maxScale: 3.2
+                maxScale: 3.2,
+                backgroundColor: "#0d0d12"
             });
         });
     </script>
