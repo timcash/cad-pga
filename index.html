@@ -103,6 +103,29 @@
                     <a class="button button-secondary" href="./cnc-kernel-simulator/readme/">Read Math Notes</a>
                 </div>
             </article>
+
+            <article class="library-card">
+                <div class="card-header">
+                    <span class="card-tag">Kinematics</span>
+                    <h3>Gear Rotation Linkage</h3>
+                </div>
+                <p>
+                    This example ports the 2D gear-and-arm hierarchy from the <code>ga_cad/src_v1</code> plugin into the
+                    library, showing how parent and child motor composition drives a small mechanism.
+                </p>
+                <div class="math-block compact-math">
+                    $$ M_{\text{world}} = M_{\text{gear}}\,M_{\text{local}} $$
+                </div>
+                <ul class="note-list">
+                    <li>The blue gear is the parent body rotating at the origin.</li>
+                    <li>The orange arm is a child body offset to a gear pin and given its own local oscillation.</li>
+                    <li>The demo emphasizes transform composition, pan, and zoom more than 3D rendering.</li>
+                </ul>
+                <div class="actions">
+                    <a class="button" href="./gear-rotation-linkage/">Open Demo</a>
+                    <a class="button button-secondary" href="./gear-rotation-linkage/readme/">Read Math Notes</a>
+                </div>
+            </article>
         </section>
 
         <section class="section-grid">

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="manifest" href="../manifest.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="application-name" content="cad-pga">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CAD PGA">
+    <meta name="description" content="A 2D gear rotation and linkage hierarchy demo based on the ga_cad Dialtone plugin scene graph.">
+    <meta name="theme-color" content="#04080d">
+    <title>Gear Rotation Linkage - CAD PGA</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #030608;
+            --panel: rgba(12, 18, 22, 0.9);
+            --panel-border: rgba(123, 180, 220, 0.28);
+            --grid-major: rgba(85, 126, 150, 0.32);
+            --grid-minor: rgba(85, 126, 150, 0.14);
+            --gear: #1f95ff;
+            --arm: #ff5a36;
+            --pin: #ffffff;
+            --accent: #77f3a8;
+            --text: #f5fbff;
+            --muted: rgba(245, 251, 255, 0.72);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at top left, rgba(31, 149, 255, 0.2), transparent 30%),
+                radial-gradient(circle at 80% 10%, rgba(255, 90, 54, 0.14), transparent 26%),
+                linear-gradient(180deg, #04080d, var(--bg));
+            color: var(--text);
+            font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 28px 28px;
+            mask-image: radial-gradient(circle at center, black 55%, transparent 100%);
+            pointer-events: none;
+            opacity: 0.25;
+        }
+
+        #canvas-wrap {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        canvas.dragging {
+            cursor: grabbing;
+        }
+
+        #nav-links {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        #panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            width: min(430px, calc(100vw - 40px));
+            padding: 20px;
+            border: 1px solid var(--panel-border);
+            border-radius: 18px;
+            background: var(--panel);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            pointer-events: none;
+        }
+
+        #panel h1 {
+            margin: 0 0 14px;
+            font-size: 1.2rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(123, 180, 220, 0.28);
+        }
+
+        #panel p {
+            margin: 0 0 12px;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            color: var(--muted);
+        }
+
+        .math {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 3px 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+        }
+
+        code {
+            padding: 0.14rem 0.35rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fefefe;
+            font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+            font-size: 0.92em;
+        }
+
+        .gear-text strong {
+            color: var(--gear);
+        }
+
+        .arm-text strong {
+            color: var(--arm);
+        }
+
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            color: #aaa;
+            pointer-events: none;
+        }
+
+        @media (max-width: 700px) {
+            #panel {
+                top: 12px;
+                left: 12px;
+                width: min(100vw - 24px, 360px);
+                padding: 16px;
+            }
+
+            #nav-links {
+                top: 12px;
+                right: 12px;
+            }
+
+            #instructions {
+                left: 12px;
+                bottom: 12px;
+            }
+        }
+    </style>
+    <script src="../demo-runtime.js"></script>
+</head>
+<body>
+    <div id="nav-links">
+        <a class="nav-link" href="./readme/">Math Notes</a>
+        <a class="nav-link" href="../">Library Home</a>
+    </div>
+
+    <section id="panel">
+        <h1>PGA Kinematic Hierarchy</h1>
+        <p>
+            This example is brought over from the <code>ga_cad/src_v1</code> Dialtone plugin. It treats a rotating gear
+            as a parent transform and a linkage arm as a child transform attached to a pin on the gear.
+        </p>
+        <p class="gear-text">
+            <strong>Parent (Gear):</strong><br>
+            Rotates around the global origin.<br>
+            <span class="math">M_gear = Rotor(t)</span>
+        </p>
+        <p class="arm-text">
+            <strong>Child (Arm Linkage):</strong><br>
+            Attached to a pin on the gear with its own local oscillation.<br>
+            <span class="math">M_local = Translator(x, y) * Rotor(sin(t))</span>
+        </p>
+        <p>
+            <strong>Combined World Transform:</strong><br>
+            <span class="math">M_world = M_parent * M_local</span>
+        </p>
+        <p>
+            <strong>Application:</strong><br>
+            <span class="math">P_new = M * P * M~</span>
+        </p>
+    </section>
+
+    <div id="instructions">
+        <b>Controls:</b> drag to pan, mouse wheel to zoom
+    </div>
+
+    <div id="canvas-wrap">
+        <canvas id="scene" aria-label="Gear rotation linkage canvas"></canvas>
+    </div>
+
+    <script>
+        window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
+
+        const canvas = document.getElementById("scene");
+        const ctx = canvas.getContext("2d");
+
+        const gearRadius = 2;
+        const baseGear = makeBaseGear(12, 1.7, gearRadius);
+        const baseArm = makeBaseArm(4, 0.2);
+
+        let viewportScale = 92;
+        let offsetX = 0;
+        let offsetY = 0;
+        let dragging = false;
+        let lastClientX = 0;
+        let lastClientY = 0;
+
+        function point(x, y) {
+            return { x, y };
+        }
+
+        function rotor(angle) {
+            return { angle, tx: 0, ty: 0 };
+        }
+
+        function translator(x, y) {
+            return { angle: 0, tx: x, ty: y };
+        }
+
+        function multiply(parent, local) {
+            const cos = Math.cos(parent.angle);
+            const sin = Math.sin(parent.angle);
+            return {
+                angle: parent.angle + local.angle,
+                tx: parent.tx + cos * local.tx - sin * local.ty,
+                ty: parent.ty + sin * local.tx + cos * local.ty
+            };
+        }
+
+        function applyMotor(motor, p) {
+            const cos = Math.cos(motor.angle);
+            const sin = Math.sin(motor.angle);
+            return point(
+                cos * p.x - sin * p.y + motor.tx,
+                sin * p.x + cos * p.y + motor.ty
+            );
+        }
+
+        function makeBaseGear(teeth, innerRadius, outerRadius) {
+            const delta = (2 * Math.PI) / teeth;
+            const profile = [
+                point(innerRadius * Math.cos(-0.5 * delta), innerRadius * Math.sin(-0.5 * delta)),
+                point(innerRadius * Math.cos(-0.25 * delta), innerRadius * Math.sin(-0.25 * delta)),
+                point(outerRadius * Math.cos(-0.15 * delta), outerRadius * Math.sin(-0.15 * delta)),
+                point(outerRadius * Math.cos(0.15 * delta), outerRadius * Math.sin(0.15 * delta)),
+                point(innerRadius * Math.cos(0.25 * delta), innerRadius * Math.sin(0.25 * delta)),
+                point(innerRadius * Math.cos(0.5 * delta), innerRadius * Math.sin(0.5 * delta))
+            ];
+
+            const points = [];
+            for (let i = 0; i < teeth; i += 1) {
+                const transform = rotor(i * delta);
+                profile.forEach((p) => points.push(applyMotor(transform, p)));
+            }
+            return points;
+        }
+
+        function makeBaseArm(length, halfWidth) {
+            return [
+                point(-0.3, halfWidth),
+                point(length, halfWidth),
+                point(length, -halfWidth),
+                point(-0.3, -halfWidth)
+            ];
+        }
+
+        function resize() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            canvas.width = Math.round(width * dpr);
+            canvas.height = Math.round(height * dpr);
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function worldToScreen(p) {
+            return point(
+                window.innerWidth * 0.5 + offsetX + p.x * viewportScale,
+                window.innerHeight * 0.5 + offsetY - p.y * viewportScale
+            );
+        }
+
+        function screenToWorld(x, y) {
+            return point(
+                (x - window.innerWidth * 0.5 - offsetX) / viewportScale,
+                -(y - window.innerHeight * 0.5 - offsetY) / viewportScale
+            );
+        }
+
+        function drawGrid() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const worldLeft = screenToWorld(0, 0).x;
+            const worldRight = screenToWorld(width, 0).x;
+            const worldTop = screenToWorld(0, 0).y;
+            const worldBottom = screenToWorld(0, height).y;
+
+            for (let i = Math.floor(worldLeft); i <= Math.ceil(worldRight); i += 1) {
+                const x = worldToScreen(point(i, 0)).x;
+                ctx.strokeStyle = i === 0 ? "rgba(255,255,255,0.28)" : i % 5 === 0 ? "rgba(85,126,150,0.32)" : "rgba(85,126,150,0.14)";
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+
+            for (let i = Math.floor(worldBottom); i <= Math.ceil(worldTop); i += 1) {
+                const y = worldToScreen(point(0, i)).y;
+                ctx.strokeStyle = i === 0 ? "rgba(255,255,255,0.28)" : i % 5 === 0 ? "rgba(85,126,150,0.32)" : "rgba(85,126,150,0.14)";
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+        }
+
+        function fillPolygon(points, fill, stroke) {
+            if (!points.length) {
+                return;
+            }
+
+            const first = worldToScreen(points[0]);
+            ctx.beginPath();
+            ctx.moveTo(first.x, first.y);
+            for (let i = 1; i < points.length; i += 1) {
+                const p = worldToScreen(points[i]);
+                ctx.lineTo(p.x, p.y);
+            }
+            ctx.closePath();
+            ctx.fillStyle = fill;
+            ctx.fill();
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function drawPin(p, label) {
+            const s = worldToScreen(p);
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = "12px IBM Plex Mono, monospace";
+            ctx.fillStyle = "rgba(255,255,255,0.88)";
+            ctx.fillText(label, s.x + 10, s.y - 10);
+        }
+
+        function render(now) {
+            const t = now / 1000;
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            drawGrid();
+
+            const gearAngle = t * 0.8;
+            const mGear = rotor(gearAngle);
+            const armLocalOscillation = Math.sin(t * 3) * 0.8;
+            const mLocalOffset = translator(gearRadius - 0.2, 0);
+            const mLocalRotation = rotor(armLocalOscillation);
+            const mLocalArm = multiply(mLocalOffset, mLocalRotation);
+            const mWorldArm = multiply(mGear, mLocalArm);
+
+            const gearDrawn = baseGear.map((p) => applyMotor(mGear, p));
+            const armDrawn = baseArm.map((p) => applyMotor(mWorldArm, p));
+            const centerPin = applyMotor(mGear, point(0, 0));
+            const connectionPin = applyMotor(mWorldArm, point(0, 0));
+
+            fillPolygon(gearDrawn, "rgba(31, 149, 255, 0.18)", "#1f95ff");
+            fillPolygon(armDrawn, "rgba(255, 90, 54, 0.2)", "#ff5a36");
+            drawPin(centerPin, "Origin");
+            drawPin(connectionPin, "Pin Joint");
+
+            requestAnimationFrame(render);
+        }
+
+        canvas.addEventListener("mousedown", (event) => {
+            dragging = true;
+            lastClientX = event.clientX;
+            lastClientY = event.clientY;
+            canvas.classList.add("dragging");
+        });
+
+        window.addEventListener("mouseup", () => {
+            dragging = false;
+            canvas.classList.remove("dragging");
+        });
+
+        window.addEventListener("mousemove", (event) => {
+            if (!dragging) {
+                return;
+            }
+            offsetX += event.clientX - lastClientX;
+            offsetY += event.clientY - lastClientY;
+            lastClientX = event.clientX;
+            lastClientY = event.clientY;
+        });
+
+        canvas.addEventListener("wheel", (event) => {
+            event.preventDefault();
+            const factor = event.deltaY > 0 ? 0.92 : 1.08;
+            viewportScale = Math.min(220, Math.max(28, viewportScale * factor));
+        }, { passive: false });
+
+        window.addEventListener("resize", resize);
+
+        resize();
+        requestAnimationFrame(render);
+    </script>
+</body>
+</html>

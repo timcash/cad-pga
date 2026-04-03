@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" data-sw-script="../../service-worker.js" data-sw-scope="../../">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
+    <link rel="manifest" href="../../manifest.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="application-name" content="cad-pga">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CAD PGA">
+    <meta name="description" content="Math notes for the Gear Rotation Linkage hierarchy example.">
+    <meta name="theme-color" content="#05070b">
+    <title>Gear Rotation Linkage Notes - CAD PGA</title>
+</head>
+<body>
+    <main class="page-shell">
+        <nav class="top-nav">
+            <a class="button button-secondary" href="../../">Library Home</a>
+            <a class="button" href="../">Open Demo</a>
+        </nav>
+
+        <section class="hero-card">
+            <div class="kicker-line">
+                <span class="eyebrow">Gear Rotation Linkage</span>
+                <span class="card-tag">Readme Route</span>
+            </div>
+            <h1>How a parent motor and a child motor build a kinematic hierarchy.</h1>
+            <p class="lead">
+                This example comes from the <code>ga_cad/src_v1</code> Dialtone plugin and shows the core scene-graph idea:
+                compose a parent motion with a local child motion, then apply the result to geometry in one consistent way.
+            </p>
+        </section>
+
+        <section class="formula-grid">
+            <article class="formula-card">
+                <span class="formula-label">Parent Motion</span>
+                <div class="math-block">
+                    $$ M_{\text{gear}}(t) = \operatorname{Rotor}(t) $$
+                </div>
+                <p class="formula-note">
+                    The parent gear lives at the origin and contributes the top-level rigid motion for the whole mechanism.
+                </p>
+            </article>
+
+            <article class="formula-card">
+                <span class="formula-label">Local Motion</span>
+                <div class="math-block">
+                    $$ M_{\text{local}}(t) = \operatorname{Translator}(x, y)\,\operatorname{Rotor}(\sin t) $$
+                </div>
+                <p class="formula-note">
+                    The arm first offsets to the gear pin, then adds a smaller local oscillation relative to that pin.
+                </p>
+            </article>
+
+            <article class="formula-card">
+                <span class="formula-label">World Motion</span>
+                <div class="math-block">
+                    $$ M_{\text{world}}(t) = M_{\text{gear}}(t)\,M_{\text{local}}(t) $$
+                </div>
+                <p class="formula-note">
+                    This is the key scene-graph step: the child transform is evaluated in the parent frame, not directly in
+                    global coordinates.
+                </p>
+            </article>
+        </section>
+
+        <section class="section-grid">
+            <article class="panel-card">
+                <div class="eyebrow">Point Update</div>
+                <h2>Every vertex is transformed by the same motor rule</h2>
+                <div class="math-block">
+                    $$ P_{\text{new}} = M\,P\,\widetilde{M} $$
+                </div>
+                <p>
+                    The gear polygon and the arm polygon are both just sets of points. The only difference is which motor
+                    gets applied to each set.
+                </p>
+            </article>
+
+            <article class="panel-card">
+                <div class="eyebrow">Hierarchy Intuition</div>
+                <h2>The child inherits motion instead of recomputing world coordinates</h2>
+                <p>
+                    The arm does not need to know a separate global angle and global translation. It inherits those through
+                    the parent motor and only supplies its local offset and local oscillation.
+                </p>
+                <p class="callout">
+                    This is the same structural idea we use in CAD assemblies, robot chains, and linkage solvers, just shown
+                    in a very small animated mechanism.
+                </p>
+            </article>
+        </section>
+
+        <section class="note-grid">
+            <article class="note-card">
+                <div class="eyebrow">Code Mapping</div>
+                <h2>What the imported plugin code is doing</h2>
+                <ul class="note-list">
+                    <li><code>rotor(angle)</code> builds the parent or local rotational part.</li>
+                    <li><code>translator(x, y)</code> builds the offset from the gear center to the pin joint.</li>
+                    <li><code>multiply(parent, local)</code> composes the parent and child transforms.</li>
+                    <li><code>applyMotor(motor, point)</code> applies the rigid motion to each polygon vertex.</li>
+                </ul>
+            </article>
+
+            <article class="note-card">
+                <div class="eyebrow">Why It Fits This Library</div>
+                <h2>A bridge between CAD hierarchy and PGA language</h2>
+                <p>
+                    This demo is intentionally lighter than the full 3D ganja.js examples. It focuses on the algebraic
+                    composition idea itself, which makes it a useful stepping stone between simple rigid motion and larger
+                    CAD mechanism examples.
+                </p>
+                <p>
+                    It also gives the library a clean 2D example with explicit pan and zoom, which complements the 3D pages.
+                </p>
+            </article>
+        </section>
+    </main>
+
+    <script type="module" src="../../src/docs-entry.js"></script>
+</body>
+</html>

@@ -13,7 +13,9 @@ export default defineConfig({
         'mesh-cleanup': resolve(rootDir, 'mesh-cleanup/index.html'),
         'mesh-cleanup-readme': resolve(rootDir, 'mesh-cleanup/readme/index.html'),
         'cnc-kernel-simulator': resolve(rootDir, 'cnc-kernel-simulator/index.html'),
-        'cnc-kernel-simulator-readme': resolve(rootDir, 'cnc-kernel-simulator/readme/index.html')
+        'cnc-kernel-simulator-readme': resolve(rootDir, 'cnc-kernel-simulator/readme/index.html'),
+        'gear-rotation-linkage': resolve(rootDir, 'gear-rotation-linkage/index.html'),
+        'gear-rotation-linkage-readme': resolve(rootDir, 'gear-rotation-linkage/readme/index.html')
       }
     }
   },

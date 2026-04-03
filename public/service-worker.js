@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'cad-pga-pwa-v3';
+const CACHE_VERSION = 'cad-pga-pwa-v4';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const CORE_ASSETS = [
@@ -12,6 +12,10 @@ const CORE_ASSETS = [
   './cnc-kernel-simulator/index.html',
   './cnc-kernel-simulator/readme/',
   './cnc-kernel-simulator/readme/index.html',
+  './gear-rotation-linkage/',
+  './gear-rotation-linkage/index.html',
+  './gear-rotation-linkage/readme/',
+  './gear-rotation-linkage/readme/index.html',
   './manifest.webmanifest',
   './favicon.svg',
   './apple-touch-icon.png',
