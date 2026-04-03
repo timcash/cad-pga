@@ -160,7 +160,9 @@
         window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
 
         Algebra(3, 0, 1, () => {
-            const point = (x, y, z) => 1e123 - x * 1e012 + y * 1e013 + z * 1e023;
+            // 3D PGA cheat sheet: P = x e032 + y e013 + z e021 + e123.
+            // In ganja's basis ordering that becomes -x*e023 + y*e013 - z*e012 + e123.
+            const point = (x, y, z) => 1e123 - x * 1e023 + y * 1e013 - z * 1e012;
             const orbitRotor = (h, p) => (p * 1e23).Exp().Mul((h * 1e13).Exp());
             const view = { h: -0.28, p: -0.16, scale: 1.1 };
             const camera = 0e0;
@@ -226,7 +228,7 @@
             const cutTravel = 1.7;
 
             const stockWireframe = makeBoxWireframe(stockParams.w, stockParams.h, stockParams.d);
-            const cutVolume = makeSolidBox(cutTravel, drillRadius, stockParams.d + 0.01);
+            const cutVolume = makeSolidBox(cutTravel + drillRadius, drillRadius, stockParams.d + 0.01);
             const drillBase = makeEndmill(drillRadius, drillHeight);
 
             const graphOptions = {
