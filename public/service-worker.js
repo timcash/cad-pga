@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'cad-pga-pwa-v4';
+const CACHE_VERSION = 'cad-pga-pwa-v5';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const CORE_ASSETS = [
@@ -16,6 +16,10 @@ const CORE_ASSETS = [
   './gear-rotation-linkage/index.html',
   './gear-rotation-linkage/readme/',
   './gear-rotation-linkage/readme/index.html',
+  './meshless-fea-wos/',
+  './meshless-fea-wos/index.html',
+  './meshless-fea-wos/readme/',
+  './meshless-fea-wos/readme/index.html',
   './manifest.webmanifest',
   './favicon.svg',
   './apple-touch-icon.png',

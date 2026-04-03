@@ -15,7 +15,9 @@ export default defineConfig({
         'cnc-kernel-simulator': resolve(rootDir, 'cnc-kernel-simulator/index.html'),
         'cnc-kernel-simulator-readme': resolve(rootDir, 'cnc-kernel-simulator/readme/index.html'),
         'gear-rotation-linkage': resolve(rootDir, 'gear-rotation-linkage/index.html'),
-        'gear-rotation-linkage-readme': resolve(rootDir, 'gear-rotation-linkage/readme/index.html')
+        'gear-rotation-linkage-readme': resolve(rootDir, 'gear-rotation-linkage/readme/index.html'),
+        'meshless-fea-wos': resolve(rootDir, 'meshless-fea-wos/index.html'),
+        'meshless-fea-wos-readme': resolve(rootDir, 'meshless-fea-wos/readme/index.html')
       }
     }
   },

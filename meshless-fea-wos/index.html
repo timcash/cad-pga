@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="manifest" href="../manifest.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="application-name" content="cad-pga">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CAD PGA">
+    <meta name="description" content="Interactive meshless FEA demo using 2D PGA boundaries, a signed-distance obstacle, and a Walk on Spheres solver.">
+    <meta name="theme-color" content="#0d0d12">
+    <title>Meshless FEA WoS - CAD PGA</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d0d12;
+            color: #ededed;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        #ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            max-width: 440px;
+            background: rgba(15, 15, 20, 0.86);
+            padding: 20px;
+            border: 1px solid #334;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.72);
+            backdrop-filter: blur(8px);
+            pointer-events: none;
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: 1.4rem;
+            color: #00ffaa;
+            border-bottom: 1px solid #334;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            margin: 18px 0 8px;
+            font-size: 1rem;
+            color: #c8d3f0;
+        }
+
+        p {
+            margin: 8px 0 0;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            color: #bfc2c8;
+        }
+
+        .math {
+            font-family: "Courier New", Courier, monospace;
+            background: #16181f;
+            padding: 2px 6px;
+            color: #e9e3c7;
+            border-radius: 4px;
+        }
+
+        .highlight-pink {
+            color: #ff5b9f;
+            font-weight: 700;
+        }
+
+        .highlight-green {
+            color: #00ffaa;
+            font-weight: 700;
+        }
+
+        .highlight-blue {
+            color: #48b0ff;
+            font-weight: 700;
+        }
+
+        .value-grid {
+            display: grid;
+            grid-template-columns: auto auto;
+            gap: 8px 16px;
+            margin-top: 16px;
+            font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+            font-size: 0.92rem;
+        }
+
+        .value-grid span:nth-child(odd) {
+            color: #8f93a1;
+        }
+
+        .value-grid span:nth-child(even) {
+            color: #f2f2f2;
+            text-align: right;
+        }
+
+        #canvas-container {
+            position: absolute;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0,0,0,0.58);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.84rem;
+            color: #a8adb7;
+            pointer-events: none;
+        }
+
+        #nav-links {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+    </style>
+    <script src="../vendor/ganja.js"></script>
+    <script src="../demo-runtime.js"></script>
+</head>
+<body>
+    <div id="nav-links">
+        <a class="nav-link" href="./readme/">Math Notes</a>
+        <a class="nav-link" href="../">Library Home</a>
+    </div>
+
+    <div id="ui-panel">
+        <h1>Meshless FEA: PGA + SDF + Walk on Spheres</h1>
+        <p>
+            This example treats the hot and cold walls as exact <span class="highlight-green">PGA lines</span>, the inner
+            obstacle as a <span class="highlight-blue">signed-distance constraint</span>, and the field solve as a
+            <span class="highlight-pink">Walk on Spheres</span> Monte Carlo process.
+        </p>
+
+        <h2>Distance kernel</h2>
+        <p>
+            For the polygonal walls, the boundary distance is read algebraically from
+            <span class="math">|P ^ L|</span>. For the center disk, it comes from the circle SDF
+            <span class="math">sqrt(x^2 + y^2) - r</span>.
+        </p>
+
+        <h2>Walk step</h2>
+        <p>
+            The pink walker queries the nearest boundary, draws the largest empty circle, then jumps to a random point on
+            that circle. Repeating that process estimates the harmonic temperature field without a volume mesh.
+        </p>
+
+        <div class="value-grid">
+            <span>Walker radius</span><span id="walker-radius">0.000</span>
+            <span>Nearest boundary</span><span id="walker-boundary">Cold wall</span>
+            <span>Solved samples</span><span id="sample-count">0</span>
+        </div>
+    </div>
+
+    <div id="instructions">
+        <b>Controls:</b> mouse wheel zoom
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
+
+        Algebra(2, 0, 1, () => {
+            const point = (x, y) => 1e12 - x * 1e02 + y * 1e01;
+            const getX = (p) => -p.e02;
+            const getY = (p) => p.e01;
+
+            const pTL = point(-2.5, 2.5);
+            const pTR = point(2.5, 2.5);
+            const pBL = point(-2.5, -2.5);
+            const pBR = point(2.5, -2.5);
+
+            const bounds = [
+                { line: (pTL & pTR).Normalized, temp: 100, label: "Hot wall" },
+                { line: (pBL & pTL).Normalized, temp: 100, label: "Hot wall" },
+                { line: (pTR & pBR).Normalized, temp: 0, label: "Cold wall" },
+                { line: (pBR & pBL).Normalized, temp: 0, label: "Cold wall" }
+            ];
+
+            const circleRadius = 0.7;
+
+            const getShortestDistance = (p) => {
+                let minD = Infinity;
+                let hitTemp = 0;
+                let hitLabel = "Cold wall";
+
+                for (const boundary of bounds) {
+                    const dist = Math.abs((p ^ boundary.line).e012);
+                    if (dist < minD) {
+                        minD = dist;
+                        hitTemp = boundary.temp;
+                        hitLabel = boundary.label;
+                    }
+                }
+
+                const x = getX(p);
+                const y = getY(p);
+                const distToCircle = Math.sqrt(x * x + y * y) - circleRadius;
+
+                if (Math.abs(distToCircle) < minD) {
+                    minD = Math.abs(distToCircle);
+                    hitTemp = 0;
+                    hitLabel = "Ice block";
+                }
+
+                return { d: minD, temp: hitTemp, label: hitLabel };
+            };
+
+            const randomInteriorPoint = () => {
+                for (;;) {
+                    const candidate = point((Math.random() - 0.5) * 4.6, (Math.random() - 0.5) * 4.6);
+                    if (getShortestDistance(candidate).d > 0.12) {
+                        return candidate;
+                    }
+                }
+            };
+
+            const solvePoint = (startX, startY, walks = 24) => {
+                let totalTemp = 0;
+
+                for (let i = 0; i < walks; i += 1) {
+                    let curr = point(startX, startY);
+
+                    for (let step = 0; step < 96; step += 1) {
+                        const query = getShortestDistance(curr);
+                        if (query.d < 0.03) {
+                            totalTemp += query.temp;
+                            break;
+                        }
+
+                        const angle = Math.random() * Math.PI * 2;
+                        curr = point(
+                            getX(curr) + Math.cos(angle) * query.d,
+                            getY(curr) + Math.sin(angle) * query.d
+                        );
+                    }
+                }
+
+                return totalTemp / walks;
+            };
+
+            const drawCircle = (center, radius) => {
+                const pts = [];
+                for (let i = 0; i <= 48; i += 1) {
+                    const a = (i / 48) * Math.PI * 2;
+                    pts.push(point(getX(center) + radius * Math.cos(a), getY(center) + radius * Math.sin(a)));
+                }
+                return pts;
+            };
+
+            const heatMap = [];
+            const maxHeatSamples = 5000;
+            let heatMapCursor = 0;
+
+            const pushHeatSample = (sample) => {
+                if (heatMap.length < maxHeatSamples) {
+                    heatMap.push(sample);
+                    return;
+                }
+
+                heatMap[heatMapCursor] = sample;
+                heatMapCursor = (heatMapCursor + 1) % maxHeatSamples;
+            };
+
+            let walkerPos = randomInteriorPoint();
+            let walkerPath = [];
+
+            const graphOptions = {
+                animate: true,
+                grid: true,
+                gl: true,
+                scale: 0.92
+            };
+
+            const canvas = this.graph(() => {
+                for (let i = 0; i < 18; i += 1) {
+                    const samplePoint = randomInteriorPoint();
+                    const sampleTemp = solvePoint(getX(samplePoint), getY(samplePoint), 24);
+                    const red = Math.floor((sampleTemp / 100) * 255);
+                    const blue = 255 - red;
+                    pushHeatSample([(red << 16) | blue, samplePoint]);
+                }
+
+                const query = getShortestDistance(walkerPos);
+                if (query.d < 0.05) {
+                    walkerPos = randomInteriorPoint();
+                    walkerPath = [];
+                } else {
+                    walkerPath.push([0xff5b9f, drawCircle(walkerPos, query.d)]);
+                    walkerPath.push([0xffffff, walkerPos]);
+                    if (walkerPath.length > 24) {
+                        walkerPath = walkerPath.slice(-24);
+                    }
+
+                    const angle = Math.random() * Math.PI * 2;
+                    walkerPos = point(
+                        getX(walkerPos) + Math.cos(angle) * query.d,
+                        getY(walkerPos) + Math.sin(angle) * query.d
+                    );
+                }
+
+                document.getElementById("walker-radius").innerText = query.d.toFixed(3);
+                document.getElementById("walker-boundary").innerText = query.label;
+                document.getElementById("sample-count").innerText = String(heatMap.length);
+
+                return [
+                    0x0d0d12,
+                    ...heatMap,
+                    0x00ffaa,
+                    [pTL, pTR], [pBL, pBR], [pTL, pBL], [pTR, pBR],
+                    0x48b0ff, drawCircle(point(0, 0), circleRadius),
+                    ...walkerPath
+                ];
+            }, graphOptions);
+
+            canvas.style.width = "100%";
+            canvas.style.height = "100%";
+            document.getElementById("canvas-container").appendChild(canvas);
+
+            window.CadPgaDemo.attachGraphInteractions(canvas, graphOptions, {
+                minScale: 0.45,
+                maxScale: 3.5,
+                backgroundColor: "#0d0d12"
+            });
+        });
+    </script>
+</body>
+</html>

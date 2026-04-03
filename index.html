@@ -21,6 +21,7 @@
             <a href="./mesh-cleanup/">Mesh demo</a>
             <a href="./cnc-kernel-simulator/">CNC demo</a>
             <a href="./gear-rotation-linkage/">Gear demo</a>
+            <a href="./meshless-fea-wos/">FEA demo</a>
         </nav>
 
         <header class="hero">
@@ -53,7 +54,9 @@
 /cad-pga/cnc-kernel-simulator/
 /cad-pga/cnc-kernel-simulator/readme/
 /cad-pga/gear-rotation-linkage/
-/cad-pga/gear-rotation-linkage/readme/</code></pre>
+/cad-pga/gear-rotation-linkage/readme/
+/cad-pga/meshless-fea-wos/
+/cad-pga/meshless-fea-wos/readme/</code></pre>
         </section>
 
         <section class="section" id="examples">
@@ -142,6 +145,35 @@ const mWorldArm = multiply(mGear, mLocalArm);</code></pre>
                 <p class="link-row">
                     <a href="./gear-rotation-linkage/">Open demo</a>
                     <a href="./gear-rotation-linkage/readme/">Read notes</a>
+                </p>
+            </article>
+
+            <article class="entry">
+                <h3>Meshless FEA WoS</h3>
+                <p>
+                    The FEA example replaces a mesh with exact boundary distance queries. PGA line walls and a signed-distance
+                    disk feed a Walk on Spheres process that estimates the harmonic temperature field by jumping to the edge
+                    of the largest guaranteed-empty circle.
+                </p>
+                <div class="math-block compact">
+                    $$
+                    \begin{aligned}
+                    d(P, \partial \Omega) &= \min \left(\min_i \left\| P \wedge L_i \right\|_{\infty}, \left|\sqrt{x^2 + y^2} - r\right|\right) \\
+                    X_{k+1} &= X_k + d_k(\cos \theta_k, \sin \theta_k) \\
+                    u(x) &= \mathbb{E}[g(X_{\tau})]
+                    \end{aligned}
+                    $$
+                </div>
+                <pre><code class="language-javascript">const query = getShortestDistance(curr);
+const angle = Math.random() * Math.PI * 2;
+
+curr = point(
+  getX(curr) + Math.cos(angle) * query.d,
+  getY(curr) + Math.sin(angle) * query.d
+);</code></pre>
+                <p class="link-row">
+                    <a href="./meshless-fea-wos/">Open demo</a>
+                    <a href="./meshless-fea-wos/readme/">Read notes</a>
                 </p>
             </article>
         </section>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-sw-script="../../service-worker.js" data-sw-scope="../../">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
+    <link rel="manifest" href="../../manifest.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="application-name" content="cad-pga">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CAD PGA">
+    <meta name="description" content="Math notes for the Meshless FEA Walk on Spheres PGA example.">
+    <meta name="theme-color" content="#050505">
+    <title>Meshless FEA WoS Notes - CAD PGA</title>
+</head>
+<body>
+    <main class="page-shell">
+        <nav class="site-nav">
+            <a href="../../">Library home</a>
+            <a href="../">Open demo</a>
+        </nav>
+
+        <header class="hero">
+            <p class="eyebrow">Meshless FEA WoS</p>
+            <h1>Exact boundary distance plus random sphere walks gives a meshless Laplace solve.</h1>
+            <p class="lede">
+                This example mixes two kinds of boundary description in one field problem: exact PGA lines for the box
+                walls and a signed-distance disk for the interior obstacle. A Walk on Spheres process then estimates the
+                temperature by sampling where Brownian motion is most likely to hit the boundary first.
+            </p>
+        </header>
+
+        <section class="section">
+            <p class="section-label">Boundary value problem</p>
+            <h2>The field is harmonic away from the boundaries.</h2>
+            <div class="math-block">
+                $$
+                \begin{aligned}
+                \Omega &= [-2.5, 2.5]^2 \setminus \{(x,y) : x^2 + y^2 &lt; r^2\} \\
+                \Delta u &= 0 \qquad \text{in } \Omega \\
+                u &= 100 \quad \text{on top and left walls} \\
+                u &= 0 \quad \text{on right wall, bottom wall, and inner disk}
+                \end{aligned}
+                $$
+            </div>
+            <p>
+                The demo is not assembling a stiffness matrix over tetrahedra or triangles. It only needs a reliable query
+                for the distance from an interior point to the nearest part of the boundary.
+            </p>
+        </section>
+
+        <section class="section">
+            <p class="section-label">PGA wall distance</p>
+            <h2>The rectangular walls are exact lines in 2D PGA.</h2>
+            <div class="math-block">
+                $$
+                \begin{aligned}
+                p(x,y) &= \mathbf{e}_{12} - x\mathbf{e}_{02} + y\mathbf{e}_{01} \\
+                L_{ij} &= p_i \vee p_j \\
+                d_{\text{wall}}(P, L) &= \left\| P \wedge L \right\|_{\infty}
+                \end{aligned}
+                $$
+            </div>
+            <p>
+                Once the wall lines are normalized, the pseudoscalar part of <code>P ^ L</code> is the orthogonal distance.
+                That gives an exact algebraic query for the outer box without ray tests or segment bookkeeping.
+            </p>
+            <pre><code class="language-javascript">const point = (x, y) =&gt; 1e12 - x * 1e02 + y * 1e01;
+
+const bounds = [
+  { line: (pTL &amp; pTR).Normalized, temp: 100 },
+  { line: (pBL &amp; pTL).Normalized, temp: 100 },
+  { line: (pTR &amp; pBR).Normalized, temp: 0 },
+  { line: (pBR &amp; pBL).Normalized, temp: 0 }
+];
+
+const dist = Math.abs((p ^ boundary.line).e012);</code></pre>
+        </section>
+
+        <section class="section">
+            <p class="section-label">Signed distance obstacle</p>
+            <h2>The inner disk is just an SDF query.</h2>
+            <div class="math-block">
+                $$
+                d_{\text{disk}}(x,y) = \sqrt{x^2 + y^2} - r
+                $$
+            </div>
+            <p>
+                The interesting part is not the disk by itself. It is the fact that the nearest-boundary query can take the
+                minimum over PGA boundaries and a non-PGA implicit surface without changing the rest of the solver.
+            </p>
+            <pre><code class="language-javascript">const distToCircle = Math.sqrt(x * x + y * y) - circleRadius;
+
+if (Math.abs(distToCircle) &lt; minD) {
+  minD = Math.abs(distToCircle);
+  hitTemp = 0;
+  hitLabel = "Ice block";
+}</code></pre>
+        </section>
+
+        <section class="section">
+            <p class="section-label">Walk on Spheres</p>
+            <h2>Each step jumps to the edge of the largest empty circle.</h2>
+            <div class="math-block">
+                $$
+                \begin{aligned}
+                d_k &= d(X_k, \partial \Omega) \\
+                \theta_k &\sim \mathrm{Uniform}(0, 2\pi) \\
+                X_{k+1} &= X_k + d_k(\cos \theta_k, \sin \theta_k)
+                \end{aligned}
+                $$
+            </div>
+            <p>
+                Because the circle of radius <code>d_k</code> is guaranteed to lie fully inside the domain, the walk can
+                take large steps in empty space. That is why WoS is attractive for Laplace problems on awkward geometries.
+            </p>
+            <pre><code class="language-javascript">const query = getShortestDistance(curr);
+if (query.d &lt; 0.03) {
+  totalTemp += query.temp;
+  break;
+}
+
+const angle = Math.random() * Math.PI * 2;
+curr = point(
+  getX(curr) + Math.cos(angle) * query.d,
+  getY(curr) + Math.sin(angle) * query.d
+);</code></pre>
+        </section>
+
+        <section class="section">
+            <p class="section-label">Monte Carlo estimate</p>
+            <h2>The harmonic solution is the expected boundary value at first hit.</h2>
+            <div class="math-block">
+                $$
+                u(x) = \mathbb{E}[g(X_{\tau_{\partial \Omega}})\mid X_0 = x]
+                $$
+            </div>
+            <p>
+                In the demo, each heat-map sample launches a batch of independent walks and averages the temperatures of
+                the boundaries they first reach. The pink circles show one live trajectory, while the colored background
+                accumulates many such estimates over time.
+            </p>
+            <pre><code class="language-javascript">const solvePoint = (startX, startY, walks = 24) =&gt; {
+  let totalTemp = 0;
+
+  for (let i = 0; i &lt; walks; i += 1) {
+    let curr = point(startX, startY);
+    // Repeat WoS steps until a boundary epsilon is reached.
+  }
+
+  return totalTemp / walks;
+};</code></pre>
+        </section>
+
+        <section class="section">
+            <p class="section-label">Why it fits the library</p>
+            <h2>This is a geometry-first PDE example.</h2>
+            <ul class="list">
+                <li>PGA contributes exact wall primitives and an algebraic distance query.</li>
+                <li>The SDF contributes an easy implicit obstacle.</li>
+                <li>The solver only cares about nearest-boundary distance, so the representation stays composable.</li>
+                <li>The whole example stays executable in one small page with no meshing step at all.</li>
+            </ul>
+        </section>
+    </main>
+
+    <script type="module" src="../../src/docs-entry.js"></script>
+</body>
+</html>

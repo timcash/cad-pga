@@ -11,6 +11,8 @@ Static Vite site for a growing library of PGA / ganja.js demos with MathJax comp
 - CNC Kernel Simulator notes: `https://timcash.github.io/cad-pga/cnc-kernel-simulator/readme/`
 - Gear Rotation Linkage demo: `https://timcash.github.io/cad-pga/gear-rotation-linkage/`
 - Gear Rotation Linkage notes: `https://timcash.github.io/cad-pga/gear-rotation-linkage/readme/`
+- Meshless FEA WoS demo: `https://timcash.github.io/cad-pga/meshless-fea-wos/`
+- Meshless FEA WoS notes: `https://timcash.github.io/cad-pga/meshless-fea-wos/readme/`
 
 ## PWA Features
 
