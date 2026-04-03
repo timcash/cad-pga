@@ -161,6 +161,9 @@
 
         Algebra(3, 0, 1, () => {
             const point = (x, y, z) => 1e123 - x * 1e012 + y * 1e013 + z * 1e023;
+            const orbitRotor = (h, p) => (p * 1e23).Exp().Mul((h * 1e13).Exp());
+            const cameraTranslator = (x, y, z) => 1 + 0.5 * x * 1e01 + 0.5 * y * 1e02 + 0.5 * z * 1e03;
+            const view = { h: -0.28, p: -0.16, x: 0.75, y: 1.75, z: 4.5 };
 
             const makeBoxWireframe = (w, h, d, cx = 0, cy = 0, cz = 0) => {
                 const p = (dx, dy, dz) => point(cx + dx, cy + dy, cz + dz);
@@ -229,8 +232,10 @@
                 animate: true,
                 gl: true,
                 grid: true,
-                scale: 0.95,
-                camera: 1e123 - 1e012 + 2e013 + 4e023
+                h: view.h,
+                p: view.p,
+                scale: 0.9,
+                camera: cameraTranslator(view.x, view.y, view.z).Mul(orbitRotor(view.h, view.p))
             };
 
             const canvas = this.graph(() => {
