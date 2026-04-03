@@ -2,6 +2,14 @@
 
 Static Vite site for a growing library of PGA / ganja.js demos with MathJax companion notes.
 
+## Recent Screenshots
+
+| Library Home | Mesh Cleanup | CNC Kernel Simulator |
+| --- | --- | --- |
+| ![CAD PGA library home](docs/screenshots/library-home.png) | ![Mesh Cleanup demo](docs/screenshots/mesh-cleanup.png) | ![CNC Kernel Simulator demo](docs/screenshots/cnc-kernel-simulator.png) |
+| Gear Rotation Linkage | Meshless FEA WoS | Meshless FEA Notes |
+| ![Gear Rotation Linkage demo](docs/screenshots/gear-rotation-linkage.png) | ![Meshless FEA WoS demo](docs/screenshots/meshless-fea-wos.png) | ![Meshless FEA WoS notes page](docs/screenshots/meshless-fea-wos-notes.png) |
+
 ## Live Site
 
 - Landing page: `https://timcash.github.io/cad-pga/`
