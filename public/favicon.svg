@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#08131f" />
+      <stop offset="100%" stop-color="#15283b" />
+    </linearGradient>
+    <linearGradient id="face" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#2fd3ff" />
+      <stop offset="100%" stop-color="#44aaff" />
+    </linearGradient>
+    <linearGradient id="mesh" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#ffb84d" />
+      <stop offset="100%" stop-color="#ff7b3d" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)" />
+  <path d="M56 188 128 56l72 132Z" fill="url(#face)" opacity="0.18" />
+  <path d="M56 188 128 56l72 132Z" fill="none" stroke="url(#face)" stroke-linecap="round" stroke-linejoin="round" stroke-width="18" />
+  <path d="M92 122 164 122M74 155 182 155M110 89 92 122l36 66m18-99 18 33-36 66" fill="none" stroke="url(#mesh)" stroke-linecap="round" stroke-linejoin="round" stroke-width="12" />
+  <circle cx="128" cy="56" r="14" fill="#ffffff" />
+  <circle cx="56" cy="188" r="14" fill="#ff8b55" />
+  <circle cx="200" cy="188" r="14" fill="#ff8b55" />
+</svg>
