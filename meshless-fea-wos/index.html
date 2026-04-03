@@ -197,6 +197,7 @@
             const pTR = point(2.5, 2.5);
             const pBL = point(-2.5, -2.5);
             const pBR = point(2.5, -2.5);
+            const makeSegment = (x1, y1, x2, y2) => [point(x1, y1), point(x2, y2)];
 
             const bounds = [
                 { line: (pTL & pTR).Normalized, temp: 100, label: "Hot wall" },
@@ -206,6 +207,27 @@
             ];
 
             const circleRadius = 0.7;
+            const minorGridSegments = [];
+            const majorGridSegments = [];
+            const axisSegments = [
+                makeSegment(0, -8, 0, 8),
+                makeSegment(-8, 0, 8, 0)
+            ];
+
+            for (let value = -8; value <= 8; value += 0.5) {
+                const rounded = Math.round(value * 2) / 2;
+                if (Math.abs(rounded) < 1e-9) {
+                    continue;
+                }
+
+                const target = Number.isInteger(rounded) ? majorGridSegments : minorGridSegments;
+                target.push(makeSegment(rounded, -8, rounded, 8));
+                target.push(makeSegment(-8, rounded, 8, rounded));
+            }
+
+            const heatSamplesPerSolve = 8;
+            const heatSolveInterval = 2;
+            const walkerStepInterval = 2;
 
             const getShortestDistance = (p) => {
                 let minD = Infinity;
@@ -279,6 +301,7 @@
             const heatMap = [];
             const maxHeatSamples = 5000;
             let heatMapCursor = 0;
+            let frameCount = 0;
 
             const pushHeatSample = (sample) => {
                 if (heatMap.length < maxHeatSamples) {
@@ -295,35 +318,41 @@
 
             const graphOptions = {
                 animate: true,
-                grid: true,
+                grid: false,
                 scale: 0.92
             };
 
             const canvas = this.graph(() => {
-                for (let i = 0; i < 18; i += 1) {
-                    const samplePoint = randomInteriorPoint();
-                    const sampleTemp = solvePoint(getX(samplePoint), getY(samplePoint), 24);
-                    const red = Math.floor((sampleTemp / 100) * 255);
-                    const blue = 255 - red;
-                    pushHeatSample([(red << 16) | blue, samplePoint]);
+                frameCount += 1;
+
+                if (frameCount % heatSolveInterval === 0) {
+                    for (let i = 0; i < heatSamplesPerSolve; i += 1) {
+                        const samplePoint = randomInteriorPoint();
+                        const sampleTemp = solvePoint(getX(samplePoint), getY(samplePoint), 24);
+                        const red = Math.floor((sampleTemp / 100) * 255);
+                        const blue = 255 - red;
+                        pushHeatSample([(red << 16) | blue, samplePoint]);
+                    }
                 }
 
                 const query = getShortestDistance(walkerPos);
-                if (query.d < 0.05) {
-                    walkerPos = randomInteriorPoint();
-                    walkerPath = [];
-                } else {
-                    walkerPath.push({ color: 0xff5b9f, item: drawCircle(walkerPos, query.d) });
-                    walkerPath.push({ color: 0xffffff, item: walkerPos });
-                    if (walkerPath.length > 24) {
-                        walkerPath = walkerPath.slice(-24);
-                    }
+                if (frameCount % walkerStepInterval === 0) {
+                    if (query.d < 0.05) {
+                        walkerPos = randomInteriorPoint();
+                        walkerPath = [];
+                    } else {
+                        walkerPath.push({ color: 0xff5b9f, item: drawCircle(walkerPos, query.d) });
+                        walkerPath.push({ color: 0xffffff, item: walkerPos });
+                        if (walkerPath.length > 24) {
+                            walkerPath = walkerPath.slice(-24);
+                        }
 
-                    const angle = Math.random() * Math.PI * 2;
-                    walkerPos = point(
-                        getX(walkerPos) + Math.cos(angle) * query.d,
-                        getY(walkerPos) + Math.sin(angle) * query.d
-                    );
+                        const angle = Math.random() * Math.PI * 2;
+                        walkerPos = point(
+                            getX(walkerPos) + Math.cos(angle) * query.d,
+                            getY(walkerPos) + Math.sin(angle) * query.d
+                        );
+                    }
                 }
 
                 document.getElementById("walker-radius").innerText = query.d.toFixed(3);
@@ -342,6 +371,9 @@
 
                 return [
                     0x0d0d12,
+                    0x17191d, ...minorGridSegments,
+                    0x20242a, ...majorGridSegments,
+                    0x173330, ...axisSegments,
                     ...heatRender,
                     0x00ffaa,
                     [pTL, pTR], [pBL, pBR], [pTL, pBL], [pTR, pBR],
