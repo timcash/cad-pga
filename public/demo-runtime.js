@@ -17,6 +17,7 @@
     var maxScale = settings.maxScale || 3;
 
     var viewState = {
+      zoom: typeof graphOptions.scale === "number" ? graphOptions.scale : 1,
       panX: 0,
       panY: 0,
       isRightPanning: false,
@@ -28,8 +29,9 @@
       return Math.min(max, Math.max(min, value));
     }
 
-    function applyCanvasPan() {
-      canvas.style.transform = "translate3d(" + viewState.panX + "px, " + viewState.panY + "px, 0)";
+    function applyCanvasTransform() {
+      canvas.style.transform =
+        "translate3d(" + viewState.panX + "px, " + viewState.panY + "px, 0) scale(" + viewState.zoom + ")";
     }
 
     function stopRightPan() {
@@ -42,6 +44,8 @@
     }
 
     canvas.style.transformOrigin = "center center";
+    graphOptions.scale = viewState.zoom;
+    applyCanvasTransform();
 
     canvas.addEventListener("contextmenu", function (event) {
       event.preventDefault();
@@ -64,8 +68,26 @@
       event.preventDefault();
       event.stopImmediatePropagation();
 
+      var previousZoom = viewState.zoom;
       var zoomFactor = Math.exp(-event.deltaY * 0.0015);
-      graphOptions.scale = clamp(graphOptions.scale * zoomFactor, minScale, maxScale);
+      var nextZoom = clamp(previousZoom * zoomFactor, minScale, maxScale);
+
+      if (nextZoom === previousZoom) {
+        return;
+      }
+
+      var rect = canvas.getBoundingClientRect();
+      var centerX = rect.left + rect.width / 2;
+      var centerY = rect.top + rect.height / 2;
+      var cursorOffsetX = event.clientX - centerX - viewState.panX;
+      var cursorOffsetY = event.clientY - centerY - viewState.panY;
+      var zoomRatio = nextZoom / previousZoom;
+
+      viewState.panX += cursorOffsetX * (1 - zoomRatio);
+      viewState.panY += cursorOffsetY * (1 - zoomRatio);
+      viewState.zoom = nextZoom;
+      graphOptions.scale = nextZoom;
+      applyCanvasTransform();
     }, { passive: false, capture: true });
 
     window.addEventListener("mousemove", function (event) {
@@ -77,7 +99,7 @@
       viewState.panY += event.clientY - viewState.lastClientY;
       viewState.lastClientX = event.clientX;
       viewState.lastClientY = event.clientY;
-      applyCanvasPan();
+      applyCanvasTransform();
     });
 
     window.addEventListener("mouseup", stopRightPan);
