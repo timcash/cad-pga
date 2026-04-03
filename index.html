@@ -100,7 +100,8 @@
     <div id="instructions">
         <b>Controls:</b><br>
         • <b>Left-Click + Drag background:</b> Rotate Camera<br>
-        • <b>Right-Click + Drag:</b> Pan Camera<br>
+        • <b>Right-Click + Drag:</b> Pan View<br>
+        • <b>Mouse Wheel:</b> Zoom In / Out<br>
         • <b>Click + Drag Points:</b> Move the Red Apex or White Vertices
     </div>
 
@@ -133,6 +134,14 @@
             // Arbitrary gauge point (the apex 'o' from the paper)
             // We start it floating above the polygon to form a 3D pyramid cone.
             let apex = point(0, 0, 3);
+
+            const graphOptions = {
+                animate: true,      // Run continuously
+                grid: true,         // Show ground grid
+                gl: true,           // Use WebGL renderer
+                scale: 0.8,
+                camera: 1e123 - 0e012 + 1e013 + 6e023 // Position camera slightly up and back
+            };
 
             // Create the real-time evaluation graph
             const canvas = this.graph(() => {
@@ -184,17 +193,75 @@
 
                 return renderElements;
 
-            }, {
-                animate: true,      // Run continuously
-                grid: true,         // Show ground grid
-                gl: true,           // Use WebGL renderer
-                scale: 0.8,
-                camera: 1e123 - 0e012 + 1e013 + 6e023 // Position camera slightly up and back
-            });
+            }, graphOptions);
+
+            const viewState = {
+                panX: 0,
+                panY: 0,
+                isRightPanning: false,
+                lastClientX: 0,
+                lastClientY: 0
+            };
+
+            const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+            const applyCanvasPan = () => {
+                canvas.style.transform = `translate3d(${viewState.panX}px, ${viewState.panY}px, 0)`;
+            };
+
+            const stopRightPan = () => {
+                if (!viewState.isRightPanning) {
+                    return;
+                }
+
+                viewState.isRightPanning = false;
+                canvas.style.cursor = "default";
+            };
 
             // Append canvas to DOM and fix sizing
             canvas.style.width = "100%";
             canvas.style.height = "100%";
+            canvas.style.transformOrigin = "center center";
+            canvas.addEventListener("contextmenu", (event) => {
+                event.preventDefault();
+            }, { capture: true });
+
+            canvas.addEventListener("mousedown", (event) => {
+                if (event.button !== 2) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                viewState.isRightPanning = true;
+                viewState.lastClientX = event.clientX;
+                viewState.lastClientY = event.clientY;
+                canvas.style.cursor = "grabbing";
+            }, { capture: true });
+
+            canvas.addEventListener("wheel", (event) => {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                const zoomFactor = Math.exp(-event.deltaY * 0.0015);
+                graphOptions.scale = clamp(graphOptions.scale * zoomFactor, 0.35, 3);
+            }, { passive: false, capture: true });
+
+            window.addEventListener("mousemove", (event) => {
+                if (!viewState.isRightPanning) {
+                    return;
+                }
+
+                viewState.panX += event.clientX - viewState.lastClientX;
+                viewState.panY += event.clientY - viewState.lastClientY;
+                viewState.lastClientX = event.clientX;
+                viewState.lastClientY = event.clientY;
+                applyCanvasPan();
+            });
+
+            window.addEventListener("mouseup", stopRightPan);
+            window.addEventListener("blur", stopRightPan);
+
             document.getElementById('canvas-container').appendChild(canvas);
         });
     </script>
