@@ -17,7 +17,6 @@
     var maxScale = settings.maxScale || 3;
 
     var viewState = {
-      zoom: typeof graphOptions.scale === "number" ? graphOptions.scale : 1,
       panX: 0,
       panY: 0,
       isRightPanning: false,
@@ -30,8 +29,61 @@
     }
 
     function applyCanvasTransform() {
-      canvas.style.transform =
-        "translate3d(" + viewState.panX + "px, " + viewState.panY + "px, 0) scale(" + viewState.zoom + ")";
+      canvas.style.transform = "translate3d(" + viewState.panX + "px, " + viewState.panY + "px, 0)";
+    }
+
+    function canUseCameraMotor(camera) {
+      return !!(camera && typeof camera.Mul === "function" && camera.constructor);
+    }
+
+    function isPointCamera(camera) {
+      return !!(
+        camera &&
+        typeof camera.e123 === "number" &&
+        Math.abs(camera.e123) > 1e-8 &&
+        typeof camera.e012 === "number" &&
+        typeof camera.e013 === "number" &&
+        typeof camera.e023 === "number"
+      );
+    }
+
+    function makeTranslator(camera, dx, dy, dz) {
+      var translator = new camera.constructor();
+      translator[0] = 1;
+
+      if ("e01" in translator) {
+        translator.e01 = 0.5 * dx;
+        translator.e02 = 0.5 * dy;
+        translator.e03 = 0.5 * dz;
+      }
+
+      return translator;
+    }
+
+    function coerceCameraMotor(camera) {
+      if (!canUseCameraMotor(camera)) {
+        return camera;
+      }
+
+      if (!isPointCamera(camera)) {
+        return camera;
+      }
+
+      var x = -camera.e012 / camera.e123;
+      var y = camera.e013 / camera.e123;
+      var z = camera.e023 / camera.e123;
+
+      return makeTranslator(camera, x, y, z);
+    }
+
+    function translateCameraLocal(camera, dz) {
+      var baseCamera = coerceCameraMotor(camera);
+      if (!canUseCameraMotor(baseCamera)) {
+        return null;
+      }
+
+      var translated = baseCamera.Mul(makeTranslator(baseCamera, 0, 0, dz));
+      return translated.Normalized || translated;
     }
 
     function stopRightPan() {
@@ -44,7 +96,7 @@
     }
 
     canvas.style.transformOrigin = "center center";
-    graphOptions.scale = viewState.zoom;
+    graphOptions.camera = coerceCameraMotor(graphOptions.camera);
     applyCanvasTransform();
 
     canvas.addEventListener("contextmenu", function (event) {
@@ -68,26 +120,13 @@
       event.preventDefault();
       event.stopImmediatePropagation();
 
-      var previousZoom = viewState.zoom;
       var zoomFactor = Math.exp(-event.deltaY * 0.0015);
-      var nextZoom = clamp(previousZoom * zoomFactor, minScale, maxScale);
+      graphOptions.scale = clamp((graphOptions.scale || 1) * zoomFactor, minScale, maxScale);
 
-      if (nextZoom === previousZoom) {
-        return;
+      var movedCamera = translateCameraLocal(graphOptions.camera, event.deltaY * 0.01);
+      if (movedCamera) {
+        graphOptions.camera = movedCamera;
       }
-
-      var rect = canvas.getBoundingClientRect();
-      var centerX = rect.left + rect.width / 2;
-      var centerY = rect.top + rect.height / 2;
-      var cursorOffsetX = event.clientX - centerX - viewState.panX;
-      var cursorOffsetY = event.clientY - centerY - viewState.panY;
-      var zoomRatio = nextZoom / previousZoom;
-
-      viewState.panX += cursorOffsetX * (1 - zoomRatio);
-      viewState.panY += cursorOffsetY * (1 - zoomRatio);
-      viewState.zoom = nextZoom;
-      graphOptions.scale = nextZoom;
-      applyCanvasTransform();
     }, { passive: false, capture: true });
 
     window.addEventListener("mousemove", function (event) {
