@@ -11,114 +11,99 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
     <meta name="description" content="Math notes for the CNC Kernel Simulator PGA example.">
-    <meta name="theme-color" content="#05070b">
+    <meta name="theme-color" content="#050505">
     <title>CNC Kernel Simulator Notes - CAD PGA</title>
 </head>
 <body>
     <main class="page-shell">
-        <nav class="top-nav">
-            <a class="button button-secondary" href="../../">Library Home</a>
-            <a class="button" href="../">Open Demo</a>
+        <nav class="site-nav">
+            <a href="../../">Library home</a>
+            <a href="../">Open demo</a>
         </nav>
 
-        <section class="hero-card">
-            <div class="kicker-line">
-                <span class="eyebrow">CNC Kernel Simulator</span>
-                <span class="card-tag">Readme Route</span>
+        <header class="hero">
+            <p class="eyebrow">CNC Kernel Simulator</p>
+            <h1>One motor carries the spindle spin and the feed motion together.</h1>
+            <p class="lede">
+                The demo is intentionally simple, but the geometry is doing something important: the white tool is moved by
+                one PGA motor, not by separate translation and rotation pipelines.
+            </p>
+        </header>
+
+        <section class="section">
+            <p class="section-label">Core equations</p>
+            <h2>The moving tool is a motor acting on points.</h2>
+            <div class="math-block">
+                $$
+                \begin{aligned}
+                P(x,y,z) &= \mathbf{e}_{123} + x\mathbf{e}_{032} + y\mathbf{e}_{013} + z\mathbf{e}_{021} \\
+                \mathbf{R}(\theta) &= \cos\!\left(\frac{\theta}{2}\right) + \sin\!\left(\frac{\theta}{2}\right)\mathbf{e}_{12} \\
+                \mathbf{T}(d_x) &= 1 - \frac{1}{2} d_x \mathbf{e}_{01} \\
+                \mathbf{M}(t) &= \mathbf{T}(d_x(t))\,\mathbf{R}(\theta(t))
+                \end{aligned}
+                $$
             </div>
-            <h1>Why motors are such a natural fit for CAM motion.</h1>
-            <p class="lead">
-                In a PGA-native CAD or CAM kernel, the tool does not need one system for orientation and another for
-                translation. A single motor carries both, and the moving tool naturally suggests a swept volume for the cut.
+            <p>
+                The rotor turns the spindle about the tool axis. The translator advances the tool through the stock. Their
+                geometric product gives one rigid-body transform.
             </p>
         </section>
 
-        <section class="formula-grid">
-            <article class="formula-card">
-                <span class="formula-label">Rotor</span>
-                <div class="math-block">
-                    $$ \mathbf{R}(\theta) = \cos\!\left(\frac{\theta}{2}\right) + \sin\!\left(\frac{\theta}{2}\right)\mathbf{e}_{12} $$
-                </div>
-                <p class="formula-note">
-                    The spinning spindle is modeled as a rotor around the tool axis. In the demo, this is the rapidly
-                    changing white endmill rotation.
-                </p>
-            </article>
+        <section class="section">
+            <p class="section-label">In code</p>
+            <h2>The JavaScript stays close to the notation.</h2>
+            <pre><code class="language-javascript">const point = (x, y, z) =&gt;
+  1e123 - x * 1e023 + y * 1e013 - z * 1e012;
 
-            <article class="formula-card">
-                <span class="formula-label">Translator</span>
-                <div class="math-block">
-                    $$ \mathbf{T}(d_x) = 1 - \frac{1}{2} d_x \mathbf{e}_{01} $$
-                </div>
-                <p class="formula-note">
-                    The feed motion is an ideal-line translator. Here it slides the tool left and right through the stock
-                    block with a sinusoidal position function.
-                </p>
-            </article>
+const rotor =
+  Math.cos(theta / 2) + Math.sin(theta / 2) * 1e12;
 
-            <article class="formula-card">
-                <span class="formula-label">Motor</span>
-                <div class="math-block">
-                    $$ \mathbf{M}(t) = \mathbf{T}(d_x(t))\,\mathbf{R}(\theta(t)) $$
-                </div>
-                <p class="formula-note">
-                    Multiplying the translator and rotor gives one rigid-body motion object. That unified representation is
-                    the heart of the example.
-                </p>
-            </article>
+const translator = 1 - 0.5 * dx * 1e01;
+const motor = translator * rotor;
+
+const drillTransformed = drillBase.map((poly) =>
+  poly.map((p) =&gt; motor &gt;&gt;&gt; p)
+);</code></pre>
+            <p>
+                The corrected point helper matters here: it keeps the tool body aligned with the z-axis, so the spindle
+                rotation and the rendered geometry agree.
+            </p>
         </section>
 
-        <section class="section-grid">
-            <article class="panel-card">
-                <div class="eyebrow">Tool Action</div>
-                <h2>Applying one motor to the full endmill</h2>
-                <div class="math-block">
-                    $$ p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)} $$
-                </div>
-                <p>
-                    Every vertex of the fluted tool uses the same sandwich action. This is why the geometry stays rigid
-                    without separate bookkeeping for translation and orientation.
-                </p>
-            </article>
-
-            <article class="panel-card">
-                <div class="eyebrow">Swept Cut</div>
-                <h2>The removed material is a kinematic sweep</h2>
-                <div class="math-block">
-                    $$ \mathcal{S} = \bigcup_t \mathbf{M}(t)\,\mathcal{T}\,\widetilde{\mathbf{M}(t)} $$
-                </div>
-                <p>
-                    The red volume is a simple stand-in for the swept region of the moving tool. In a fuller PGA kernel,
-                    this sweep would become the shape subtracted from the stock.
-                </p>
-            </article>
+        <section class="section">
+            <p class="section-label">Swept volume</p>
+            <h2>The red block is a simple stand-in for the cut sweep.</h2>
+            <div class="math-block">
+                $$
+                \mathcal{S}
+                =
+                \bigcup_t \mathbf{M}(t)\,\mathcal{T}\,\widetilde{\mathbf{M}(t)}
+                $$
+            </div>
+            <p>
+                In the current demo, the red volume is still a simple box approximation rather than a full Boolean sweep.
+                But it is placed to cover the tool radius along the full x-travel.
+            </p>
+            <pre><code class="language-javascript">const cutVolume = makeSolidBox(
+  cutTravel + drillRadius,
+  drillRadius,
+  stockParams.d + 0.01
+);</code></pre>
         </section>
 
-        <section class="note-grid">
-            <article class="note-card">
-                <div class="eyebrow">Code Mapping</div>
-                <h2>How the demo equations map into the JavaScript</h2>
-                <ul class="note-list">
-                    <li><code>rotor</code> encodes the spindle spin using the bivector plane <code>1e12</code>.</li>
-                    <li><code>translator</code> encodes feed motion along the x-axis using the ideal line <code>1e01</code>.</li>
-                    <li><code>motor = translator * rotor</code> combines both motions into one rigid transform.</li>
-                    <li><code>motor &gt;&gt;&gt; p</code> applies the sandwich action to each tool vertex.</li>
-                </ul>
-            </article>
-
-            <article class="note-card">
-                <div class="eyebrow">CAD / CAM Takeaway</div>
-                <h2>Why this is better than split pipelines</h2>
-                <p>
-                    Traditional CAM stacks often mix matrices, Euler angles, and extra special-case logic. A motor-based
-                    formulation is cleaner because rigid motion composition stays algebraically uniform from 3-axis through
-                    more complex multi-axis setups.
-                </p>
-                <p class="callout">
-                    The demo is intentionally simple, but the representation scales in a direction that is very attractive for
-                    simulation, swept volumes, and future tool-kernel experiments.
-                </p>
-            </article>
+        <section class="section">
+            <p class="section-label">Interpretation</p>
+            <h2>Why the representation is attractive for CAM.</h2>
+            <div class="math-block">
+                $$
+                p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
+                $$
+            </div>
+            <ul class="list">
+                <li>Every tool vertex follows the same rigid motion rule.</li>
+                <li>The algebra composes rotation and translation without switching representations.</li>
+                <li>The same pattern scales naturally toward richer toolpaths and multi-axis motion.</li>
+            </ul>
         </section>
     </main>
 

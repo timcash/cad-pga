@@ -11,114 +11,111 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
     <meta name="description" content="Math notes for the Mesh Cleanup PGA example.">
-    <meta name="theme-color" content="#05070b">
+    <meta name="theme-color" content="#050505">
     <title>Mesh Cleanup Notes - CAD PGA</title>
 </head>
 <body>
     <main class="page-shell">
-        <nav class="top-nav">
-            <a class="button button-secondary" href="../../">Library Home</a>
-            <a class="button" href="../">Open Demo</a>
+        <nav class="site-nav">
+            <a href="../../">Library home</a>
+            <a href="../">Open demo</a>
         </nav>
 
-        <section class="hero-card">
-            <div class="kicker-line">
-                <span class="eyebrow">Mesh Cleanup</span>
-                <span class="card-tag">Readme Route</span>
+        <header class="hero">
+            <p class="eyebrow">Mesh Cleanup</p>
+            <h1>Boundary sums remember area even when the cone changes shape.</h1>
+            <p class="lede">
+                The live demo fans a polygon boundary out to a movable gauge point. The individual triangle facets change as
+                the apex moves, but the signed area extracted from the full boundary sum stays fixed.
+            </p>
+        </header>
+
+        <section class="section">
+            <p class="section-label">Core equations</p>
+            <h2>The boundary is the real object of interest.</h2>
+            <div class="math-block">
+                $$
+                \begin{aligned}
+                \partial P &= \sum_{i=1}^{n} E_i, \qquad E_i = p_i \vee p_{i+1} \\
+                \Pi(o) &= o \vee \partial P \\
+                A(P) &= \frac{1}{2}\left\| \Pi(o) \right\|_{\infty}
+                \end{aligned}
+                $$
             </div>
-            <h1>Why the net area stays constant while the cone changes.</h1>
-            <p class="lead">
-                The live demo triangulates a polygon boundary against a movable gauge point. The individual cone facets get
-                steeper or flatter as the apex moves, but the signed net area encoded by the full boundary remains fixed.
+            <p>
+                The area formula is not using one arbitrary triangulation of the polygon. It is using the oriented boundary.
+                That is why the green value in the demo is stable while the red facet sum is not.
             </p>
         </section>
 
-        <section class="formula-grid">
-            <article class="formula-card">
-                <span class="formula-label">Boundary</span>
-                <div class="math-block">
-                    $$ \partial P = \sum_{i=1}^{n} E_i, \qquad E_i = p_i \vee p_{i+1} $$
-                </div>
-                <p class="formula-note">
-                    The polygon is represented by its oriented boundary edges. In the ganja.js code, the join is written with
-                    <code>&amp;</code> because we are working in dual 3D PGA.
-                </p>
-            </article>
+        <section class="section">
+            <p class="section-label">In code</p>
+            <h2>The implementation mirrors the algebra directly.</h2>
+            <pre><code class="language-javascript">let sumEdges = (pts[0] &amp; pts[1]) * 0.0;
+let absAreaSum = 0;
 
-            <article class="formula-card">
-                <span class="formula-label">Gauge Join</span>
-                <div class="math-block">
-                    $$ \Pi(o) = o \vee \partial P $$
-                </div>
-                <p class="formula-note">
-                    Joining the boundary with a gauge point produces a plane-like object whose ideal part retains the planar
-                    area information while the Euclidean height contributions cancel in the sum.
-                </p>
-            </article>
+for (let i = 0; i &lt; pts.length; i += 1) {
+  const p1 = pts[i];
+  const p2 = pts[(i + 1) % pts.length];
+  const edge = p1 &amp; p2;
+  const triPlane = apex &amp; edge;
 
-            <article class="formula-card">
-                <span class="formula-label">Invariant Area</span>
-                <div class="math-block">
-                    $$ A(P) = \frac{1}{2}\left\| o \vee \sum_i E_i \right\|_{\infty} $$
-                </div>
-                <p class="formula-note">
-                    This is the stable green value in the demo. The ideal norm extracts the true signed area of the base
-                    polygon, not the changing 3D cone area.
-                </p>
-            </article>
+  sumEdges = sumEdges + edge;
+  absAreaSum += 0.5 * triPlane.Length;
+}
+
+const netAreaPlane = apex &amp; sumEdges;
+const netArea = 0.5 * netAreaPlane.Length;</code></pre>
+            <p>
+                In ganja.js dual 3D PGA, the join appears as <code>&amp;</code>. The loop accumulates the oriented boundary
+                first, then joins the apex to the whole sum.
+            </p>
         </section>
 
-        <section class="section-grid">
-            <article class="panel-card">
-                <div class="eyebrow">What The Red Number Means</div>
-                <h2>The cone facets are not the invariant quantity</h2>
-                <div class="math-block">
-                    $$ A_{\text{abs}}(o) = \frac{1}{2} \sum_{i=1}^{n} \left\| o \vee E_i \right\| $$
-                </div>
-                <p>
-                    This sum uses absolute Euclidean facet areas, so it grows or shrinks as the apex moves. That makes it a
-                    useful contrast to the boundary-based invariant but not a replacement for it.
-                </p>
-            </article>
-
-            <article class="panel-card">
-                <div class="eyebrow">What The Green Number Means</div>
-                <h2>The boundary sum remembers orientation</h2>
-                <p>
-                    Because the edges are oriented, the non-area height terms cancel when you add them before joining with
-                    the gauge point. What survives is the net signed content of the original polygon.
-                </p>
-                <p class="callout">
-                    Moving the apex changes the decomposition. It does not change the magnitude encoded by the oriented
-                    boundary.
-                </p>
-            </article>
+        <section class="section">
+            <p class="section-label">What changes</p>
+            <h2>The absolute cone sum is not the invariant quantity.</h2>
+            <div class="math-block">
+                $$
+                A_{\mathrm{abs}}(o) =
+                \frac{1}{2}\sum_{i=1}^{n}\left\| o \vee E_i \right\|
+                $$
+            </div>
+            <p>
+                This is the red value in the UI. It depends on where the gauge point sits in space, because each cone face
+                has a different Euclidean slope and height.
+            </p>
         </section>
 
-        <section class="note-grid">
-            <article class="note-card">
-                <div class="eyebrow">Code Mapping</div>
-                <h2>How the formulas map into the demo</h2>
-                <ul class="note-list">
-                    <li><code>edge = p1 &amp; p2</code> builds each oriented boundary edge.</li>
-                    <li><code>sumEdges</code> is the running total for \( \sum_i E_i \).</li>
-                    <li><code>netAreaPlane = apex &amp; sumEdges</code> computes \( o \vee \partial P \).</li>
-                    <li><code>0.5 * netAreaPlane.Length</code> is the displayed net area scalar.</li>
-                </ul>
-            </article>
+        <section class="section">
+            <p class="section-label">What stays fixed</p>
+            <h2>The oriented boundary cancels the height terms.</h2>
+            <div class="math-block">
+                $$
+                \frac{1}{2}\left\| o \vee \sum_i E_i \right\|_{\infty}
+                =
+                \frac{1}{2}\left\| \sum_i o \vee E_i \right\|_{\infty}
+                $$
+            </div>
+            <p class="callout">
+                Moving the apex changes the decomposition. It does not change the signed content encoded by the boundary.
+            </p>
+            <ul class="list">
+                <li>The red number answers “how large are the cone facets right now?”</li>
+                <li>The green number answers “what area does the oriented polygon boundary encode?”</li>
+                <li>The second question is the one that survives a change of gauge point.</li>
+            </ul>
+        </section>
 
-            <article class="note-card">
-                <div class="eyebrow">Geometric Takeaway</div>
-                <h2>Why this matters for cleanup problems</h2>
-                <p>
-                    Boundary-driven formulas are attractive in CAD because they can evaluate shape content without first
-                    forcing a fragile triangulation or picking one preferred fan decomposition.
-                </p>
-                <p>
-                    That makes the example a good foundation for future mesh, polygon, and topological editing demos in this
-                    library.
-                </p>
-            </article>
+        <section class="section">
+            <p class="section-label">Point model</p>
+            <h2>The demo uses the corrected 3D PGA point embedding.</h2>
+            <pre><code class="language-javascript">const point = (x, y, z) =&gt;
+  1e123 - x * 1e023 + y * 1e013 - z * 1e012;</code></pre>
+            <p class="muted">
+                This matches the 3D PGA point coordinates \(e_{123} + x e_{032} + y e_{013} + z e_{021}\) in ganja's basis
+                ordering.
+            </p>
         </section>
     </main>
 

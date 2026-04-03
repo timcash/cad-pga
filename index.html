@@ -11,141 +11,153 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
     <meta name="description" content="A growing library of Projective Geometric Algebra examples with live demos and MathJax notes.">
-    <meta name="theme-color" content="#05070b">
+    <meta name="theme-color" content="#050505">
     <title>CAD PGA Library</title>
 </head>
 <body>
     <main class="page-shell">
-        <section class="hero-card">
-            <div class="eyebrow">CAD PGA Library</div>
-            <h1>A growing library of Projective Geometric Algebra examples.</h1>
-            <p class="lead">
-                Each entry in this repo is now split into a live interactive demo and a companion math notes page.
-                The goal is to make the geometry visible, executable, and easier to reason about as the library grows.
+        <nav class="site-nav">
+            <a href="#examples">Examples</a>
+            <a href="./mesh-cleanup/">Mesh demo</a>
+            <a href="./cnc-kernel-simulator/">CNC demo</a>
+            <a href="./gear-rotation-linkage/">Gear demo</a>
+        </nav>
+
+        <header class="hero">
+            <p class="eyebrow">CAD PGA</p>
+            <h1>Projective Geometric Algebra examples, with demos and notes.</h1>
+            <p class="lede">
+                This repo is a small library of examples. Each entry gets a live route for interaction and a readme route
+                for equations, code, and interpretation. The point is to keep the demos executable and keep the math close.
             </p>
+        </header>
 
-            <div class="hero-grid">
-                <article class="formula-card">
-                    <span class="formula-label">PGA Split</span>
-                    <div class="math-block">
-                        $$ A = A_E + \mathbf{e}_0 A_I $$
-                    </div>
-                    <p class="formula-note">
-                        In PGA, Euclidean content and ideal content live in the same algebra, which is why distance,
-                        direction, and incidence stay tightly coupled.
-                    </p>
-                </article>
-
-                <article class="formula-card">
-                    <span class="formula-label">Rigid Motion</span>
-                    <div class="math-block">
-                        $$ \mathbf{M} = \mathbf{T}\mathbf{R}, \qquad X' = \mathbf{M} X \widetilde{\mathbf{M}} $$
-                    </div>
-                    <p class="formula-note">
-                        Translation and rotation compose into one motor, so the same sandwich action can move points,
-                        lines, planes, and full tool geometry.
-                    </p>
-                </article>
-            </div>
-        </section>
-
-        <section class="section-header">
-            <div class="eyebrow">Examples</div>
-            <h2>Every example gets a demo route and a readme route.</h2>
+        <section class="section">
+            <p class="section-label">Library pattern</p>
+            <h2>One route for seeing the motion, one route for understanding it.</h2>
             <p>
-                The homepage stays short, while each readme page carries the longer derivation and interpretation notes.
+                The shared language across the examples is the same: split Euclidean and ideal content cleanly, then use
+                motors to move geometry without leaving the algebra.
             </p>
+            <div class="math-block">
+                $$
+                \begin{aligned}
+                A &= A_E + \mathbf{e}_0 A_I \\
+                X' &= \mathbf{M} X \widetilde{\mathbf{M}} \\
+                \mathbf{M} &= \mathbf{T}\mathbf{R}
+                \end{aligned}
+                $$
+            </div>
+            <pre><code class="language-bash">/cad-pga/mesh-cleanup/
+/cad-pga/mesh-cleanup/readme/
+/cad-pga/cnc-kernel-simulator/
+/cad-pga/cnc-kernel-simulator/readme/
+/cad-pga/gear-rotation-linkage/
+/cad-pga/gear-rotation-linkage/readme/</code></pre>
         </section>
 
-        <section class="library-grid">
-            <article class="library-card">
-                <div class="card-header">
-                    <span class="card-tag">Geometry</span>
-                    <h3>Mesh Cleanup</h3>
-                </div>
+        <section class="section" id="examples">
+            <p class="section-label">Examples</p>
+            <h2>Current entries in the library.</h2>
+
+            <article class="entry">
+                <h3>Mesh Cleanup</h3>
                 <p>
-                    This example tracks a polygon boundary in PGA and shows that the signed net area remains fixed even when
-                    the gauge point moves away from the polygon plane.
+                    The mesh example evaluates polygon area from the oriented boundary rather than from one chosen fan
+                    triangulation. Moving the gauge point changes the cone decomposition but not the signed area encoded by
+                    the boundary sum.
                 </p>
-                <div class="math-block compact-math">
-                    $$ A = \frac{1}{2}\left\| o \vee \sum_i E_i \right\|_{\infty} $$
+                <div class="math-block compact">
+                    $$
+                    \begin{aligned}
+                    \partial P &= \sum_i E_i \\
+                    A(P) &= \frac{1}{2}\left\| o \vee \partial P \right\|_{\infty}
+                    \end{aligned}
+                    $$
                 </div>
-                <ul class="note-list">
-                    <li>The red number is the sum of absolute cone facets, so it changes with the apex.</li>
-                    <li>The green number is the ideal norm of the net signed plane sum, so it stays invariant.</li>
-                    <li>The demo is a concrete way to see boundary-based magnitude instead of triangulating by hand.</li>
-                </ul>
-                <div class="actions">
-                    <a class="button" href="./mesh-cleanup/">Open Demo</a>
-                    <a class="button button-secondary" href="./mesh-cleanup/readme/">Read Math Notes</a>
-                </div>
+                <pre><code class="language-javascript">let sumEdges = (pts[0] &amp; pts[1]) * 0.0;
+
+for (let i = 0; i &lt; pts.length; i += 1) {
+  const p1 = pts[i];
+  const p2 = pts[(i + 1) % pts.length];
+  sumEdges = sumEdges + (p1 &amp; p2);
+}
+
+const netAreaPlane = apex &amp; sumEdges;
+const netArea = 0.5 * netAreaPlane.Length;</code></pre>
+                <p class="link-row">
+                    <a href="./mesh-cleanup/">Open demo</a>
+                    <a href="./mesh-cleanup/readme/">Read notes</a>
+                </p>
             </article>
 
-            <article class="library-card">
-                <div class="card-header">
-                    <span class="card-tag">CAD / CAM</span>
-                    <h3>CNC Kernel Simulator</h3>
-                </div>
+            <article class="entry">
+                <h3>CNC Kernel Simulator</h3>
                 <p>
-                    This example turns spindle rotation and toolpath translation into one motor, then uses the resulting
-                    sweep to motivate how a PGA-native CAM kernel can describe cutting motion.
+                    The CNC example treats spindle rotation and feed translation as one motor, then applies that motor to
+                    the full endmill geometry. The red block is a simple swept-volume stand-in for the removed material.
                 </p>
-                <div class="math-block compact-math">
-                    $$ \mathbf{M}(t) = \mathbf{T}(d_x(t))\,\mathbf{R}(\theta(t)) $$
+                <div class="math-block compact">
+                    $$
+                    \begin{aligned}
+                    \mathbf{R}(\theta) &= \cos\!\left(\frac{\theta}{2}\right) + \sin\!\left(\frac{\theta}{2}\right)\mathbf{e}_{12} \\
+                    \mathbf{T}(d_x) &= 1 - \frac{1}{2} d_x \mathbf{e}_{01} \\
+                    \mathbf{M}(t) &= \mathbf{T}(d_x(t))\,\mathbf{R}(\theta(t))
+                    \end{aligned}
+                    $$
                 </div>
-                <ul class="note-list">
-                    <li>The white endmill is transformed by one motor instead of separate matrix pipelines.</li>
-                    <li>The red cut volume stands in for a swept volume, the core shape a CAM kernel would subtract.</li>
-                    <li>The same framework extends cleanly toward multi-axis motion without Euler-angle singularities.</li>
-                </ul>
-                <div class="actions">
-                    <a class="button" href="./cnc-kernel-simulator/">Open Demo</a>
-                    <a class="button button-secondary" href="./cnc-kernel-simulator/readme/">Read Math Notes</a>
-                </div>
+                <pre><code class="language-javascript">const rotor = Math.cos(theta / 2) + Math.sin(theta / 2) * 1e12;
+const translator = 1 - 0.5 * dx * 1e01;
+const motor = translator * rotor;
+
+const drillTransformed = drillBase.map((poly) =>
+  poly.map((p) =&gt; motor &gt;&gt;&gt; p)
+);</code></pre>
+                <p class="link-row">
+                    <a href="./cnc-kernel-simulator/">Open demo</a>
+                    <a href="./cnc-kernel-simulator/readme/">Read notes</a>
+                </p>
             </article>
 
-            <article class="library-card">
-                <div class="card-header">
-                    <span class="card-tag">Kinematics</span>
-                    <h3>Gear Rotation Linkage</h3>
-                </div>
+            <article class="entry">
+                <h3>Gear Rotation Linkage</h3>
                 <p>
-                    This example ports the 2D gear-and-arm hierarchy from the <code>ga_cad/src_v1</code> plugin into the
-                    library, showing how parent and child motor composition drives a small mechanism.
+                    The gear example is the lightest entry in the library: a parent rotation, a local child offset and
+                    oscillation, and a composed world transform driving a small mechanism. It is a clean scene-graph example.
                 </p>
-                <div class="math-block compact-math">
-                    $$ M_{\text{world}} = M_{\text{gear}}\,M_{\text{local}} $$
+                <div class="math-block compact">
+                    $$
+                    \begin{aligned}
+                    M_{\text{gear}} &= \operatorname{Rotor}(t) \\
+                    M_{\text{local}} &= \operatorname{Translator}(x, y)\,\operatorname{Rotor}(\sin t) \\
+                    M_{\text{world}} &= M_{\text{gear}}\,M_{\text{local}}
+                    \end{aligned}
+                    $$
                 </div>
-                <ul class="note-list">
-                    <li>The blue gear is the parent body rotating at the origin.</li>
-                    <li>The orange arm is a child body offset to a gear pin and given its own local oscillation.</li>
-                    <li>The demo emphasizes transform composition, pan, and zoom more than 3D rendering.</li>
-                </ul>
-                <div class="actions">
-                    <a class="button" href="./gear-rotation-linkage/">Open Demo</a>
-                    <a class="button button-secondary" href="./gear-rotation-linkage/readme/">Read Math Notes</a>
-                </div>
+                <pre><code class="language-javascript">const mGear = rotor(gearAngle);
+const mLocalOffset = translator(gearRadius - 0.2, 0);
+const mLocalRotation = rotor(armLocalOscillation);
+const mLocalArm = multiply(mLocalOffset, mLocalRotation);
+const mWorldArm = multiply(mGear, mLocalArm);</code></pre>
+                <p class="link-row">
+                    <a href="./gear-rotation-linkage/">Open demo</a>
+                    <a href="./gear-rotation-linkage/readme/">Read notes</a>
+                </p>
             </article>
         </section>
 
-        <section class="section-grid">
-            <article class="panel-card">
-                <div class="eyebrow">Library Pattern</div>
-                <h2>How new examples should fit in</h2>
-                <p>
-                    The structure from here is simple: one interactive route for intuition, one readme route for the
-                    algebra, and a short summary here on the homepage so visitors can browse the collection quickly.
-                </p>
-            </article>
-
-            <article class="panel-card">
-                <div class="eyebrow">Next Step</div>
-                <h2>The homepage now acts like an index</h2>
-                <p>
-                    As we add more PGA examples, this landing page can stay focused on the important idea and one key
-                    equation per example, while the deeper note pages hold the full mathematical walkthrough.
-                </p>
-            </article>
+        <section class="section">
+            <p class="section-label">Adding examples</p>
+            <h2>The structure is intentionally small enough to grow.</h2>
+            <p>
+                New entries do not need a framework. They just need a demo route, a notes route, and one short place on the
+                homepage. That keeps the library easy to browse and easy to extend.
+            </p>
+            <pre><code class="language-javascript">Algebra(3, 0, 1, () =&gt; {
+  const motor = translator(dx) * rotor(theta);
+  const moved = geometry.map((item) =&gt; motor &gt;&gt;&gt; item);
+  return moved;
+});</code></pre>
         </section>
     </main>
 

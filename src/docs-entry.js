@@ -1,3 +1,7 @@
+import Prism from 'prismjs';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-markup';
 import './docs.css';
 
 const root = document.documentElement;
@@ -6,6 +10,7 @@ root.classList.add('math-loading');
 
 registerServiceWorker();
 configureMathJax();
+highlightCode();
 
 try {
   await import('mathjax/tex-chtml.js');
@@ -51,8 +56,13 @@ function configureMathJax() {
         window.MathJax.startup.promise.then(() => {
           root.classList.remove('math-loading');
           root.classList.add('math-ready');
+          highlightCode();
         });
       }
     }
   };
+}
+
+function highlightCode() {
+  Prism.highlightAll();
 }
