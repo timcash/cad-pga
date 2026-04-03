@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'cad-pga-pwa-v5';
+const CACHE_VERSION = 'cad-pga-pwa-v6';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const CORE_ASSETS = [

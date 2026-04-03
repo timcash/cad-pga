@@ -76,6 +76,10 @@
     }
 
     function applyGlBackground(color) {
+      if (!canvas || typeof canvas.getContext !== "function") {
+        return;
+      }
+
       var components = parseColorComponents(color);
       if (!components) {
         return;

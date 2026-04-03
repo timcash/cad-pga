@@ -296,7 +296,6 @@
             const graphOptions = {
                 animate: true,
                 grid: true,
-                gl: true,
                 scale: 0.92
             };
 
@@ -314,8 +313,8 @@
                     walkerPos = randomInteriorPoint();
                     walkerPath = [];
                 } else {
-                    walkerPath.push([0xff5b9f, drawCircle(walkerPos, query.d)]);
-                    walkerPath.push([0xffffff, walkerPos]);
+                    walkerPath.push({ color: 0xff5b9f, item: drawCircle(walkerPos, query.d) });
+                    walkerPath.push({ color: 0xffffff, item: walkerPos });
                     if (walkerPath.length > 24) {
                         walkerPath = walkerPath.slice(-24);
                     }
@@ -331,13 +330,23 @@
                 document.getElementById("walker-boundary").innerText = query.label;
                 document.getElementById("sample-count").innerText = String(heatMap.length);
 
+                const heatRender = [];
+                for (const [color, samplePoint] of heatMap) {
+                    heatRender.push(color, samplePoint);
+                }
+
+                const walkerRender = [];
+                for (const entry of walkerPath) {
+                    walkerRender.push(entry.color, entry.item);
+                }
+
                 return [
                     0x0d0d12,
-                    ...heatMap,
+                    ...heatRender,
                     0x00ffaa,
                     [pTL, pTR], [pBL, pBR], [pTL, pBL], [pTR, pBR],
                     0x48b0ff, drawCircle(point(0, 0), circleRadius),
-                    ...walkerPath
+                    ...walkerRender
                 ];
             }, graphOptions);
 
