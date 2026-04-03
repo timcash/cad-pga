@@ -171,8 +171,8 @@
 
         <h2>Boundary conditions</h2>
         <p>
-            Heat enters from the <span class="highlight-hot">top and left walls at 100°</span>. It leaves through the
-            <span class="highlight-cold">right wall, bottom wall, and center ice block at 0°</span>.
+            Heat enters from the <span class="highlight-hot">top and left walls at 100&deg;</span>. It leaves through the
+            <span class="highlight-cold">right wall, bottom wall, and center ice block at 0&deg;</span>.
         </p>
 
         <h2>Distance kernel</h2>
@@ -186,6 +186,10 @@
         <p>
             The pink walker queries the nearest boundary, draws the largest empty circle, then jumps to a random point on
             that circle. Repeating that process estimates the harmonic temperature field without a volume mesh.
+        </p>
+        <p>
+            Sample dots follow an <span class="highlight-hot">orange</span> to
+            <span class="highlight-cold">blue</span> temperature ramp, so hotter solves read warmer and colder solves read bluer.
         </p>
 
         <div class="value-grid">
@@ -205,6 +209,7 @@
         window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
 
         Algebra(2, 0, 1, () => {
+            const degreeText = "\u00b0";
             const point = (x, y) => 1e12 - x * 1e02 + y * 1e01;
             const getX = (p) => -p.e02;
             const getY = (p) => p.e01;
@@ -222,10 +227,10 @@
             ];
 
             const bounds = [
-                { line: (pTL & pTR).Normalized, temp: 100, label: "Hot wall · 100°" },
-                { line: (pBL & pTL).Normalized, temp: 100, label: "Hot wall · 100°" },
-                { line: (pTR & pBR).Normalized, temp: 0, label: "Cold wall · 0°" },
-                { line: (pBR & pBL).Normalized, temp: 0, label: "Cold wall · 0°" }
+                { line: (pTL & pTR).Normalized, temp: 100, label: `Hot wall - 100${degreeText}` },
+                { line: (pBL & pTL).Normalized, temp: 100, label: `Hot wall - 100${degreeText}` },
+                { line: (pTR & pBR).Normalized, temp: 0, label: `Cold wall - 0${degreeText}` },
+                { line: (pBR & pBL).Normalized, temp: 0, label: `Cold wall - 0${degreeText}` }
             ];
 
             const circleRadius = 0.7;
@@ -264,13 +269,14 @@
             const heatSamplesPerSolve = 8;
             const heatSolveInterval = 2;
             const walkerStepInterval = 2;
-            const coldColor = { r: 40, g: 88, b: 255 };
-            const hotColor = { r: 255, g: 140, b: 70 };
+            const heatDotRadius = 0.052;
+            const coldColor = { r: 54, g: 114, b: 255 };
+            const hotColor = { r: 255, g: 146, b: 54 };
 
             const getShortestDistance = (p) => {
                 let minD = Infinity;
                 let hitTemp = 0;
-                let hitLabel = "Cold wall";
+                let hitLabel = `Cold wall - 0${degreeText}`;
 
                 for (const boundary of bounds) {
                     const dist = Math.abs((p ^ boundary.line).e012);
@@ -288,7 +294,7 @@
                 if (Math.abs(distToCircle) < minD) {
                     minD = Math.abs(distToCircle);
                     hitTemp = 0;
-                    hitLabel = "Ice block · 0°";
+                    hitLabel = `Ice block - 0${degreeText}`;
                 }
 
                 return { d: minD, temp: hitTemp, label: hitLabel };
@@ -327,10 +333,10 @@
                 return totalTemp / walks;
             };
 
-            const drawCircle = (center, radius) => {
+            const drawCircle = (center, radius, segments = 48) => {
                 const pts = [];
-                for (let i = 0; i <= 48; i += 1) {
-                    const a = (i / 48) * Math.PI * 2;
+                for (let i = 0; i <= segments; i += 1) {
+                    const a = (i / segments) * Math.PI * 2;
                     pts.push(point(getX(center) + radius * Math.cos(a), getY(center) + radius * Math.sin(a)));
                 }
                 return pts;
@@ -342,7 +348,11 @@
                 (Math.round(lerp(a.g, b.g, t)) << 8) |
                 Math.round(lerp(a.b, b.b, t))
             );
-            const heatColor = (temp) => mixColor(coldColor, hotColor, Math.max(0, Math.min(1, temp / 100)));
+            const heatColor = (temp, minTemp, maxTemp) => {
+                const spread = Math.max(1e-6, maxTemp - minTemp);
+                const normalized = Math.max(0, Math.min(1, (temp - minTemp) / spread));
+                return mixColor(coldColor, hotColor, Math.pow(normalized, 0.55));
+            };
 
             const heatMap = [];
             const maxHeatSamples = 5000;
@@ -375,7 +385,10 @@
                     for (let i = 0; i < heatSamplesPerSolve; i += 1) {
                         const samplePoint = randomInteriorPoint();
                         const sampleTemp = solvePoint(getX(samplePoint), getY(samplePoint), 24);
-                        pushHeatSample([heatColor(sampleTemp), samplePoint]);
+                        pushHeatSample([
+                            sampleTemp,
+                            drawCircle(samplePoint, heatDotRadius, 10)
+                        ]);
                     }
                 }
 
@@ -403,9 +416,25 @@
                 document.getElementById("walker-boundary").innerText = query.label;
                 document.getElementById("sample-count").innerText = String(heatMap.length);
 
+                let minTemp = Infinity;
+                let maxTemp = -Infinity;
+                for (const [sampleTemp] of heatMap) {
+                    if (sampleTemp < minTemp) {
+                        minTemp = sampleTemp;
+                    }
+                    if (sampleTemp > maxTemp) {
+                        maxTemp = sampleTemp;
+                    }
+                }
+
+                if (!heatMap.length) {
+                    minTemp = 0;
+                    maxTemp = 100;
+                }
+
                 const heatRender = [];
-                for (const [color, samplePoint] of heatMap) {
-                    heatRender.push(color, samplePoint);
+                for (const [sampleTemp, sampleGlyph] of heatMap) {
+                    heatRender.push(heatColor(sampleTemp, minTemp, maxTemp), sampleGlyph);
                 }
 
                 const walkerRender = [];
@@ -424,8 +453,11 @@
                     0xff9a52, [pTL, pTR], [pTL, pBL],
                     0x6cb8ff, [pTR, pBR], [pBL, pBR],
                     0x7cc6ff, drawCircle(point(0, 0), circleRadius),
-                    0xffc48c, hotLabel, "Hot 100°",
-                    0x9ed0ff, coldLabels[0], "Cold 0°", coldLabels[1], "Cold 0°", iceLabel, "Ice 0°",
+                    0xffc48c, hotLabel, `Hot 100${degreeText}`,
+                    0x9ed0ff,
+                    coldLabels[0], `Cold 0${degreeText}`,
+                    coldLabels[1], `Cold 0${degreeText}`,
+                    iceLabel, `Ice 0${degreeText}`,
                     ...walkerRender
                 ];
             }, graphOptions);
