@@ -345,12 +345,12 @@
                 makeSegment(0, -8, 0, 8),
                 makeSegment(-8, 0, 8, 0)
             ];
-            const hotLabel = point(1.45, 1.9);
+            const hotLabel = point(1.05, 2.02);
             const coldLabels = [
                 point(3.15, 0.4),
                 point(1.45, -2.34)
             ];
-            const iceLabel = point(0.98, 0.94);
+            const iceLabel = point(-0.2, 0.02);
 
             for (let value = -8; value <= 8; value += 0.5) {
                 const rounded = Math.round(value * 2) / 2;
@@ -580,11 +580,11 @@
                     0xff9a52, [pTL, pTR], [pTL, pBL],
                     0x6cb8ff, [pTR, pBR], [pBL, pBR],
                     0x7cc6ff, drawCircle(point(0, 0), circleRadius),
-                    0xffc48c, hotLabel, `Hot 100${degreeText}`,
+                    0xffd6ae, hotLabel, `Hot 100${degreeText}`,
                     0x9ed0ff,
                     coldLabels[0], `Cold 0${degreeText}`,
                     coldLabels[1], `Cold 0${degreeText}`,
-                    iceLabel, `Ice 0${degreeText}`,
+                    0x17253a, iceLabel, `SDF 0${degreeText}`,
                     ...walkerRender
                 ];
             }, graphOptions);
