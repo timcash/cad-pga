@@ -1,10 +1,12 @@
 # cad-pga
 
-Static Vite site for the "Clean up your Mesh!" PGA / ganja.js demo.
+Static Vite site for a small collection of PGA / ganja.js demos.
 
 ## Live Site
 
-- Expected GitHub Pages URL: `https://timcash.github.io/cad-pga/`
+- Landing page: `https://timcash.github.io/cad-pga/`
+- Mesh Cleanup demo: `https://timcash.github.io/cad-pga/mesh-cleanup/`
+- CNC Kernel Simulator demo: `https://timcash.github.io/cad-pga/cnc-kernel-simulator/`
 
 ## PWA Features
 
@@ -19,11 +21,12 @@ Static Vite site for the "Clean up your Mesh!" PGA / ganja.js demo.
 This repo keeps the parts of the `guitar-tabs` setup that are useful for a static demo site:
 
 - Vite serves and builds the app from the root `index.html`.
+- Vite is configured as a multi-page app so each example gets its own GitHub Pages path.
 - `vite.config.js` reads `VITE_SITE_BASE_PATH` so the site can build for a GitHub Pages subpath.
 - `scripts/build-pages.mjs` runs the build, copies `dist/index.html` to `dist/404.html`, and writes `.nojekyll`.
-- `.github/workflows/deploy-pages.yml` publishes `dist/` to GitHub Pages on pushes to `master`.
+- `.github/workflows/deploy-pages.yml` publishes `dist/` to GitHub Pages on pushes to `main`.
 
-Unlike `guitar-tabs`, this repo is intentionally just a single-page static app. There is no local bridge server, no TypeScript app shell, and no test harness yet.
+Unlike `guitar-tabs`, this repo is intentionally just a static demo gallery. There is no local bridge server, no TypeScript app shell, and no test harness yet.
 
 ## Local Dev
 

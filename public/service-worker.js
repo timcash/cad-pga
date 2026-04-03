@@ -1,9 +1,13 @@
-const CACHE_VERSION = 'cad-pga-pwa-v1';
+const CACHE_VERSION = 'cad-pga-pwa-v2';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const CORE_ASSETS = [
   './',
   './index.html',
+  './mesh-cleanup/',
+  './mesh-cleanup/index.html',
+  './cnc-kernel-simulator/',
+  './cnc-kernel-simulator/index.html',
   './manifest.webmanifest',
   './favicon.svg',
   './apple-touch-icon.png',
@@ -11,6 +15,7 @@ const CORE_ASSETS = [
   './pwa-512.png',
   './pwa-maskable-192.png',
   './pwa-maskable-512.png',
+  './demo-runtime.js',
   './vendor/ganja.js'
 ];
 
@@ -61,13 +66,21 @@ self.addEventListener('fetch', (event) => {
 });
 
 async function handleNavigationRequest(request) {
+  const shellCache = await caches.open(APP_SHELL_CACHE);
+
   try {
     const networkResponse = await fetch(request);
-    const cache = await caches.open(APP_SHELL_CACHE);
-    cache.put(toScopedUrl('./'), networkResponse.clone());
+    if (networkResponse.ok) {
+      shellCache.put(request, networkResponse.clone());
+    }
     return networkResponse;
   } catch {
-    const cachedShell = await caches.match(toScopedUrl('./'));
+    const cachedPage = await caches.match(request);
+    if (cachedPage) {
+      return cachedPage;
+    }
+
+    const cachedShell = await shellCache.match(toScopedUrl('./'));
     if (cachedShell) {
       return cachedShell;
     }
@@ -99,4 +112,3 @@ function isCacheableAssetRequest(request) {
 function toScopedUrl(path) {
   return new URL(path, self.registration.scope).toString();
 }
-

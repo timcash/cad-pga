@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="manifest" href="../manifest.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="application-name" content="cad-pga">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CAD PGA">
+    <meta name="description" content="Interactive CNC milling simulation showing PGA motors and a swept cut volume.">
+    <meta name="theme-color" content="#0d0d12">
+    <title>CNC Kernel Simulator - CAD PGA</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d0d12;
+            color: #e0e0e0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        #ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(15, 15, 20, 0.85);
+            padding: 20px;
+            border: 1px solid #334;
+            border-radius: 8px;
+            max-width: 430px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            pointer-events: none;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 1.4rem;
+            color: #00ffaa;
+            border-bottom: 1px solid #334;
+            padding-bottom: 10px;
+        }
+
+        p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #bbb;
+        }
+
+        .math {
+            font-family: "Courier New", monospace;
+            background: #222;
+            padding: 2px 6px;
+            color: #ffaa00;
+            border-radius: 4px;
+        }
+
+        .highlight-blue {
+            color: #00aaff;
+            font-weight: bold;
+        }
+
+        .highlight-red {
+            color: #ff3333;
+            font-weight: bold;
+        }
+
+        .highlight-white {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        #canvas-container {
+            position: absolute;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            color: #aaa;
+            pointer-events: none;
+        }
+
+        #home-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+    </style>
+    <script src="../vendor/ganja.js"></script>
+    <script src="../demo-runtime.js"></script>
+</head>
+<body>
+    <a id="home-link" href="../">All Examples</a>
+
+    <div id="ui-panel">
+        <h1>PGA CNC Kernel Simulator</h1>
+        <p>
+            In standard CAM software, spindle rotation and feed-rate translation are handled by separate matrix systems.
+        </p>
+        <p>
+            Using 3D PGA, the state of the <span class="highlight-white">endmill tool</span> is encapsulated in one
+            continuous entity:
+        </p>
+        <p class="math" style="text-align: center;">Motor = Translator * Rotor</p>
+
+        <hr style="border-color:#334; margin: 15px 0;">
+
+        <p>
+            <span class="highlight-blue">Blue wireframe:</span> the raw stock material.
+        </p>
+        <p>
+            <span class="highlight-red">Red volume:</span> the swept volume of the cut path.
+        </p>
+        <p>
+            <span class="highlight-white">White tool:</span> a spinning four-flute endmill driven by a single PGA motor.
+        </p>
+    </div>
+
+    <div id="instructions">
+        <b>Controls:</b> left-drag rotate, right-drag pan, mouse wheel zoom
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
+
+        Algebra(3, 0, 1, () => {
+            const point = (x, y, z) => 1e123 - x * 1e012 + y * 1e013 + z * 1e023;
+
+            const makeBoxWireframe = (w, h, d, cx = 0, cy = 0, cz = 0) => {
+                const p = (dx, dy, dz) => point(cx + dx, cy + dy, cz + dz);
+                const v = [
+                    p(-w, -h, -d), p(w, -h, -d), p(w, h, -d), p(-w, h, -d),
+                    p(-w, -h, d), p(w, -h, d), p(w, h, d), p(-w, h, d)
+                ];
+
+                return [
+                    [v[0], v[1]], [v[1], v[2]], [v[2], v[3]], [v[3], v[0]],
+                    [v[4], v[5]], [v[5], v[6]], [v[6], v[7]], [v[7], v[4]],
+                    [v[0], v[4]], [v[1], v[5]], [v[2], v[6]], [v[3], v[7]]
+                ];
+            };
+
+            const makeSolidBox = (w, h, d, cx = 0, cy = 0, cz = 0) => {
+                const p = (dx, dy, dz) => point(cx + dx, cy + dy, cz + dz);
+                const v = [
+                    p(-w, -h, -d), p(w, -h, -d), p(w, h, -d), p(-w, h, -d),
+                    p(-w, -h, d), p(w, -h, d), p(w, h, d), p(-w, h, d)
+                ];
+
+                return [
+                    [v[0], v[1], v[2], v[3]],
+                    [v[5], v[4], v[7], v[6]],
+                    [v[4], v[0], v[3], v[7]],
+                    [v[1], v[5], v[6], v[2]],
+                    [v[3], v[2], v[6], v[7]],
+                    [v[4], v[5], v[1], v[0]]
+                ];
+            };
+
+            const makeEndmill = (r, h) => {
+                const polys = [];
+                const top = [];
+                const bottom = [];
+                const segments = 24;
+
+                for (let i = 0; i < segments; i++) {
+                    const a = (i / segments) * Math.PI * 2;
+                    const radius = r * (0.7 + 0.3 * Math.cos(4 * a));
+                    top.push(point(radius * Math.cos(a), radius * Math.sin(a), h));
+                    bottom.push(point(radius * Math.cos(a), radius * Math.sin(a), -h));
+                }
+
+                for (let i = 0; i < segments; i++) {
+                    const next = (i + 1) % segments;
+                    polys.push([bottom[i], bottom[next], top[next], top[i]]);
+                }
+
+                polys.push(top);
+                polys.push(bottom.slice().reverse());
+                return polys;
+            };
+
+            const stockParams = { w: 2.0, h: 1.0, d: 0.5 };
+            const drillRadius = 0.3;
+            const drillHeight = 0.8;
+            const cutTravel = 1.7;
+
+            const stockWireframe = makeBoxWireframe(stockParams.w, stockParams.h, stockParams.d);
+            const cutVolume = makeSolidBox(cutTravel, drillRadius, stockParams.d + 0.01);
+            const drillBase = makeEndmill(drillRadius, drillHeight);
+
+            const graphOptions = {
+                animate: true,
+                gl: true,
+                grid: true,
+                scale: 0.95,
+                camera: 1e123 - 1e012 + 2e013 + 4e023
+            };
+
+            const canvas = this.graph(() => {
+                const time = performance.now() / 1000;
+
+                const spinAngle = time * -15;
+                const rotor = Math.cos(spinAngle / 2) + Math.sin(spinAngle / 2) * 1e12;
+
+                const positionX = Math.sin(time) * cutTravel;
+                const translator = 1 - 0.5 * positionX * 1e01;
+
+                const motor = translator * rotor;
+                const drillTransformed = drillBase.map((poly) => poly.map((p) => motor >>> p));
+
+                return [
+                    0x0d0d12,
+                    0x660000, ...cutVolume,
+                    0x00aaff, ...stockWireframe,
+                    0xffffff, ...drillTransformed
+                ];
+            }, graphOptions);
+
+            canvas.style.width = "100%";
+            canvas.style.height = "100%";
+            document.getElementById("canvas-container").appendChild(canvas);
+
+            window.CadPgaDemo.attachGraphInteractions(canvas, graphOptions, {
+                minScale: 0.4,
+                maxScale: 3.2
+            });
+        });
+    </script>
+</body>
+</html>
+

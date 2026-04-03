@@ -2,268 +2,219 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="manifest" href="./manifest.webmanifest">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="application-name" content="cad-pga">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
-    <meta name="description" content="Interactive projective geometric algebra mesh demo built with ganja.js.">
-    <meta name="theme-color" content="#111111">
-    <title>Clean up your Mesh! - PGA in ganja.js</title>
+    <meta name="description" content="Interactive Projective Geometric Algebra demo gallery for CAD, CAM, and geometry visualization.">
+    <meta name="theme-color" content="#0d1117">
+    <title>CAD PGA Examples</title>
     <style>
-        body, html {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
-            background-color: #111; color: #eee;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            color-scheme: dark;
+            --bg-0: #081019;
+            --bg-1: #0d1117;
+            --bg-2: #132033;
+            --ink: #f4f7fb;
+            --muted: #9fb1c4;
+            --line: rgba(164, 190, 218, 0.22);
+            --accent-a: #4bd8ff;
+            --accent-b: #ff8c42;
+            --accent-c: #63ffa5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            min-height: 100%;
+            background:
+                radial-gradient(circle at top left, rgba(75, 216, 255, 0.18), transparent 32%),
+                radial-gradient(circle at bottom right, rgba(255, 140, 66, 0.18), transparent 28%),
+                linear-gradient(160deg, var(--bg-0), var(--bg-1) 45%, #090d13);
+            color: var(--ink);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px 64px;
+        }
+
+        main {
+            width: min(1080px, 100%);
+        }
+
+        .hero {
+            position: relative;
             overflow: hidden;
+            padding: 32px;
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            background: linear-gradient(160deg, rgba(19, 32, 51, 0.82), rgba(10, 16, 25, 0.94));
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
         }
-        #ui-panel {
-            position: absolute;
-            top: 20px; left: 20px;
-            z-index: 10;
-            background: rgba(20, 20, 25, 0.85);
-            padding: 20px;
-            border: 1px solid #445;
-            border-radius: 8px;
-            max-width: 400px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-            pointer-events: none; /* Allows mouse to interact with the 3D canvas behind the UI */
-        }
-        h1 {
-            margin-top: 0; font-size: 1.4rem;
-            color: #44aaff; border-bottom: 1px solid #445;
-            padding-bottom: 10px;
-        }
-        h2 { font-size: 1.1rem; color: #ffaa44; margin-top: 20px; margin-bottom: 5px; }
-        p { font-size: 0.9rem; color: #ccc; line-height: 1.5; margin-top: 5px; }
-        .math {
-            font-family: 'Courier New', Courier, monospace;
-            background: #222; padding: 2px 5px;
-            color: #00ffaa; border-radius: 3px;
-        }
-        .citation { font-size: 0.8rem; color: #888; font-style: italic; }
-        .value-row {
-            display: flex; justify-content: space-between;
-            margin: 8px 0; font-family: monospace; font-size: 1rem;
-        }
-        .val-changing { color: #ff4444; }
-        .val-constant { color: #44ff44; font-weight: bold; }
 
-        #canvas-container {
+        .hero::after {
+            content: "";
             position: absolute;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            z-index: 1;
-        }
-        canvas { width: 100%; height: 100%; }
-
-        #instructions {
-            position: absolute; bottom: 20px; left: 20px;
-            z-index: 10; color: #fff; font-size: 0.9rem;
-            background: rgba(0,0,0,0.6); padding: 10px; border-radius: 5px;
+            inset: auto -5% -30% 45%;
+            height: 260px;
+            background: radial-gradient(circle, rgba(99, 255, 165, 0.22), transparent 60%);
             pointer-events: none;
         }
-    </style>
-    <script src="/vendor/ganja.js"></script>
-</head>
-<body>
 
-    <div id="ui-panel">
-        <h1>Clean up your Mesh!</h1>
-        <div class="citation">Based on the 2024 paper by S. De Keninck, M. Roelfs, L. Dorst, D. Eelbode</div>
-
-        <h2>Simplicial Extension & Area</h2>
-        <p>In Plane-Based Geometric Algebra (PGA), the magnitude of a $k$-complex can be evaluated by joining its boundary with an arbitrary gauge point <span class="math">o</span>.</p>
-        <p>For a polygon, its area <span class="math">A</span> is exactly half the ideal norm of the sum of the boundary edges <span class="math">E_i</span> joined to <span class="math">o</span>:</p>
-        <p class="math" style="text-align: center;">A = 0.5 * || o ∨ (Σ E_i) ||</p>
-
-        <hr style="border-color:#445; margin: 15px 0;">
-
-        <div class="value-row">
-            <span>Σ (Abs Cone Area):</span>
-            <span id="val-abs" class="val-changing">0.000</span>
-        </div>
-        <p style="font-size: 0.75rem; color: #888; margin-top: 0;">Sum of the absolute areas of the 3D triangles. Changes as you move the apex.</p>
-
-        <div class="value-row">
-            <span>|| Σ (Signed Planes) ||:</span>
-            <span id="val-net" class="val-constant">0.000</span>
-        </div>
-        <p style="font-size: 0.75rem; color: #888; margin-top: 0;">Invariant! The true 2D area of the base polygon.</p>
-    </div>
-
-    <div id="instructions">
-        <b>Controls:</b><br>
-        • <b>Left-Click + Drag background:</b> Rotate Camera<br>
-        • <b>Right-Click + Drag:</b> Pan View<br>
-        • <b>Mouse Wheel:</b> Zoom In / Out<br>
-        • <b>Click + Drag Points:</b> Move the Red Apex or White Vertices
-    </div>
-
-    <div id="canvas-container"></div>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js', { scope: './' }).catch((error) => {
-                    console.error('Service worker registration failed:', error);
-                });
-            });
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(75, 216, 255, 0.12);
+            color: var(--accent-a);
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
-        // Initialize 3D Projective Geometric Algebra (Dual R*_{3,0,1})
-        Algebra(3, 0, 1, () => {
+        h1 {
+            margin: 18px 0 12px;
+            max-width: 760px;
+            font-size: clamp(2.2rem, 5vw, 4.2rem);
+            line-height: 0.96;
+        }
 
-            // Helper to create a normalized point in 3D PGA
-            const point = (x, y, z) => 1e123 - x*1e012 + y*1e013 + z*1e023;
+        .lead {
+            max-width: 720px;
+            margin: 0;
+            color: var(--muted);
+            font-size: 1.04rem;
+            line-height: 1.7;
+        }
 
-            // Initial polygon vertices (living mostly in the z=0 plane)
-            let pts =[
-                point( 0.0,  2.0, 0),
-                point(-2.0,  0.5, 0),
-                point(-1.2, -1.5, 0),
-                point( 1.2, -1.5, 0),
-                point( 2.0,  0.5, 0)
-            ];
+        .examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px;
+            margin-top: 28px;
+        }
 
-            // Arbitrary gauge point (the apex 'o' from the paper)
-            // We start it floating above the polygon to form a 3D pyramid cone.
-            let apex = point(0, 0, 3);
+        .card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: linear-gradient(180deg, rgba(16, 24, 37, 0.92), rgba(8, 13, 20, 0.96));
+            padding: 22px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+        }
 
-            const graphOptions = {
-                animate: true,      // Run continuously
-                grid: true,         // Show ground grid
-                gl: true,           // Use WebGL renderer
-                scale: 0.8,
-                camera: 1e123 - 0e012 + 1e013 + 6e023 // Position camera slightly up and back
-            };
+        .card:hover,
+        .card:focus-visible {
+            transform: translateY(-4px);
+            border-color: rgba(99, 255, 165, 0.5);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+            outline: none;
+        }
 
-            // Create the real-time evaluation graph
-            const canvas = this.graph(() => {
-                let renderElements =[
-                    0x151515, // Dark background color
-                ];
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: -40% auto auto 55%;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(75, 216, 255, 0.14), transparent 65%);
+            pointer-events: none;
+        }
 
-                // Initialize a zero 2-vector (a line) to accumulate the boundary edges
-                let sumEdges = (pts[0] & pts[1]) * 0.0;
-                let absAreaSum = 0;
+        .card-tag {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--accent-b);
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
 
-                // Loop over the polygon boundary
-                for(let i = 0; i < pts.length; i++) {
-                    let p1 = pts[i];
-                    let p2 = pts[(i+1) % pts.length];
+        .card h2 {
+            margin: 0 0 10px;
+            font-size: 1.38rem;
+        }
 
-                    // The boundary edge E_i (a line in PGA).
-                    // In ganja.js 3D PGA, the Join operator (∨) is written using the regressive product '&'
-                    let edge = p1 & p2;
-                    sumEdges = sumEdges + edge;
+        .card p {
+            margin: 0 0 18px;
+            color: var(--muted);
+            line-height: 1.65;
+            font-size: 0.95rem;
+        }
 
-                    // The triangle formed by the apex and the edge (a plane in PGA)
-                    let triPlane = apex & edge;
+        .path {
+            color: var(--accent-c);
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.88rem;
+        }
 
-                    // Accumulate the absolute area (Euclidean norm of the plane)
-                    absAreaSum += 0.5 * triPlane.Length;
+        .notes {
+            margin-top: 22px;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section class="hero">
+            <div class="eyebrow">Projective Geometric Algebra Demo Gallery</div>
+            <h1>CAD, CAM, and geometry examples powered by PGA.</h1>
+            <p class="lead">
+                This repo now publishes each demo as its own static GitHub Pages route. The examples below are self-contained,
+                run directly in the browser, and share the same local ganja.js runtime plus installable PWA shell.
+            </p>
 
-                    // --- VISUALIZATION COMMANDS ---
-                    renderElements.push(0x00ffaa, edge);                // Draw green boundary edge
-                    renderElements.push(0x555555, apex & p1);           // Draw gray line from apex to vertex
-                    renderElements.push(0x3300aaff, [apex, p1, p2]);    // Draw translucent blue triangle facet
-                }
+            <div class="examples">
+                <a class="card" href="./mesh-cleanup/">
+                    <div class="card-tag">Geometry</div>
+                    <h2>Mesh Cleanup</h2>
+                    <p>
+                        Interactive polygon cone decomposition showing how a simplicial extension in PGA preserves the net area
+                        even while the apex moves through 3D space.
+                    </p>
+                    <div class="path">/cad-pga/mesh-cleanup/</div>
+                </a>
 
-                // --- THE MATH FROM THE PAPER (Theorem 4.2) ---
-                // By joining the apex to the SUM of the edges, the Euclidean height components
-                // perfectly cancel out algebraically, leaving only the ideal norm (the 2D area).
-                let netAreaPlane = apex & sumEdges;
-                let netArea = 0.5 * netAreaPlane.Length;
+                <a class="card" href="./cnc-kernel-simulator/">
+                    <div class="card-tag">CAD / CAM</div>
+                    <h2>CNC Kernel Simulator</h2>
+                    <p>
+                        Motor-driven endmill animation demonstrating unified translation and spindle rotation, with a swept
+                        volume standing in for the algebraic cut path.
+                    </p>
+                    <div class="path">/cad-pga/cnc-kernel-simulator/</div>
+                </a>
+            </div>
 
-                // Update the HTML UI text dynamically
-                document.getElementById('val-abs').innerText = absAreaSum.toFixed(4);
-                document.getElementById('val-net').innerText = netArea.toFixed(4);
+            <p class="notes">
+                Install the app from this landing page if you want both demos available in one PWA entry point.
+            </p>
+        </section>
+    </main>
 
-                // Add interactive points to render at the end so they draw on top
-                renderElements.push(0xff4444, apex, "Apex (o)");
-                for(let i = 0; i < pts.length; i++) {
-                    renderElements.push(0xffffff, pts[i], `v${i}`);
-                }
-
-                return renderElements;
-
-            }, graphOptions);
-
-            const viewState = {
-                panX: 0,
-                panY: 0,
-                isRightPanning: false,
-                lastClientX: 0,
-                lastClientY: 0
-            };
-
-            const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-
-            const applyCanvasPan = () => {
-                canvas.style.transform = `translate3d(${viewState.panX}px, ${viewState.panY}px, 0)`;
-            };
-
-            const stopRightPan = () => {
-                if (!viewState.isRightPanning) {
-                    return;
-                }
-
-                viewState.isRightPanning = false;
-                canvas.style.cursor = "default";
-            };
-
-            // Append canvas to DOM and fix sizing
-            canvas.style.width = "100%";
-            canvas.style.height = "100%";
-            canvas.style.transformOrigin = "center center";
-            canvas.addEventListener("contextmenu", (event) => {
-                event.preventDefault();
-            }, { capture: true });
-
-            canvas.addEventListener("mousedown", (event) => {
-                if (event.button !== 2) {
-                    return;
-                }
-
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                viewState.isRightPanning = true;
-                viewState.lastClientX = event.clientX;
-                viewState.lastClientY = event.clientY;
-                canvas.style.cursor = "grabbing";
-            }, { capture: true });
-
-            canvas.addEventListener("wheel", (event) => {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-
-                const zoomFactor = Math.exp(-event.deltaY * 0.0015);
-                graphOptions.scale = clamp(graphOptions.scale * zoomFactor, 0.35, 3);
-            }, { passive: false, capture: true });
-
-            window.addEventListener("mousemove", (event) => {
-                if (!viewState.isRightPanning) {
-                    return;
-                }
-
-                viewState.panX += event.clientX - viewState.lastClientX;
-                viewState.panY += event.clientY - viewState.lastClientY;
-                viewState.lastClientX = event.clientX;
-                viewState.lastClientY = event.clientY;
-                applyCanvasPan();
-            });
-
-            window.addEventListener("mouseup", stopRightPan);
-            window.addEventListener("blur", stopRightPan);
-
-            document.getElementById('canvas-container').appendChild(canvas);
-        });
+    <script src="./demo-runtime.js"></script>
+    <script>
+        window.CadPgaDemo.registerServiceWorker("./service-worker.js", "./");
     </script>
 </body>
 </html>

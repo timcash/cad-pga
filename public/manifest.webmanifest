@@ -2,7 +2,7 @@
   "id": "./",
   "name": "CAD PGA",
   "short_name": "CAD PGA",
-  "description": "Interactive projective geometric algebra mesh demo built with ganja.js.",
+  "description": "Interactive projective geometric algebra demo gallery for CAD, CAM, and geometry visualization.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -44,4 +44,3 @@
     }
   ]
 }
-
