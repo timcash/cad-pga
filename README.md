@@ -5,18 +5,18 @@ Static Vite site for a growing library of PGA / ganja.js demos with MathJax comp
 ## Live Pages
 
 - [Library home](https://timcash.github.io/cad-pga/)
-- [Mesh Cleanup demo](https://timcash.github.io/cad-pga/mesh-cleanup/) and [notes](https://timcash.github.io/cad-pga/mesh-cleanup/readme/)
-- [CNC Kernel Simulator demo](https://timcash.github.io/cad-pga/cnc-kernel-simulator/) and [notes](https://timcash.github.io/cad-pga/cnc-kernel-simulator/readme/)
-- [Gear Rotation Linkage demo](https://timcash.github.io/cad-pga/gear-rotation-linkage/) and [notes](https://timcash.github.io/cad-pga/gear-rotation-linkage/readme/)
-- [Meshless FEA WoS demo](https://timcash.github.io/cad-pga/meshless-fea-wos/) and [notes](https://timcash.github.io/cad-pga/meshless-fea-wos/readme/)
+- [Area from Boundary demo](https://timcash.github.io/cad-pga/mesh-cleanup/) and [notes](https://timcash.github.io/cad-pga/mesh-cleanup/readme/)
+- [CNC Tool Motion demo](https://timcash.github.io/cad-pga/cnc-kernel-simulator/) and [notes](https://timcash.github.io/cad-pga/cnc-kernel-simulator/readme/)
+- [Gear Hierarchy demo](https://timcash.github.io/cad-pga/gear-rotation-linkage/) and [notes](https://timcash.github.io/cad-pga/gear-rotation-linkage/readme/)
+- [Heat by Sphere Walks demo](https://timcash.github.io/cad-pga/meshless-fea-wos/) and [notes](https://timcash.github.io/cad-pga/meshless-fea-wos/readme/)
 
 ## Recent Screenshots
 
-| Library Home | Mesh Cleanup | CNC Kernel Simulator |
+| Library Home | Area from Boundary | CNC Tool Motion |
 | --- | --- | --- |
-| ![CAD PGA library home](docs/screenshots/library-home.png) | ![Mesh Cleanup demo](docs/screenshots/mesh-cleanup.png) | ![CNC Kernel Simulator demo](docs/screenshots/cnc-kernel-simulator.png) |
-| Gear Rotation Linkage | Meshless FEA WoS | Mobile Menu |
-| ![Gear Rotation Linkage demo](docs/screenshots/gear-rotation-linkage.png) | ![Meshless FEA WoS demo](docs/screenshots/meshless-fea-wos.png) | ![Responsive mobile menu](docs/screenshots/mobile-menu.png) |
+| ![CAD PGA library home](docs/screenshots/library-home.png) | ![Area from Boundary demo](docs/screenshots/mesh-cleanup.png) | ![CNC Tool Motion demo](docs/screenshots/cnc-kernel-simulator.png) |
+| Gear Hierarchy | Heat by Sphere Walks | Mobile Menu |
+| ![Gear Hierarchy demo](docs/screenshots/gear-rotation-linkage.png) | ![Heat by Sphere Walks demo](docs/screenshots/meshless-fea-wos.png) | ![Responsive mobile menu](docs/screenshots/mobile-menu.png) |
 
 The screenshots at the top of this README are refreshed by `npm run test:ui`.
 

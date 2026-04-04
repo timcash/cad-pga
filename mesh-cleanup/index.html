@@ -10,9 +10,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
-    <meta name="description" content="Interactive PGA mesh cleanup demo using simplicial extension and area invariance.">
+    <meta name="description" content="Interactive PGA demo showing area recovered from an oriented boundary sum.">
     <meta name="theme-color" content="#050505">
-    <title>Mesh Cleanup - CAD PGA</title>
+    <title>Area from Boundary - CAD PGA</title>
     <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
     <style>
         body, html {
@@ -146,8 +146,8 @@
     <div id="ui-panel">
         <div class="cad-pga-panel-copy">
             <header class="cad-pga-panel-head">
-                <p class="cad-pga-panel-eyebrow">Mesh Cleanup</p>
-                <h1>Boundary sums keep the area even while the cone changes shape.</h1>
+                <p class="cad-pga-panel-eyebrow">Area from Boundary</p>
+                <h1>Boundary sums preserve area while the cone fan changes.</h1>
                 <p class="cad-pga-panel-lede">
                     Drag the <span class="scene-accent scene-accent--coral">apex</span> and the polygon vertices. The
                     <span class="scene-accent scene-accent--blue">cone faces</span> change immediately, but the
@@ -218,7 +218,7 @@ A(K) = \frac{1}{2}\left\| o \vee \partial K \right\|_{\infty}
         window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
         window.CadPgaDemo.mountDemoShell({
             slug: "mesh-cleanup",
-            title: "Mesh Cleanup"
+            title: "Area from Boundary"
         });
 
         Algebra(3, 0, 1, () => {

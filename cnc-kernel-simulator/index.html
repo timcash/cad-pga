@@ -10,9 +10,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
-    <meta name="description" content="Interactive CNC milling simulation showing PGA motors and a swept cut volume.">
+    <meta name="description" content="Interactive CNC demo showing one PGA motor driving tool motion.">
     <meta name="theme-color" content="#050505">
-    <title>CNC Kernel Simulator - CAD PGA</title>
+    <title>CNC Tool Motion - CAD PGA</title>
     <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
     <style>
         body, html {
@@ -125,8 +125,8 @@
     <div id="ui-panel">
         <div class="cad-pga-panel-copy">
             <header class="cad-pga-panel-head">
-                <p class="cad-pga-panel-eyebrow">CNC Kernel Simulator</p>
-                <h1>One motor carries spindle spin and feed motion together.</h1>
+                <p class="cad-pga-panel-eyebrow">CNC Tool Motion</p>
+                <h1>One motor carries spindle rotation and feed motion.</h1>
                 <p class="cad-pga-panel-lede">
                     The <span class="scene-accent scene-accent--ivory">endmill</span> is not using one transform for
                     translation and another for rotation. PGA composes both into a single motor and applies it uniformly
@@ -177,7 +177,7 @@ p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
         window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
         window.CadPgaDemo.mountDemoShell({
             slug: "cnc-kernel-simulator",
-            title: "CNC Kernel Simulator"
+            title: "CNC Tool Motion"
         });
 
         Algebra(3, 0, 1, () => {

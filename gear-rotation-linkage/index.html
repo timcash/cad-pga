@@ -10,9 +10,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
-    <meta name="description" content="A 2D gear rotation and linkage hierarchy demo based on the ga_cad Dialtone plugin scene graph.">
+    <meta name="description" content="A 2D transform hierarchy demo with a gear and a linked arm.">
     <meta name="theme-color" content="#050505">
-    <title>Gear Rotation Linkage - CAD PGA</title>
+    <title>Gear Hierarchy - CAD PGA</title>
     <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
     <style>
         :root {
@@ -178,8 +178,8 @@
     <section id="panel">
         <div class="cad-pga-panel-copy">
             <header class="cad-pga-panel-head">
-                <p class="cad-pga-panel-eyebrow">Gear Rotation Linkage</p>
-                <h1>One parent motion, one local motion, one world transform.</h1>
+                <p class="cad-pga-panel-eyebrow">Gear Hierarchy</p>
+                <h1>Parent motion plus local motion gives one world transform.</h1>
                 <p class="cad-pga-panel-lede">
                     This compact scene-graph example came over from the <code>ga_cad/src_v1</code> plugin. The important
                     idea is not the <span class="scene-accent scene-accent--teal">gear</span> itself, but the way the
@@ -233,7 +233,7 @@ P_{\mathrm{new}} = M\,P\,\widetilde{M}
         window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
         window.CadPgaDemo.mountDemoShell({
             slug: "gear-rotation-linkage",
-            title: "Gear Rotation Linkage",
+            title: "Gear Hierarchy",
             stageSelector: "#canvas-wrap",
             detailsSelector: "#panel"
         });

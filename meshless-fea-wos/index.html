@@ -10,9 +10,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
-    <meta name="description" content="Interactive meshless FEA demo using 2D PGA boundaries, a signed-distance obstacle, and a Walk on Spheres solver.">
+    <meta name="description" content="Interactive meshless heat demo using PGA boundaries, an SDF obstacle, and Walk on Spheres.">
     <meta name="theme-color" content="#050505">
-    <title>Meshless FEA WoS - CAD PGA</title>
+    <title>Heat by Sphere Walks - CAD PGA</title>
     <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
     <style>
         body, html {
@@ -222,8 +222,8 @@
     <div id="ui-panel">
         <div class="cad-pga-panel-copy">
             <header class="cad-pga-panel-head">
-                <p class="cad-pga-panel-eyebrow">Meshless FEA WoS</p>
-                <h1>PGA walls, an SDF obstacle, and random sphere walks give a meshless harmonic heat solve.</h1>
+                <p class="cad-pga-panel-eyebrow">Heat by Sphere Walks</p>
+                <h1>PGA walls, an SDF disk, and sphere walks solve heat without a mesh.</h1>
                 <p class="cad-pga-panel-lede">
                     The <span class="scene-accent scene-accent--orange">hot walls</span> and
                     <span class="scene-accent scene-accent--blue">cold walls</span> come from exact 2D PGA lines, the
@@ -326,7 +326,7 @@ d(P,\partial\Omega)=
         window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
         window.CadPgaDemo.mountDemoShell({
             slug: "meshless-fea-wos",
-            title: "Meshless FEA WoS"
+            title: "Heat by Sphere Walks"
         });
 
         const feaColorUtils = (() => {

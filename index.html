@@ -18,15 +18,15 @@
     <main class="page-shell">
         <nav class="site-nav">
             <a href="#examples">Examples</a>
-            <a href="./mesh-cleanup/">Mesh demo</a>
-            <a href="./cnc-kernel-simulator/">CNC demo</a>
-            <a href="./gear-rotation-linkage/">Gear demo</a>
-            <a href="./meshless-fea-wos/">FEA demo</a>
+            <a href="./mesh-cleanup/">Area from Boundary</a>
+            <a href="./cnc-kernel-simulator/">CNC Tool Motion</a>
+            <a href="./gear-rotation-linkage/">Gear Hierarchy</a>
+            <a href="./meshless-fea-wos/">Heat by Sphere Walks</a>
         </nav>
 
         <header class="hero">
             <p class="eyebrow">CAD PGA</p>
-            <h1>Projective Geometric Algebra examples, with demos and notes.</h1>
+            <h1>A small library of PGA demos and notes.</h1>
             <p class="lede">
                 This repo is a small library of examples. Each entry gets a live route for interaction and a readme route
                 for equations, code, and interpretation. The notes are intentionally code-faithful: when a page is exact
@@ -66,7 +66,7 @@
             <h2>Current entries in the library.</h2>
 
             <article class="entry">
-                <h3>Mesh Cleanup</h3>
+                <h3>Area from Boundary</h3>
                 <p>
                     The mesh example evaluates polygon area from the oriented boundary rather than from one chosen fan
                     triangulation. The notes page now points to the verified arXiv preprint and distinguishes the varying
@@ -98,7 +98,7 @@ const netArea = 0.5 * netAreaPlane.Length;</code></pre>
             </article>
 
             <article class="entry">
-                <h3>CNC Kernel Simulator</h3>
+                <h3>CNC Tool Motion</h3>
                 <p>
                     The CNC example treats spindle rotation and feed translation as one motor, then applies that motor to
                     the full endmill geometry. The notes page makes the axis line and transform order explicit, and marks the
@@ -128,7 +128,7 @@ const drillTransformed = drillBase.map((poly) =>
             </article>
 
             <article class="entry">
-                <h3>Gear Rotation Linkage</h3>
+                <h3>Gear Hierarchy</h3>
                 <p>
                     The gear example is the lightest entry in the library. It uses a small SE(2)-style helper in code, not
                     full ganja.js multivectors, so the notes now show the exact parent-local-world equations first and the
@@ -155,7 +155,7 @@ const mWorldArm = multiply(mGear, mLocalArm);</code></pre>
             </article>
 
             <article class="entry">
-                <h3>Meshless FEA WoS</h3>
+                <h3>Heat by Sphere Walks</h3>
                 <p>
                     The route name says FEA, but the current example is closer to a meshless harmonic heat solve. PGA wall
                     lines and a signed-distance disk feed a classic WoS-style process based on nearest-boundary distance.

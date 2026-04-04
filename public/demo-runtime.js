@@ -28,23 +28,23 @@
   var DEMO_ENTRIES = [
     {
       slug: "mesh-cleanup",
-      title: "Mesh Cleanup",
-      summary: "Boundary area invariants and simplicial extension."
+      title: "Area from Boundary",
+      summary: "Boundary sums recover area without depending on one cone fan."
     },
     {
       slug: "cnc-kernel-simulator",
-      title: "CNC Kernel",
-      summary: "A motor-driven toolpath and swept-volume sketch."
+      title: "CNC Tool Motion",
+      summary: "One motor combines spindle rotation, feed motion, and a swept cut sketch."
     },
     {
       slug: "gear-rotation-linkage",
-      title: "Gear Linkage",
-      summary: "A parent-child kinematic chain with composed transforms."
+      title: "Gear Hierarchy",
+      summary: "A parent-child motion chain built from local and world transforms."
     },
     {
       slug: "meshless-fea-wos",
-      title: "Meshless FEA",
-      summary: "Walk on Spheres with PGA boundaries and an SDF obstacle."
+      title: "Heat by Sphere Walks",
+      summary: "A meshless heat solve with PGA walls, an SDF disk, and Walk on Spheres."
     }
   ];
 
