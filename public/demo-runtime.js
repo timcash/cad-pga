@@ -1,4 +1,30 @@
 (function () {
+  var THEME = {
+    backgroundCss: "#050505",
+    backgroundInt: 0x050505,
+    gridMinorInt: 0x141414,
+    gridMajorInt: 0x1d1d1d,
+    gridAxisInt: 0x292929,
+    accents: {
+      tealInt: 0x63b4d1,
+      tealCss: "#63b4d1",
+      blueInt: 0x5f7fe7,
+      blueCss: "#5f7fe7",
+      orangeInt: 0xf29a4b,
+      orangeCss: "#f29a4b",
+      coralInt: 0xef7b68,
+      coralCss: "#ef7b68",
+      mintInt: 0x7fd39c,
+      mintCss: "#7fd39c",
+      pinkInt: 0xf06ba4,
+      pinkCss: "#f06ba4",
+      ivoryInt: 0xf1ede6,
+      ivoryCss: "#f1ede6",
+      iceInt: 0x8ebceb,
+      iceCss: "#8ebceb"
+    }
+  };
+
   var DEMO_ENTRIES = [
     {
       slug: "mesh-cleanup",
@@ -62,7 +88,7 @@
         current = current.parentElement;
       }
 
-      return "#111111";
+      return THEME.backgroundCss;
     }
 
     function parseColorComponents(value) {
@@ -145,6 +171,43 @@
         });
       }
     }, { passive: false, capture: true });
+  }
+
+  function createPlaneGrid3D(pointFactory, options) {
+    var settings = options || {};
+    var size = settings.size || 6;
+    var step = settings.step || 1;
+    var majorEvery = settings.majorEvery || 2;
+    var planeZ = typeof settings.z === "number" ? settings.z : 0;
+    var minor = [];
+    var major = [];
+    var axis = [];
+
+    function segment(x1, y1, x2, y2) {
+      return [
+        pointFactory(x1, y1, planeZ),
+        pointFactory(x2, y2, planeZ)
+      ];
+    }
+
+    for (var value = -size; value <= size + 1e-9; value += step) {
+      var rounded = Math.round(value * 1000) / 1000;
+      if (Math.abs(rounded) < 1e-9) {
+        axis.push(segment(rounded, -size, rounded, size));
+        axis.push(segment(-size, rounded, size, rounded));
+        continue;
+      }
+
+      var target = Math.abs(Math.round(rounded / step)) % majorEvery === 0 ? major : minor;
+      target.push(segment(rounded, -size, rounded, size));
+      target.push(segment(-size, rounded, size, rounded));
+    }
+
+    return [
+      THEME.gridMinorInt, ...minor,
+      THEME.gridMajorInt, ...major,
+      THEME.gridAxisInt, ...axis
+    ];
   }
 
   function mountDemoShell(options) {
@@ -412,6 +475,8 @@
   window.CadPgaDemo = {
     registerServiceWorker: registerServiceWorker,
     attachGraphInteractions: attachGraphInteractions,
-    mountDemoShell: mountDemoShell
+    mountDemoShell: mountDemoShell,
+    createPlaneGrid3D: createPlaneGrid3D,
+    theme: THEME
   };
 }());

@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
     <meta name="description" content="Interactive CNC milling simulation showing PGA motors and a swept cut volume.">
-    <meta name="theme-color" content="#0d0d12">
+    <meta name="theme-color" content="#050505">
     <title>CNC Kernel Simulator - CAD PGA</title>
     <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
     <style>
@@ -20,7 +20,7 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #0d0d12;
+            background-color: #050505;
             color: #e0e0e0;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
@@ -64,17 +64,17 @@
         }
 
         .highlight-blue {
-            color: #00aaff;
+            color: #63b4d1;
             font-weight: bold;
         }
 
         .highlight-red {
-            color: #ff3333;
+            color: #ef7b68;
             font-weight: bold;
         }
 
         .highlight-white {
-            color: #ffffff;
+            color: #f1ede6;
             font-weight: bold;
         }
 
@@ -128,8 +128,9 @@
                 <p class="cad-pga-panel-eyebrow">CNC Kernel Simulator</p>
                 <h1>One motor carries spindle spin and feed motion together.</h1>
                 <p class="cad-pga-panel-lede">
-                    The white endmill is not using one transform for translation and another for rotation. PGA composes both
-                    into a single motor and applies it uniformly to the full tool geometry.
+                    The <span class="scene-accent scene-accent--ivory">endmill</span> is not using one transform for
+                    translation and another for rotation. PGA composes both into a single motor and applies it uniformly
+                    to the full tool geometry.
                 </p>
             </header>
 
@@ -158,8 +159,9 @@ p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
 \]
                 </div>
                 <p>
-                    The red block is a simple swept-volume stand-in. The blue wireframe is the stock, and the white body is
-                    the spinning four-flute tool.
+                    The <span class="scene-accent scene-accent--coral">red volume</span> is a simple swept-volume stand-in.
+                    The <span class="scene-accent scene-accent--teal">wireframe stock</span> stays subdued, and the
+                    <span class="scene-accent scene-accent--ivory">white tool</span> keeps the motion easy to read.
                 </p>
             </section>
         </div>
@@ -179,6 +181,7 @@ p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
         });
 
         Algebra(3, 0, 1, () => {
+            const theme = window.CadPgaDemo.theme;
             // 3D PGA cheat sheet: P = x e032 + y e013 + z e021 + e123.
             // In ganja's basis ordering that becomes -x*e023 + y*e013 - z*e012 + e123.
             const point = (x, y, z) => 1e123 - x * 1e023 + y * 1e013 - z * 1e012;
@@ -250,10 +253,16 @@ p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
             const stockWireframe = makeBoxWireframe(stockParams.w, stockParams.h, stockParams.d);
             const cutVolume = makeSolidBox(cutTravel + drillRadius, drillRadius, stockParams.d + 0.01);
             const drillBase = makeEndmill(drillRadius, drillHeight);
+            const sceneGrid = window.CadPgaDemo.createPlaneGrid3D(point, {
+                size: 5,
+                step: 1,
+                majorEvery: 2,
+                z: -(stockParams.d + 0.18)
+            });
 
             const graphOptions = {
                 animate: true,
-                grid: true,
+                grid: false,
                 h: view.h,
                 p: view.p,
                 scale: view.scale,
@@ -273,10 +282,11 @@ p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
                 const drillTransformed = drillBase.map((poly) => poly.map((p) => motor >>> p));
 
                 return [
-                    0x0d0d12,
-                    0x660000, ...cutVolume,
-                    0x00aaff, ...stockWireframe,
-                    0xffffff, ...drillTransformed
+                    theme.backgroundInt,
+                    ...sceneGrid,
+                    0x2eef7b68, ...cutVolume,
+                    theme.accents.tealInt, ...stockWireframe,
+                    theme.accents.ivoryInt, ...drillTransformed
                 ];
             }, graphOptions);
 
@@ -287,7 +297,7 @@ p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
             window.CadPgaDemo.attachGraphInteractions(canvas, graphOptions, {
                 minScale: 0.4,
                 maxScale: 3.2,
-                backgroundColor: "#0d0d12"
+                backgroundColor: theme.backgroundCss
             });
         });
     </script>

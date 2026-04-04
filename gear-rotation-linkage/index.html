@@ -11,21 +11,22 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
     <meta name="description" content="A 2D gear rotation and linkage hierarchy demo based on the ga_cad Dialtone plugin scene graph.">
-    <meta name="theme-color" content="#04080d">
+    <meta name="theme-color" content="#050505">
     <title>Gear Rotation Linkage - CAD PGA</title>
     <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
     <style>
         :root {
             color-scheme: dark;
-            --bg: #030608;
+            --bg: #050505;
             --panel: rgba(12, 18, 22, 0.9);
-            --panel-border: rgba(123, 180, 220, 0.28);
-            --grid-major: rgba(85, 126, 150, 0.32);
-            --grid-minor: rgba(85, 126, 150, 0.14);
-            --gear: #1f95ff;
-            --arm: #ff5a36;
+            --panel-border: rgba(255, 255, 255, 0.14);
+            --grid-major: rgba(255, 255, 255, 0.09);
+            --grid-minor: rgba(255, 255, 255, 0.05);
+            --grid-axis: rgba(255, 255, 255, 0.14);
+            --gear: #63b4d1;
+            --arm: #f29a4b;
             --pin: #ffffff;
-            --accent: #77f3a8;
+            --accent: #7fd39c;
             --text: #f5fbff;
             --muted: rgba(245, 251, 255, 0.72);
         }
@@ -40,25 +41,13 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background:
-                radial-gradient(circle at top left, rgba(31, 149, 255, 0.2), transparent 30%),
-                radial-gradient(circle at 80% 10%, rgba(255, 90, 54, 0.14), transparent 26%),
-                linear-gradient(180deg, #04080d, var(--bg));
+            background: var(--bg);
             color: var(--text);
             font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
         }
 
         body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-            background-size: 28px 28px;
-            mask-image: radial-gradient(circle at center, black 55%, transparent 100%);
-            pointer-events: none;
-            opacity: 0.25;
+            content: none;
         }
 
         #canvas-wrap {
@@ -193,7 +182,8 @@
                 <h1>One parent motion, one local motion, one world transform.</h1>
                 <p class="cad-pga-panel-lede">
                     This compact scene-graph example came over from the <code>ga_cad/src_v1</code> plugin. The important
-                    idea is not the gear itself, but the way the arm inherits a parent transform and adds a local one.
+                    idea is not the <span class="scene-accent scene-accent--teal">gear</span> itself, but the way the
+                    <span class="scene-accent scene-accent--orange">arm</span> inherits a parent transform and adds a local one.
                 </p>
             </header>
 
@@ -223,7 +213,8 @@ P_{\mathrm{new}} = M\,P\,\widetilde{M}
 \]
                 </div>
                 <p>
-                    The orange arm is never authored in global coordinates. It is evaluated in the gear frame and then pushed
+                    The <span class="scene-accent scene-accent--orange">arm</span> is never authored in global coordinates.
+                    It is evaluated in the <span class="scene-accent scene-accent--teal">gear frame</span> and then pushed
                     out into world space.
                 </p>
             </section>
@@ -355,7 +346,7 @@ P_{\mathrm{new}} = M\,P\,\widetilde{M}
 
             for (let i = Math.floor(worldLeft); i <= Math.ceil(worldRight); i += 1) {
                 const x = worldToScreen(point(i, 0)).x;
-                ctx.strokeStyle = i === 0 ? "rgba(255,255,255,0.28)" : i % 5 === 0 ? "rgba(85,126,150,0.32)" : "rgba(85,126,150,0.14)";
+                ctx.strokeStyle = i === 0 ? "rgba(255,255,255,0.14)" : i % 5 === 0 ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.05)";
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
                 ctx.lineTo(x, height);
@@ -364,7 +355,7 @@ P_{\mathrm{new}} = M\,P\,\widetilde{M}
 
             for (let i = Math.floor(worldBottom); i <= Math.ceil(worldTop); i += 1) {
                 const y = worldToScreen(point(0, i)).y;
-                ctx.strokeStyle = i === 0 ? "rgba(255,255,255,0.28)" : i % 5 === 0 ? "rgba(85,126,150,0.32)" : "rgba(85,126,150,0.14)";
+                ctx.strokeStyle = i === 0 ? "rgba(255,255,255,0.14)" : i % 5 === 0 ? "rgba(255,255,255,0.09)" : "rgba(255,255,255,0.05)";
                 ctx.beginPath();
                 ctx.moveTo(0, y);
                 ctx.lineTo(width, y);
@@ -421,8 +412,8 @@ P_{\mathrm{new}} = M\,P\,\widetilde{M}
             const centerPin = applyMotor(mGear, point(0, 0));
             const connectionPin = applyMotor(mWorldArm, point(0, 0));
 
-            fillPolygon(gearDrawn, "rgba(31, 149, 255, 0.18)", "#1f95ff");
-            fillPolygon(armDrawn, "rgba(255, 90, 54, 0.2)", "#ff5a36");
+            fillPolygon(gearDrawn, "rgba(99, 180, 209, 0.16)", "#63b4d1");
+            fillPolygon(armDrawn, "rgba(242, 154, 75, 0.16)", "#f29a4b");
             drawPin(centerPin, "Origin");
             drawPin(connectionPin, "Pin Joint");
 

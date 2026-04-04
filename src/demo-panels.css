@@ -9,6 +9,14 @@
   --demo-panel-border: rgba(255, 255, 255, 0.14);
   --demo-card-bg: rgba(255, 255, 255, 0.04);
   --demo-code-bg: #090909;
+  --scene-accent-teal: #63b4d1;
+  --scene-accent-blue: #5f7fe7;
+  --scene-accent-orange: #f29a4b;
+  --scene-accent-coral: #ef7b68;
+  --scene-accent-mint: #7fd39c;
+  --scene-accent-pink: #f06ba4;
+  --scene-accent-ivory: #f1ede6;
+  --scene-accent-ice: #8ebceb;
 }
 
 body.cad-pga-demo-page,
@@ -98,6 +106,42 @@ body.cad-pga-demo-page select {
 
 .cad-pga-details-panel p {
   margin: 0;
+}
+
+.cad-pga-details-panel .scene-accent {
+  font-weight: 700;
+}
+
+.cad-pga-details-panel .scene-accent--teal {
+  color: var(--scene-accent-teal) !important;
+}
+
+.cad-pga-details-panel .scene-accent--blue {
+  color: var(--scene-accent-blue) !important;
+}
+
+.cad-pga-details-panel .scene-accent--orange {
+  color: var(--scene-accent-orange) !important;
+}
+
+.cad-pga-details-panel .scene-accent--coral {
+  color: var(--scene-accent-coral) !important;
+}
+
+.cad-pga-details-panel .scene-accent--mint {
+  color: var(--scene-accent-mint) !important;
+}
+
+.cad-pga-details-panel .scene-accent--pink {
+  color: var(--scene-accent-pink) !important;
+}
+
+.cad-pga-details-panel .scene-accent--ivory {
+  color: var(--scene-accent-ivory) !important;
+}
+
+.cad-pga-details-panel .scene-accent--ice {
+  color: var(--scene-accent-ice) !important;
 }
 
 .cad-pga-details-panel .cad-pga-panel-copy {

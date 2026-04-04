@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CAD PGA">
     <meta name="description" content="Interactive PGA mesh cleanup demo using simplicial extension and area invariance.">
-    <meta name="theme-color" content="#111111">
+    <meta name="theme-color" content="#050505">
     <title>Mesh Cleanup - CAD PGA</title>
     <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
     <style>
@@ -20,7 +20,7 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #111;
+            background-color: #050505;
             color: #eee;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
@@ -86,11 +86,11 @@
         }
 
         .val-changing {
-            color: #ff4444;
+            color: #ef7b68;
         }
 
         .val-constant {
-            color: #44ff44;
+            color: #7fd39c;
             font-weight: bold;
         }
 
@@ -149,8 +149,10 @@
                 <p class="cad-pga-panel-eyebrow">Mesh Cleanup</p>
                 <h1>Boundary sums keep the area even while the cone changes shape.</h1>
                 <p class="cad-pga-panel-lede">
-                    Drag the apex and the polygon vertices. The blue cone faces change immediately, but the oriented boundary
-                    still encodes the same signed area.
+                    Drag the <span class="scene-accent scene-accent--coral">apex</span> and the polygon vertices. The
+                    <span class="scene-accent scene-accent--blue">cone faces</span> change immediately, but the
+                    <span class="scene-accent scene-accent--teal">boundary</span> still encodes the same
+                    <span class="scene-accent scene-accent--mint">signed area</span>.
                 </p>
             </header>
 
@@ -179,7 +181,9 @@ A(K) = \frac{1}{2}\left\| o \vee \partial K \right\|_{\infty}
 \]
                 </div>
                 <p>
-                    The gauge point \(o\) changes the cone decomposition, not the signed area carried by the full boundary sum.
+                    The <span class="scene-accent scene-accent--coral">gauge point</span> changes the cone decomposition,
+                    not the <span class="scene-accent scene-accent--mint">signed area</span> carried by the full
+                    <span class="scene-accent scene-accent--teal">boundary sum</span>.
                 </p>
             </section>
 
@@ -188,13 +192,15 @@ A(K) = \frac{1}{2}\left\| o \vee \partial K \right\|_{\infty}
                     <span>Sum of abs cone area</span>
                     <span id="val-abs" class="val-changing">0.000</span>
                 </div>
-                <p>The red value changes because each cone face gets a different Euclidean tilt and height.</p>
+                <p>The <span class="scene-accent scene-accent--coral">coral value</span> changes because each
+                    <span class="scene-accent scene-accent--blue">cone face</span> gets a different Euclidean tilt and height.</p>
 
                 <div class="value-row">
                     <span>Net signed area norm</span>
                     <span id="val-net" class="val-constant">0.000</span>
                 </div>
-                <p>The green value is the invariant quantity: the true 2D area encoded by the polygon boundary.</p>
+                <p>The <span class="scene-accent scene-accent--mint">mint value</span> is the invariant quantity:
+                    the true 2D area encoded by the <span class="scene-accent scene-accent--teal">polygon boundary</span>.</p>
             </section>
         </div>
     </div>
@@ -216,6 +222,7 @@ A(K) = \frac{1}{2}\left\| o \vee \partial K \right\|_{\infty}
         });
 
         Algebra(3, 0, 1, () => {
+            const theme = window.CadPgaDemo.theme;
             // 3D PGA cheat sheet: P = x e032 + y e013 + z e021 + e123.
             // In ganja's basis ordering that becomes -x*e023 + y*e013 - z*e012 + e123.
             const point = (x, y, z) => 1e123 - x * 1e023 + y * 1e013 - z * 1e012;
@@ -234,9 +241,16 @@ A(K) = \frac{1}{2}\left\| o \vee \partial K \right\|_{\infty}
 
             let apex = point(0, 0, 3);
 
+            const sceneGrid = window.CadPgaDemo.createPlaneGrid3D(point, {
+                size: 5,
+                step: 1,
+                majorEvery: 2,
+                z: -0.05
+            });
+
             const graphOptions = {
                 animate: true,
-                grid: true,
+                grid: false,
                 h: view.h,
                 p: view.p,
                 scale: view.scale,
@@ -245,7 +259,8 @@ A(K) = \frac{1}{2}\left\| o \vee \partial K \right\|_{\infty}
 
             const canvas = this.graph(() => {
                 const renderElements = [
-                    0x151515
+                    theme.backgroundInt,
+                    ...sceneGrid
                 ];
 
                 let sumEdges = (pts[0] & pts[1]) * 0.0;
@@ -260,9 +275,9 @@ A(K) = \frac{1}{2}\left\| o \vee \partial K \right\|_{\infty}
                     const triPlane = apex & edge;
                     absAreaSum += 0.5 * triPlane.Length;
 
-                    renderElements.push(0x00ffaa, edge);
-                    renderElements.push(0x555555, apex & p1);
-                    renderElements.push(0x3300aaff, [apex, p1, p2]);
+                    renderElements.push(theme.accents.tealInt, edge);
+                    renderElements.push(0x353535, apex & p1);
+                    renderElements.push(0x285f7fe7, [apex, p1, p2]);
                 }
 
                 const netAreaPlane = apex & sumEdges;
@@ -271,9 +286,9 @@ A(K) = \frac{1}{2}\left\| o \vee \partial K \right\|_{\infty}
                 document.getElementById("val-abs").innerText = absAreaSum.toFixed(4);
                 document.getElementById("val-net").innerText = netArea.toFixed(4);
 
-                renderElements.push(0xff4444, apex, "Apex (o)");
+                renderElements.push(theme.accents.coralInt, apex, "Apex (o)");
                 for (let i = 0; i < pts.length; i++) {
-                    renderElements.push(0xffffff, pts[i], `v${i}`);
+                    renderElements.push(theme.accents.ivoryInt, pts[i], `v${i}`);
                 }
 
                 return renderElements;
@@ -286,7 +301,7 @@ A(K) = \frac{1}{2}\left\| o \vee \partial K \right\|_{\infty}
             window.CadPgaDemo.attachGraphInteractions(canvas, graphOptions, {
                 minScale: 0.35,
                 maxScale: 3,
-                backgroundColor: "#111111"
+                backgroundColor: theme.backgroundCss
             });
         });
     </script>
