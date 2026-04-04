@@ -7,7 +7,7 @@
   --cad-shell-button-bg: rgba(8, 10, 14, 0.94);
   --cad-shell-button-active: rgba(255, 255, 255, 0.14);
   --cad-shell-shadow: 0 18px 48px rgba(0, 0, 0, 0.34);
-  --cad-shell-bottom-height: calc(env(safe-area-inset-bottom, 0px) + 132px);
+  --cad-shell-bottom-height: calc(env(safe-area-inset-bottom, 0px) + 116px);
 }
 
 body.cad-pga-demo-page {
@@ -101,7 +101,7 @@ body.cad-pga-details-open .cad-pga-shell-scrim {
   padding:
     calc(env(safe-area-inset-top, 0px) + 22px)
     calc(env(safe-area-inset-right, 0px) + 18px)
-    calc(var(--cad-shell-bottom-height) + 18px)
+    calc(env(safe-area-inset-bottom, 0px) + 22px)
     calc(env(safe-area-inset-left, 0px) + 18px);
   overflow: auto;
   overscroll-behavior: contain;
@@ -126,7 +126,38 @@ body.cad-pga-menu-open .cad-pga-menu-panel {
 
 .cad-pga-menu-head {
   display: grid;
+  gap: 14px;
+}
+
+.cad-pga-menu-headbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+}
+
+.cad-pga-menu-copyblock {
+  display: grid;
   gap: 10px;
+}
+
+.cad-pga-menu-close {
+  appearance: none;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid var(--cad-shell-border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--cad-shell-text);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.cad-pga-menu-close:hover,
+.cad-pga-menu-close:focus-visible {
+  outline: none;
+  border-color: var(--cad-shell-border-strong);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .cad-pga-menu-eyebrow {
@@ -150,30 +181,64 @@ body.cad-pga-menu-open .cad-pga-menu-panel {
   max-width: 40rem;
   margin: 0;
   color: var(--cad-shell-muted);
-  font-size: 0.98rem;
-  line-height: 1.7;
+  font-size: 0.92rem;
+  line-height: 1.65;
 }
 
-.cad-pga-menu-grid {
+.cad-pga-menu-utilities {
   display: grid;
-  gap: 14px;
-  grid-template-columns: 1fr;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.cad-pga-menu-card,
-.cad-pga-menu-home {
+.cad-pga-menu-utility {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--cad-shell-text);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.cad-pga-menu-utility:hover,
+.cad-pga-menu-utility:focus-visible {
+  outline: none;
+  border-color: var(--cad-shell-border-strong);
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.cad-pga-menu-list {
   display: grid;
   gap: 12px;
-  padding: 16px 16px 18px;
+  align-content: start;
+}
+
+.cad-pga-menu-link {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
   color: var(--cad-shell-text);
   text-decoration: none;
 }
 
-.cad-pga-menu-card[data-current="true"] {
+.cad-pga-menu-link[data-current="true"],
+.cad-pga-menu-link[aria-current="page"] {
   border-color: var(--cad-shell-border-strong);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.cad-pga-menu-link:hover,
+.cad-pga-menu-link:focus-visible {
+  outline: none;
+  border-color: var(--cad-shell-border-strong);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .cad-pga-menu-copy {
@@ -181,54 +246,24 @@ body.cad-pga-menu-open .cad-pga-menu-panel {
   gap: 6px;
 }
 
-.cad-pga-menu-copy strong,
-.cad-pga-menu-home strong {
+.cad-pga-menu-copy strong {
   color: var(--cad-shell-text);
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
-.cad-pga-menu-copy span,
-.cad-pga-menu-home span {
+.cad-pga-menu-copy span {
   color: var(--cad-shell-muted);
   font-size: 0.88rem;
   line-height: 1.6;
 }
 
-.cad-pga-menu-actions {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.cad-pga-menu-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 56px;
-  padding: 0 14px;
-  border: 1px solid var(--cad-shell-border);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--cad-shell-text);
-  text-decoration: none;
-  font-size: 0.88rem;
-  font-weight: 700;
-  text-align: center;
-}
-
-.cad-pga-menu-action[aria-current="page"] {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: var(--cad-shell-border-strong);
-}
-
-.cad-pga-menu-home:hover,
-.cad-pga-menu-home:focus-visible,
-.cad-pga-menu-action:hover,
-.cad-pga-menu-action:focus-visible {
-  outline: none;
-  border-color: var(--cad-shell-border-strong);
-  background: rgba(255, 255, 255, 0.11);
+.cad-pga-menu-route {
+  color: var(--cad-shell-muted);
+  font-size: 0.76rem;
+  font-family: "Space Mono", "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.06em;
 }
 
 .cad-pga-details-panel {
@@ -295,22 +330,30 @@ body.cad-pga-details-open .cad-pga-details-panel {
     calc(env(safe-area-inset-bottom, 0px) + 12px)
     calc(env(safe-area-inset-left, 0px) + 12px);
   pointer-events: none;
+  transition: opacity 160ms ease, visibility 160ms ease, transform 160ms ease;
+}
+
+body.cad-pga-menu-open .cad-pga-thumbbar {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(12px);
 }
 
 .cad-pga-thumbbar-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 8px;
   pointer-events: auto;
 }
 
 .cad-pga-thumb-button {
   appearance: none;
-  display: grid;
-  justify-items: start;
-  gap: 6px;
-  min-height: 78px;
-  padding: 14px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 14px;
   border: 1px solid var(--cad-shell-border);
   background: var(--cad-shell-button-bg);
   color: var(--cad-shell-text);
@@ -344,28 +387,14 @@ body.cad-pga-details-open .cad-pga-details-panel {
 
 .cad-pga-thumb-label {
   color: var(--cad-shell-text);
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.cad-pga-thumb-meta {
-  color: var(--cad-shell-muted);
-  font-size: 0.8rem;
-  line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 
 @media (min-width: 720px) {
   .cad-pga-thumbbar-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .cad-pga-menu-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .cad-pga-menu-home {
-    grid-column: 1 / -1;
   }
 }
 

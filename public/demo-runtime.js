@@ -256,7 +256,7 @@
     stageGrid.appendChild(stageSlot);
     stageGrid.appendChild(scrim);
     stageGrid.appendChild(topbar);
-    stageGrid.appendChild(menuPanel);
+    stageGrid.appendChild(menuPanel.root);
     detailsPanel.id = "cad-pga-details-panel";
     stageGrid.appendChild(detailsPanel);
     stageGrid.appendChild(thumbbar.root);
@@ -297,12 +297,13 @@
       document.body.classList.toggle("cad-pga-details-open", state.detailsOpen);
       thumbbar.menuButton.setAttribute("aria-expanded", state.menuOpen ? "true" : "false");
       thumbbar.detailsButton.setAttribute("aria-expanded", state.detailsOpen ? "true" : "false");
-      menuPanel.setAttribute("aria-hidden", state.menuOpen ? "false" : "true");
+      menuPanel.root.setAttribute("aria-hidden", state.menuOpen ? "false" : "true");
       detailsPanel.setAttribute("aria-hidden", state.detailsOpen ? "false" : "true");
     }
 
     thumbbar.menuButton.addEventListener("click", toggleMenu);
     thumbbar.detailsButton.addEventListener("click", toggleDetails);
+    menuPanel.closeButton.addEventListener("click", closeOverlays);
     scrim.addEventListener("click", closeOverlays);
 
     document.addEventListener("keydown", function (event) {
@@ -351,55 +352,84 @@
 
     var head = document.createElement("div");
     head.className = "cad-pga-menu-head";
-    head.innerHTML =
-      '<p class="cad-pga-menu-eyebrow">CAD PGA</p>' +
-      '<h2 class="cad-pga-menu-heading">Example library and notes routes.</h2>' +
-      '<p class="cad-pga-menu-subtitle">Use the bottom thumb buttons to open this menu, toggle the details panel, jump to the notes route, or return home. The menu fills the screen so it stays easy to use on a phone.</p>';
 
-    var grid = document.createElement("div");
-    grid.className = "cad-pga-menu-grid";
+    var headBar = document.createElement("div");
+    headBar.className = "cad-pga-menu-headbar";
+    headBar.innerHTML =
+      '<div class="cad-pga-menu-copyblock">' +
+        '<p class="cad-pga-menu-eyebrow">CAD PGA</p>' +
+        '<h2 class="cad-pga-menu-heading">Examples</h2>' +
+      '</div>';
 
-    var homeCard = document.createElement("a");
-    homeCard.className = "cad-pga-menu-home";
-    homeCard.href = "../";
-    homeCard.innerHTML = "<strong>Library Home</strong><span>Browse the example catalog and jump into the math notes.</span>";
-    grid.appendChild(homeCard);
+    var closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "cad-pga-menu-close";
+    closeButton.textContent = "Close";
+    closeButton.setAttribute("aria-label", "Close menu");
+    headBar.appendChild(closeButton);
+
+    var subtitle = document.createElement("p");
+    subtitle.className = "cad-pga-menu-subtitle";
+    subtitle.textContent = "Browse the example library, jump to the current notes route, or return to the library home page.";
+
+    var utilities = document.createElement("div");
+    utilities.className = "cad-pga-menu-utilities";
+
+    var homeLink = document.createElement("a");
+    homeLink.className = "cad-pga-menu-utility";
+    homeLink.href = "../";
+    homeLink.textContent = "Home";
+
+    var notesLink = document.createElement("a");
+    notesLink.className = "cad-pga-menu-utility";
+    notesLink.href = "./readme/";
+    notesLink.textContent = "Notes";
+
+    utilities.appendChild(homeLink);
+    utilities.appendChild(notesLink);
+    head.appendChild(headBar);
+    head.appendChild(subtitle);
+    head.appendChild(utilities);
+
+    var list = document.createElement("div");
+    list.className = "cad-pga-menu-list";
 
     DEMO_ENTRIES.forEach(function (entry) {
-      var card = document.createElement("section");
-      card.className = "cad-pga-menu-card";
-      card.setAttribute("data-current", entry.slug === currentSlug ? "true" : "false");
+      var demoLink = document.createElement("a");
+      demoLink.className = "cad-pga-menu-link";
+      demoLink.href = "../" + entry.slug + "/";
+      if (entry.slug === currentSlug) {
+        demoLink.setAttribute("aria-current", "page");
+        demoLink.setAttribute("data-current", "true");
+      }
 
       var copy = document.createElement("div");
       copy.className = "cad-pga-menu-copy";
-      copy.innerHTML = "<strong>" + entry.title + "</strong><span>" + entry.summary + "</span>";
 
-      var actions = document.createElement("div");
-      actions.className = "cad-pga-menu-actions";
+      var title = document.createElement("strong");
+      title.textContent = entry.title;
 
-      var demoLink = document.createElement("a");
-      demoLink.className = "cad-pga-menu-action";
-      demoLink.href = "../" + entry.slug + "/";
-      demoLink.textContent = "Open demo";
-      if (entry.slug === currentSlug) {
-        demoLink.setAttribute("aria-current", "page");
-      }
+      var summary = document.createElement("span");
+      summary.textContent = entry.summary;
 
-      var notesLink = document.createElement("a");
-      notesLink.className = "cad-pga-menu-action";
-      notesLink.href = "../" + entry.slug + "/readme/";
-      notesLink.textContent = "Math notes";
+      copy.appendChild(title);
+      copy.appendChild(summary);
+      demoLink.appendChild(copy);
 
-      actions.appendChild(demoLink);
-      actions.appendChild(notesLink);
-      card.appendChild(copy);
-      card.appendChild(actions);
-      grid.appendChild(card);
+      var route = document.createElement("span");
+      route.className = "cad-pga-menu-route";
+      route.textContent = "/" + entry.slug;
+      demoLink.appendChild(route);
+
+      list.appendChild(demoLink);
     });
 
     panel.appendChild(head);
-    panel.appendChild(grid);
-    return panel;
+    panel.appendChild(list);
+    return {
+      root: panel,
+      closeButton: closeButton
+    };
   }
 
   function createThumbbar() {
@@ -409,20 +439,20 @@
     var grid = document.createElement("div");
     grid.className = "cad-pga-thumbbar-grid";
 
-    var menuButton = createThumbButton("button", "Menu", "All demos");
+    var menuButton = createThumbButton("button", "Menu");
     menuButton.type = "button";
     menuButton.setAttribute("data-demo-toggle", "menu");
     menuButton.setAttribute("aria-controls", "cad-pga-menu-panel");
 
-    var detailsButton = createThumbButton("button", "Details", "Math panel");
+    var detailsButton = createThumbButton("button", "Details");
     detailsButton.type = "button";
     detailsButton.setAttribute("data-demo-toggle", "details");
     detailsButton.setAttribute("aria-controls", "cad-pga-details-panel");
 
-    var notesLink = createThumbButton("link", "Notes", "Readme route");
+    var notesLink = createThumbButton("link", "Notes");
     notesLink.href = "./readme/";
 
-    var homeLink = createThumbButton("link", "Home", "Library index");
+    var homeLink = createThumbButton("link", "Home");
     homeLink.href = "../";
 
     grid.appendChild(menuButton);
@@ -438,7 +468,7 @@
     };
   }
 
-  function createThumbButton(kind, labelText, metaText) {
+  function createThumbButton(kind, labelText) {
     var element = kind === "link" ? document.createElement("a") : document.createElement("button");
     element.className = "cad-pga-thumb-button";
 
@@ -446,12 +476,7 @@
     label.className = "cad-pga-thumb-label";
     label.textContent = labelText;
 
-    var meta = document.createElement("span");
-    meta.className = "cad-pga-thumb-meta";
-    meta.textContent = metaText;
-
     element.appendChild(label);
-    element.appendChild(meta);
     return element;
   }
 
