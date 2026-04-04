@@ -1,0 +1,234 @@
+:root {
+  --demo-bg: #050505;
+  --demo-bg-soft: #0b0b0b;
+  --demo-ink: #e4e4e4;
+  --demo-ink-strong: #f5f5f5;
+  --demo-muted: #b2b2b2;
+  --demo-faint: #7d7d7d;
+  --demo-panel-bg: rgba(9, 10, 14, 0.88);
+  --demo-panel-border: rgba(255, 255, 255, 0.14);
+  --demo-card-bg: rgba(255, 255, 255, 0.04);
+  --demo-code-bg: #090909;
+}
+
+body.cad-pga-demo-page,
+body.cad-pga-demo-page button,
+body.cad-pga-demo-page input,
+body.cad-pga-demo-page textarea,
+body.cad-pga-demo-page select {
+  font-family: "Space Grotesk", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+.cad-pga-toolbar,
+.cad-pga-menu-panel,
+.cad-pga-details-panel {
+  font-family: "Space Grotesk", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+.cad-pga-toolbar-title,
+.cad-pga-shell-button,
+.cad-pga-menu-copy strong,
+.cad-pga-menu-action,
+.cad-pga-controls-label {
+  letter-spacing: -0.02em;
+}
+
+.cad-pga-menu-panel,
+.cad-pga-details-panel {
+  background: var(--demo-panel-bg) !important;
+  border-color: var(--demo-panel-border) !important;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.34);
+}
+
+.cad-pga-details-panel {
+  padding: 20px !important;
+  color: var(--demo-ink) !important;
+  backdrop-filter: blur(22px);
+}
+
+.cad-pga-details-panel h1,
+.cad-pga-details-panel h2,
+.cad-pga-details-panel h3 {
+  margin: 0;
+  color: var(--demo-ink-strong) !important;
+  font-family: "Space Grotesk", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+}
+
+.cad-pga-details-panel h1 {
+  font-size: clamp(1.45rem, 2vw, 1.9rem) !important;
+  line-height: 0.96;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+.cad-pga-details-panel h2 {
+  font-size: 0.86rem !important;
+  line-height: 1.2;
+  color: var(--demo-faint) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.12em !important;
+}
+
+.cad-pga-details-panel p,
+.cad-pga-details-panel li,
+.cad-pga-controls-copy {
+  color: var(--demo-muted) !important;
+  font-size: 0.94rem !important;
+  line-height: 1.68 !important;
+}
+
+.cad-pga-details-panel p {
+  margin: 0;
+}
+
+.cad-pga-details-panel .cad-pga-panel-copy {
+  display: grid;
+  gap: 18px;
+}
+
+.cad-pga-panel-head {
+  display: grid;
+  gap: 10px;
+}
+
+.cad-pga-panel-eyebrow {
+  margin: 0;
+  color: var(--demo-faint) !important;
+  font-size: 0.74rem !important;
+  font-family: "Space Mono", "Cascadia Code", "SFMono-Regular", Consolas, monospace !important;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cad-pga-panel-lede {
+  max-width: 34ch;
+  color: var(--demo-ink) !important;
+  font-size: 0.98rem !important;
+  line-height: 1.78 !important;
+}
+
+.cad-pga-panel-section {
+  display: grid;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.cad-pga-panel-equation {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 12px 14px;
+  background: var(--demo-code-bg);
+}
+
+.cad-pga-details-panel .math,
+.cad-pga-details-panel code {
+  padding: 0.08rem 0.32rem !important;
+  border-radius: 0 !important;
+  background: #101010 !important;
+  color: var(--demo-ink-strong) !important;
+  font-size: 0.92em !important;
+  font-family: "Space Mono", "Cascadia Code", "SFMono-Regular", Consolas, monospace !important;
+}
+
+.cad-pga-details-panel .citation {
+  color: var(--demo-faint) !important;
+  font-size: 0.8rem !important;
+  font-style: normal !important;
+}
+
+.cad-pga-stat-group,
+.cad-pga-details-panel .legend-panel {
+  display: grid;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.cad-pga-details-panel .value-row,
+.cad-pga-details-panel .value-grid,
+.cad-pga-details-panel .legend-label-row,
+.cad-pga-details-panel .legend-scale {
+  font-family: "Space Mono", "Cascadia Code", "SFMono-Regular", Consolas, monospace !important;
+}
+
+.cad-pga-details-panel .value-row,
+.cad-pga-details-panel .value-grid {
+  color: var(--demo-ink-strong) !important;
+}
+
+.cad-pga-details-panel .legend-copy,
+.cad-pga-details-panel .legend-scale,
+.cad-pga-details-panel .value-grid span:nth-child(odd) {
+  color: var(--demo-faint) !important;
+}
+
+.resource-row {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.resource-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--demo-card-bg);
+  color: var(--demo-ink-strong);
+  text-decoration: none;
+}
+
+.resource-card:hover,
+.resource-card:focus-visible {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.resource-title {
+  color: var(--demo-ink-strong);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.resource-meta {
+  color: var(--demo-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.cad-pga-details-panel mjx-container[jax="CHTML"] {
+  color: var(--demo-ink-strong) !important;
+}
+
+.cad-pga-details-panel mjx-container[jax="CHTML"][display="true"] {
+  margin: 0;
+}
+
+html.demo-math-loading .cad-pga-details-panel::after {
+  content: "Rendering math...";
+  display: block;
+  margin-top: 8px;
+  color: var(--demo-faint);
+  font-size: 0.76rem;
+  font-family: "Space Mono", "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+}
+
+html.demo-math-error .cad-pga-details-panel::after {
+  content: "MathJax failed to load.";
+}
+
+@media (max-width: 720px) {
+  .cad-pga-details-panel {
+    padding: 18px !important;
+  }
+
+  .resource-row {
+    grid-template-columns: 1fr;
+  }
+}

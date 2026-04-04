@@ -23,17 +23,45 @@
 
         <header class="hero">
             <p class="eyebrow">Meshless FEA WoS</p>
-            <h1>Exact boundary distance plus random sphere walks gives a meshless Laplace solve.</h1>
+            <h1>Exact boundary distance plus random sphere walks gives a meshless harmonic heat solve.</h1>
             <p class="lede">
                 This example mixes two kinds of boundary description in one field problem: exact PGA lines for the box
                 walls and a signed-distance disk for the interior obstacle. A Walk on Spheres process then estimates the
                 temperature by sampling where Brownian motion is most likely to hit the boundary first.
             </p>
+            <div class="resource-row">
+                <a class="resource-card" href="../">
+                    <span class="resource-title">Open Demo</span>
+                    <span class="resource-meta">Watch the live walker, the hot and cold boundaries, and the accumulating sample field.</span>
+                </a>
+                <a class="resource-card" href="http://www.cs.fsu.edu/~mascagni/Muller_1956_Annals_Mathematical_Statistics.pdf" target="_blank" rel="noreferrer">
+                    <span class="resource-title">WoS Origin Paper</span>
+                    <span class="resource-meta">Muller's 1956 paper on continuous Monte Carlo methods for the Dirichlet problem.</span>
+                </a>
+                <a class="resource-card" href="https://www.cs.cmu.edu/~kmcrane/Projects/WalkOnStars/" target="_blank" rel="noreferrer">
+                    <span class="resource-title">Walk on Stars</span>
+                    <span class="resource-meta">Modern CMU project page for the Neumann/Dirichlet grid-free extension.</span>
+                </a>
+                <a class="resource-card" href="https://bivector.net/2DPGA.pdf" target="_blank" rel="noreferrer">
+                    <span class="resource-title">2D PGA Cheat Sheet</span>
+                    <span class="resource-meta">Point, line, and distance formulas for the 2D wall geometry in the demo.</span>
+                </a>
+            </div>
         </header>
 
         <section class="section">
+            <p class="section-label">Verification note</p>
+            <h2>This is closer to WoS for a Dirichlet heat problem than to full FEM or full WoSt.</h2>
+            <p class="callout">
+                Despite the route name, the current page does not assemble a finite element system. It also does not
+                implement the full Walk on Stars visibility machinery for mixed boundary conditions. The code is a classic
+                Walk on Spheres-style harmonic heat demo driven by nearest-boundary distance queries.
+            </p>
+        </section>
+
+        <section class="section">
             <p class="section-label">Boundary value problem</p>
-            <h2>The field is harmonic away from the boundaries.</h2>
+            <h2>The current demo solves a harmonic field away from the boundaries.</h2>
             <div class="math-block">
                 $$
                 \begin{aligned}
@@ -58,7 +86,8 @@
                 \begin{aligned}
                 p(x,y) &= \mathbf{e}_{12} - x\mathbf{e}_{02} + y\mathbf{e}_{01} \\
                 L_{ij} &= p_i \vee p_j \\
-                d_{\text{wall}}(P, L) &= \left\| P \wedge L \right\|_{\infty}
+                \widehat{L}_{ij} &= \frac{L_{ij}}{\|L_{ij}\|} \\
+                d_{\text{wall}}(P, \widehat{L}) &= \left| (P \wedge \widehat{L}) \mathbf{e}_{012} \right|
                 \end{aligned}
                 $$
             </div>
@@ -83,7 +112,14 @@ const dist = Math.abs((p ^ boundary.line).e012);</code></pre>
             <h2>The inner disk is just an SDF query.</h2>
             <div class="math-block">
                 $$
-                d_{\text{disk}}(x,y) = \sqrt{x^2 + y^2} - r
+                \begin{aligned}
+                d_{\text{disk}}(x,y) &= \sqrt{x^2 + y^2} - r \\
+                d(P,\partial\Omega) &=
+                \min\left(
+                \min_i d_{\text{wall}}(P,\widehat{L}_i),
+                \left| d_{\text{disk}}(x,y) \right|
+                \right)
+                \end{aligned}
                 $$
             </div>
             <p>
@@ -160,6 +196,7 @@ curr = point(
                 <li>PGA contributes exact wall primitives and an algebraic distance query.</li>
                 <li>The SDF contributes an easy implicit obstacle.</li>
                 <li>The solver only cares about nearest-boundary distance, so the representation stays composable.</li>
+                <li>The route name says FEA, but the current mathematics is a meshless Monte Carlo Laplace solve.</li>
                 <li>The whole example stays executable in one small page with no meshing step at all.</li>
             </ul>
         </section>

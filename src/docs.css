@@ -160,6 +160,41 @@ li {
   font-size: 0.98rem;
 }
 
+.resource-row {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 28px;
+}
+
+.resource-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  background: var(--code-bg);
+  color: var(--ink-strong);
+  text-decoration: none;
+}
+
+.resource-card:hover,
+.resource-card:focus-visible {
+  color: white;
+  background: #101010;
+}
+
+.resource-title {
+  color: var(--ink-strong);
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.resource-meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
 .list {
   padding-left: 20px;
   margin: 18px 0 0;

@@ -29,23 +29,25 @@
             <h1>Projective Geometric Algebra examples, with demos and notes.</h1>
             <p class="lede">
                 This repo is a small library of examples. Each entry gets a live route for interaction and a readme route
-                for equations, code, and interpretation. The point is to keep the demos executable and keep the math close.
+                for equations, code, and interpretation. The notes are intentionally code-faithful: when a page is exact
+                PGA, it says so; when a page is a simpler SE(2) or WoS-style bridge, it says that too.
             </p>
         </header>
 
         <section class="section">
             <p class="section-label">Library pattern</p>
-            <h2>One route for seeing the motion, one route for understanding it.</h2>
+            <h2>One route for seeing the motion, one route for checking the math.</h2>
             <p>
-                The shared language across the examples is the same: split Euclidean and ideal content cleanly, then use
-                motors to move geometry without leaving the algebra.
+                The shared language across the examples is still geometric: motors move rigid bodies, boundary sums encode
+                content, and algebraic distance queries drive the meshless heat example. The repo docs in
+                <code>docs/OUTLINE.md</code> keep the longer bibliography and verification notes behind those patterns.
             </p>
             <div class="math-block">
                 $$
                 \begin{aligned}
-                A &= A_E + \mathbf{e}_0 A_I \\
                 X' &= \mathbf{M} X \widetilde{\mathbf{M}} \\
-                \mathbf{M} &= \mathbf{T}\mathbf{R}
+                \partial K &= \sum_i E_i \\
+                d(P,\partial \Omega) &= \min_i \left|(P \wedge \widehat{L}_i)\mathbf{e}_{012}\right|
                 \end{aligned}
                 $$
             </div>
@@ -67,14 +69,15 @@
                 <h3>Mesh Cleanup</h3>
                 <p>
                     The mesh example evaluates polygon area from the oriented boundary rather than from one chosen fan
-                    triangulation. Moving the gauge point changes the cone decomposition but not the signed area encoded by
-                    the boundary sum.
+                    triangulation. The notes page now points to the verified arXiv preprint and distinguishes the varying
+                    absolute cone sum from the invariant ideal-norm area.
                 </p>
                 <div class="math-block compact">
                     $$
                     \begin{aligned}
-                    \partial P &= \sum_i E_i \\
-                    A(P) &= \frac{1}{2}\left\| o \vee \partial P \right\|_{\infty}
+                    \partial K &= \sum_i E_i \\
+                    \Pi(o) &= o \vee \partial K \\
+                    A(K) &= \frac{1}{2}\left\| \Pi(o) \right\|_{\infty}
                     \end{aligned}
                     $$
                 </div>
@@ -98,14 +101,16 @@ const netArea = 0.5 * netAreaPlane.Length;</code></pre>
                 <h3>CNC Kernel Simulator</h3>
                 <p>
                     The CNC example treats spindle rotation and feed translation as one motor, then applies that motor to
-                    the full endmill geometry. The red block is a simple swept-volume stand-in for the removed material.
+                    the full endmill geometry. The notes page makes the axis line and transform order explicit, and marks the
+                    red swept block as an approximation rather than an exact Boolean sweep.
                 </p>
                 <div class="math-block compact">
                     $$
                     \begin{aligned}
-                    \mathbf{R}(\theta) &= \cos\!\left(\frac{\theta}{2}\right) + \sin\!\left(\frac{\theta}{2}\right)\mathbf{e}_{12} \\
-                    \mathbf{T}(d_x) &= 1 - \frac{1}{2} d_x \mathbf{e}_{01} \\
-                    \mathbf{M}(t) &= \mathbf{T}(d_x(t))\,\mathbf{R}(\theta(t))
+                    \ell_z &= \mathbf{e}_{12} \\
+                    \mathbf{R}_z(\theta) &= \cos\!\left(\frac{\theta}{2}\right) + \sin\!\left(\frac{\theta}{2}\right)\ell_z \\
+                    \mathbf{T}_x(d_x) &= 1 - \frac{1}{2} d_x \mathbf{e}_{01} \\
+                    \mathbf{M}(t) &= \mathbf{T}_x(d_x(t))\,\mathbf{R}_z(\theta(t))
                     \end{aligned}
                     $$
                 </div>
@@ -125,15 +130,16 @@ const drillTransformed = drillBase.map((poly) =>
             <article class="entry">
                 <h3>Gear Rotation Linkage</h3>
                 <p>
-                    The gear example is the lightest entry in the library: a parent rotation, a local child offset and
-                    oscillation, and a composed world transform driving a small mechanism. It is a clean scene-graph example.
+                    The gear example is the lightest entry in the library. It uses a small SE(2)-style helper in code, not
+                    full ganja.js multivectors, so the notes now show the exact parent-local-world equations first and the
+                    PGA sandwich-product form second.
                 </p>
                 <div class="math-block compact">
                     $$
                     \begin{aligned}
-                    M_{\text{gear}} &= \operatorname{Rotor}(t) \\
-                    M_{\text{local}} &= \operatorname{Translator}(x, y)\,\operatorname{Rotor}(\sin t) \\
-                    M_{\text{world}} &= M_{\text{gear}}\,M_{\text{local}}
+                    \phi_{\text{world}} &= \phi_{\text{gear}} + \phi_{\text{local}} \\
+                    t_{\text{world}} &= t_{\text{gear}} + R(\phi_{\text{gear}})\,t_{\text{local}} \\
+                    p_{\text{world}} &= R(\phi_{\text{world}})\,p_{\text{local}} + t_{\text{world}}
                     \end{aligned}
                     $$
                 </div>
@@ -151,14 +157,14 @@ const mWorldArm = multiply(mGear, mLocalArm);</code></pre>
             <article class="entry">
                 <h3>Meshless FEA WoS</h3>
                 <p>
-                    The FEA example replaces a mesh with exact boundary distance queries. PGA line walls and a signed-distance
-                    disk feed a Walk on Spheres process that estimates the harmonic temperature field by jumping to the edge
-                    of the largest guaranteed-empty circle.
+                    The route name says FEA, but the current example is closer to a meshless harmonic heat solve. PGA wall
+                    lines and a signed-distance disk feed a classic WoS-style process based on nearest-boundary distance.
+                    The notes now call out that this is not a full Walk on Stars or finite-element implementation.
                 </p>
                 <div class="math-block compact">
                     $$
                     \begin{aligned}
-                    d(P, \partial \Omega) &= \min \left(\min_i \left\| P \wedge L_i \right\|_{\infty}, \left|\sqrt{x^2 + y^2} - r\right|\right) \\
+                    d(P,\partial \Omega) &= \min \left(\min_i \left| (P \wedge \widehat{L}_i)\mathbf{e}_{012} \right|, \left|\sqrt{x^2 + y^2} - r\right|\right) \\
                     X_{k+1} &= X_k + d_k(\cos \theta_k, \sin \theta_k) \\
                     u(x) &= \mathbb{E}[g(X_{\tau})]
                     \end{aligned}
@@ -183,7 +189,8 @@ curr = point(
             <h2>The structure is intentionally small enough to grow.</h2>
             <p>
                 New entries do not need a framework. They just need a demo route, a notes route, and one short place on the
-                homepage. That keeps the library easy to browse and easy to extend.
+                homepage. That keeps the library easy to browse and easy to extend while still leaving room for source review
+                and code-faithful MathJax on the note pages.
             </p>
             <pre><code class="language-javascript">Algebra(3, 0, 1, () =&gt; {
   const motor = translator(dx) * rotor(theta);

@@ -13,6 +13,7 @@
     <meta name="description" content="Interactive CNC milling simulation showing PGA motors and a swept cut volume.">
     <meta name="theme-color" content="#0d0d12">
     <title>CNC Kernel Simulator - CAD PGA</title>
+    <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
     <style>
         body, html {
             margin: 0;
@@ -121,33 +122,47 @@
     <script src="../demo-runtime.js"></script>
 </head>
 <body>
-    <div id="nav-links">
-        <a class="nav-link" href="./readme/">Math Notes</a>
-        <a class="nav-link" href="../">Library Home</a>
-    </div>
-
     <div id="ui-panel">
-        <h1>PGA CNC Kernel Simulator</h1>
-        <p>
-            In standard CAM software, spindle rotation and feed-rate translation are handled by separate matrix systems.
-        </p>
-        <p>
-            Using 3D PGA, the state of the <span class="highlight-white">endmill tool</span> is encapsulated in one
-            continuous entity:
-        </p>
-        <p class="math" style="text-align: center;">Motor = Translator * Rotor</p>
+        <div class="cad-pga-panel-copy">
+            <header class="cad-pga-panel-head">
+                <p class="cad-pga-panel-eyebrow">CNC Kernel Simulator</p>
+                <h1>One motor carries spindle spin and feed motion together.</h1>
+                <p class="cad-pga-panel-lede">
+                    The white endmill is not using one transform for translation and another for rotation. PGA composes both
+                    into a single motor and applies it uniformly to the full tool geometry.
+                </p>
+            </header>
 
-        <hr style="border-color:#334; margin: 15px 0;">
+            <div class="resource-row">
+                <a class="resource-card" href="./readme/">
+                    <span class="resource-title">Math Notes</span>
+                    <span class="resource-meta">Point embedding, motor action, and the swept-volume stand-in.</span>
+                </a>
+                <a class="resource-card" href="https://bivector.net/3DPGA.pdf" target="_blank" rel="noreferrer">
+                    <span class="resource-title">3D PGA Cheat Sheet</span>
+                    <span class="resource-meta">Compact reference for points, lines, planes, rotors, and translators in 3D PGA.</span>
+                </a>
+                <a class="resource-card" href="https://enkimute.github.io/LookMaNoMatrices/" target="_blank" rel="noreferrer">
+                    <span class="resource-title">Motor Primer</span>
+                    <span class="resource-meta">A practical guide to moving geometry without matrices.</span>
+                </a>
+            </div>
 
-        <p>
-            <span class="highlight-blue">Blue wireframe:</span> the raw stock material.
-        </p>
-        <p>
-            <span class="highlight-red">Red volume:</span> the swept volume of the cut path.
-        </p>
-        <p>
-            <span class="highlight-white">White tool:</span> a spinning four-flute endmill driven by a single PGA motor.
-        </p>
+            <section class="cad-pga-panel-section">
+                <h2>Motion model</h2>
+                <div class="cad-pga-panel-equation">
+\[
+\mathbf{M}(t) = \mathbf{T}(d_x(t))\,\mathbf{R}(\theta(t)),
+\qquad
+p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
+\]
+                </div>
+                <p>
+                    The red block is a simple swept-volume stand-in. The blue wireframe is the stock, and the white body is
+                    the spinning four-flute tool.
+                </p>
+            </section>
+        </div>
     </div>
 
     <div id="instructions">
@@ -158,6 +173,10 @@
 
     <script>
         window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
+        window.CadPgaDemo.mountDemoShell({
+            slug: "cnc-kernel-simulator",
+            title: "CNC Kernel Simulator"
+        });
 
         Algebra(3, 0, 1, () => {
             // 3D PGA cheat sheet: P = x e032 + y e013 + z e021 + e123.
@@ -271,5 +290,6 @@
             });
         });
     </script>
+    <script type="module" src="../src/demo-entry.js"></script>
 </body>
 </html>

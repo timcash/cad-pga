@@ -13,6 +13,7 @@
     <meta name="description" content="A 2D gear rotation and linkage hierarchy demo based on the ga_cad Dialtone plugin scene graph.">
     <meta name="theme-color" content="#04080d">
     <title>Gear Rotation Linkage - CAD PGA</title>
+    <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
     <style>
         :root {
             color-scheme: dark;
@@ -185,35 +186,48 @@
     <script src="../demo-runtime.js"></script>
 </head>
 <body>
-    <div id="nav-links">
-        <a class="nav-link" href="./readme/">Math Notes</a>
-        <a class="nav-link" href="../">Library Home</a>
-    </div>
-
     <section id="panel">
-        <h1>PGA Kinematic Hierarchy</h1>
-        <p>
-            This example is brought over from the <code>ga_cad/src_v1</code> Dialtone plugin. It treats a rotating gear
-            as a parent transform and a linkage arm as a child transform attached to a pin on the gear.
-        </p>
-        <p class="gear-text">
-            <strong>Parent (Gear):</strong><br>
-            Rotates around the global origin.<br>
-            <span class="math">M_gear = Rotor(t)</span>
-        </p>
-        <p class="arm-text">
-            <strong>Child (Arm Linkage):</strong><br>
-            Attached to a pin on the gear with its own local oscillation.<br>
-            <span class="math">M_local = Translator(x, y) * Rotor(sin(t))</span>
-        </p>
-        <p>
-            <strong>Combined World Transform:</strong><br>
-            <span class="math">M_world = M_parent * M_local</span>
-        </p>
-        <p>
-            <strong>Application:</strong><br>
-            <span class="math">P_new = M * P * M~</span>
-        </p>
+        <div class="cad-pga-panel-copy">
+            <header class="cad-pga-panel-head">
+                <p class="cad-pga-panel-eyebrow">Gear Rotation Linkage</p>
+                <h1>One parent motion, one local motion, one world transform.</h1>
+                <p class="cad-pga-panel-lede">
+                    This compact scene-graph example came over from the <code>ga_cad/src_v1</code> plugin. The important
+                    idea is not the gear itself, but the way the arm inherits a parent transform and adds a local one.
+                </p>
+            </header>
+
+            <div class="resource-row">
+                <a class="resource-card" href="./readme/">
+                    <span class="resource-title">Math Notes</span>
+                    <span class="resource-meta">A clean walk through parent-local-world composition.</span>
+                </a>
+                <a class="resource-card" href="https://enkimute.github.io/LookMaNoMatrices/" target="_blank" rel="noreferrer">
+                    <span class="resource-title">Motor Primer</span>
+                    <span class="resource-meta">A useful intuition builder for rigid motions and composed transforms.</span>
+                </a>
+                <a class="resource-card" href="https://bivector.net/PGA4CS.pdf" target="_blank" rel="noreferrer">
+                    <span class="resource-title">PGA Reference</span>
+                    <span class="resource-meta">Projective Geometric Algebra for Computer Science.</span>
+                </a>
+            </div>
+
+            <section class="cad-pga-panel-section">
+                <h2>Hierarchy equation</h2>
+                <div class="cad-pga-panel-equation">
+\[
+M_{\mathrm{world}}(t) =
+M_{\mathrm{gear}}(t)\,M_{\mathrm{local}}(t),
+\qquad
+P_{\mathrm{new}} = M\,P\,\widetilde{M}
+\]
+                </div>
+                <p>
+                    The orange arm is never authored in global coordinates. It is evaluated in the gear frame and then pushed
+                    out into world space.
+                </p>
+            </section>
+        </div>
     </section>
 
     <div id="instructions">
@@ -226,6 +240,12 @@
 
     <script>
         window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
+        window.CadPgaDemo.mountDemoShell({
+            slug: "gear-rotation-linkage",
+            title: "Gear Rotation Linkage",
+            stageSelector: "#canvas-wrap",
+            detailsSelector: "#panel"
+        });
 
         const canvas = document.getElementById("scene");
         const ctx = canvas.getContext("2d");
@@ -442,5 +462,6 @@
         resize();
         requestAnimationFrame(render);
     </script>
+    <script type="module" src="../src/demo-entry.js"></script>
 </body>
 </html>

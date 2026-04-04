@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'cad-pga-pwa-v6';
+const CACHE_VERSION = 'cad-pga-pwa-v7';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const CORE_ASSETS = [
@@ -27,6 +27,7 @@ const CORE_ASSETS = [
   './pwa-512.png',
   './pwa-maskable-192.png',
   './pwa-maskable-512.png',
+  './demo-shell.css',
   './demo-runtime.js',
   './vendor/ganja.js'
 ];

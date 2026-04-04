@@ -26,9 +26,34 @@
             <h1>A small hierarchy example: one parent motion, one child motion, one world result.</h1>
             <p class="lede">
                 This page documents the 2D gear-and-arm example brought over from the <code>ga_cad/src_v1</code> plugin. It
-                is deliberately simple, but it captures the core scene-graph idea cleanly.
+                is deliberately simple, but it captures the core scene-graph idea cleanly. The current code uses a small
+                SE(2)-style helper struct rather than full ganja.js multivectors.
             </p>
+            <div class="resource-row">
+                <a class="resource-card" href="../">
+                    <span class="resource-title">Open Demo</span>
+                    <span class="resource-meta">Orbit around the 2D linkage and inspect the inherited motion live.</span>
+                </a>
+                <a class="resource-card" href="https://enkimute.github.io/LookMaNoMatrices/" target="_blank" rel="noreferrer">
+                    <span class="resource-title">Motor Primer</span>
+                    <span class="resource-meta">Useful background for composing rigid motions into one world transform.</span>
+                </a>
+                <a class="resource-card" href="https://bivector.net/PGA4CS.pdf" target="_blank" rel="noreferrer">
+                    <span class="resource-title">PGA Reference</span>
+                    <span class="resource-meta">Projective Geometric Algebra for Computer Science.</span>
+                </a>
+            </div>
         </header>
+
+        <section class="section">
+            <p class="section-label">Verification note</p>
+            <h2>The code path here is SE(2) composition, with PGA as the conceptual analogue.</h2>
+            <p class="callout">
+                An earlier version of this page leaned too hard on the sandwich-product notation. The current demo does not
+                literally run ganja.js motors; it composes angle-plus-translation structs in the plane. The MathJax below now
+                reflects that code first, then shows the PGA analogue as a bridge.
+            </p>
+        </section>
 
         <section class="section">
             <p class="section-label">Hierarchy equations</p>
@@ -36,15 +61,16 @@
             <div class="math-block">
                 $$
                 \begin{aligned}
-                M_{\text{gear}}(t) &= \operatorname{Rotor}(t) \\
-                M_{\text{local}}(t) &= \operatorname{Translator}(x, y)\,\operatorname{Rotor}(\sin t) \\
-                M_{\text{world}}(t) &= M_{\text{gear}}(t)\,M_{\text{local}}(t)
+                \phi_{\text{world}}(t) &= \phi_{\text{gear}}(t) + \phi_{\text{local}}(t) \\
+                t_{\text{world}}(t) &= t_{\text{gear}}(t) + R(\phi_{\text{gear}}(t))\,t_{\text{local}}(t) \\
+                p_{\text{world}} &= R(\phi_{\text{world}})\,p_{\text{local}} + t_{\text{world}}
                 \end{aligned}
                 $$
             </div>
             <p>
                 The orange arm is not given separate global coordinates. It inherits the gear motion and then contributes
-                only its local offset and local oscillation.
+                only its local offset and local oscillation. That is exactly what the
+                <code>multiply(parent, local)</code> helper computes in the page script.
             </p>
         </section>
 
@@ -69,19 +95,23 @@ function multiply(parent, local) {
   };
 }</code></pre>
             <p>
-                The plugin version is a lightweight 2D motor model rather than a full 3D PGA implementation, but it
-                preserves the same parent-local-world composition pattern.
+                The plugin version is a lightweight 2D rigid-transform model rather than a full 3D PGA implementation, but
+                it preserves the same parent-local-world composition pattern.
             </p>
         </section>
 
         <section class="section">
-            <p class="section-label">Applying the world transform</p>
-            <h2>Geometry is just points pushed through the composed motion.</h2>
+            <p class="section-label">PGA analogue</p>
+            <h2>If the helper structs were replaced by PGA motors, the action would look like this.</h2>
             <div class="math-block">
                 $$
                 P_{\text{new}} = M\,P\,\widetilde{M}
                 $$
             </div>
+            <p>
+                That sandwich-product form is still the right conceptual bridge to the rest of the repo. It is just not the
+                literal code path for this specific page.
+            </p>
             <pre><code class="language-javascript">const mGear = rotor(gearAngle);
 const mLocalOffset = translator(gearRadius - 0.2, 0);
 const mLocalRotation = rotor(armLocalOscillation);

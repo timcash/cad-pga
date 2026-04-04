@@ -28,7 +28,30 @@
                 The demo is intentionally simple, but the geometry is doing something important: the white tool is moved by
                 one PGA motor, not by separate translation and rotation pipelines.
             </p>
+            <div class="resource-row">
+                <a class="resource-card" href="../">
+                    <span class="resource-title">Open Demo</span>
+                    <span class="resource-meta">Inspect the spinning tool, the stock frame, and the swept-volume stand-in.</span>
+                </a>
+                <a class="resource-card" href="https://bivector.net/3DPGA.pdf" target="_blank" rel="noreferrer">
+                    <span class="resource-title">3D PGA Cheat Sheet</span>
+                    <span class="resource-meta">Compact reference for 3D points, lines, planes, rotors, and translators.</span>
+                </a>
+                <a class="resource-card" href="https://enkimute.github.io/LookMaNoMatrices/" target="_blank" rel="noreferrer">
+                    <span class="resource-title">Motor Primer</span>
+                    <span class="resource-meta">A practical guide to moving rigid geometry without matrices.</span>
+                </a>
+            </div>
         </header>
+
+        <section class="section">
+            <p class="section-label">Verification note</p>
+            <h2>This page is a direct rigid-motion demo, not one specific paper implementation.</h2>
+            <p class="callout">
+                The math here is grounded in the Bivector and "Look Ma, No Matrices" PGA references. The code is an
+                intentionally small motor demo rather than a reproduction of a single CAM paper.
+            </p>
+        </section>
 
         <section class="section">
             <p class="section-label">Core equations</p>
@@ -37,15 +60,17 @@
                 $$
                 \begin{aligned}
                 P(x,y,z) &= \mathbf{e}_{123} + x\mathbf{e}_{032} + y\mathbf{e}_{013} + z\mathbf{e}_{021} \\
-                \mathbf{R}(\theta) &= \cos\!\left(\frac{\theta}{2}\right) + \sin\!\left(\frac{\theta}{2}\right)\mathbf{e}_{12} \\
-                \mathbf{T}(d_x) &= 1 - \frac{1}{2} d_x \mathbf{e}_{01} \\
-                \mathbf{M}(t) &= \mathbf{T}(d_x(t))\,\mathbf{R}(\theta(t))
+                \ell_z &= \mathbf{e}_{12} \\
+                \mathbf{R}_z(\theta) &= \cos\!\left(\frac{\theta}{2}\right) + \sin\!\left(\frac{\theta}{2}\right)\ell_z \\
+                \mathbf{T}_x(d_x) &= 1 - \frac{1}{2} d_x \mathbf{e}_{01} \\
+                \mathbf{M}(t) &= \mathbf{T}_x(d_x(t))\,\mathbf{R}_z(\theta(t))
                 \end{aligned}
                 $$
             </div>
             <p>
                 The rotor turns the spindle about the tool axis. The translator advances the tool through the stock. Their
-                geometric product gives one rigid-body transform.
+                geometric product gives one rigid-body transform, and because the code builds
+                <code>motor = translator * rotor</code>, the geometry is rotated first and then translated.
             </p>
         </section>
 
@@ -81,8 +106,9 @@ const drillTransformed = drillBase.map((poly) =>
                 $$
             </div>
             <p>
-                In the current demo, the red volume is still a simple box approximation rather than a full Boolean sweep.
-                But it is placed to cover the tool radius along the full x-travel.
+                That equation is the ideal geometric sweep. In the current demo, the red volume is still a simple box
+                approximation rather than a full Boolean sweep, but it is placed to cover the tool radius along the full
+                x-travel.
             </p>
             <pre><code class="language-javascript">const cutVolume = makeSolidBox(
   cutTravel + drillRadius,

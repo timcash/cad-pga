@@ -13,6 +13,7 @@
     <meta name="description" content="Interactive PGA mesh cleanup demo using simplicial extension and area invariance.">
     <meta name="theme-color" content="#111111">
     <title>Mesh Cleanup - CAD PGA</title>
+    <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
     <style>
         body, html {
             margin: 0;
@@ -142,43 +143,60 @@
     <script src="../demo-runtime.js"></script>
 </head>
 <body>
-    <div id="nav-links">
-        <a class="nav-link" href="./readme/">Math Notes</a>
-        <a class="nav-link" href="../">Library Home</a>
-    </div>
-
     <div id="ui-panel">
-        <h1>Clean up your Mesh!</h1>
-        <div class="citation">Based on the 2024 paper by S. De Keninck, M. Roelfs, L. Dorst, D. Eelbode</div>
+        <div class="cad-pga-panel-copy">
+            <header class="cad-pga-panel-head">
+                <p class="cad-pga-panel-eyebrow">Mesh Cleanup</p>
+                <h1>Boundary sums keep the area even while the cone changes shape.</h1>
+                <p class="cad-pga-panel-lede">
+                    Drag the apex and the polygon vertices. The blue cone faces change immediately, but the oriented boundary
+                    still encodes the same signed area.
+                </p>
+            </header>
 
-        <h2>Simplicial Extension and Area</h2>
-        <p>
-            In Plane-Based Geometric Algebra (PGA), the magnitude of a k-complex can be evaluated by joining its boundary
-            with an arbitrary gauge point <span class="math">o</span>.
-        </p>
-        <p>
-            For a polygon, its area <span class="math">A</span> is exactly half the ideal norm of the sum of the boundary
-            edges <span class="math">E_i</span> joined to <span class="math">o</span>:
-        </p>
-        <p class="math" style="text-align: center;">A = 0.5 * || o v (sum E_i) ||</p>
+            <div class="resource-row">
+                <a class="resource-card" href="./readme/">
+                    <span class="resource-title">Math Notes</span>
+                    <span class="resource-meta">Full derivation, code mapping, and the corrected 3D point model.</span>
+                </a>
+                <a class="resource-card" href="https://arxiv.org/abs/2511.08058" target="_blank" rel="noreferrer">
+                    <span class="resource-title">Verified Paper</span>
+                    <span class="resource-meta">arXiv preprint, submitted November 11, 2025 and revised November 14, 2025.</span>
+                </a>
+                <a class="resource-card" href="https://bivector.net/PGA4CS.pdf" target="_blank" rel="noreferrer">
+                    <span class="resource-title">PGA Reference</span>
+                    <span class="resource-meta">Projective Geometric Algebra for Computer Science.</span>
+                </a>
+            </div>
 
-        <hr style="border-color:#445; margin: 15px 0;">
+            <section class="cad-pga-panel-section">
+                <h2>Key equation</h2>
+                <div class="cad-pga-panel-equation">
+\[
+\partial K = \sum_i E_i,
+\qquad
+A(K) = \frac{1}{2}\left\| o \vee \partial K \right\|_{\infty}
+\]
+                </div>
+                <p>
+                    The gauge point \(o\) changes the cone decomposition, not the signed area carried by the full boundary sum.
+                </p>
+            </section>
 
-        <div class="value-row">
-            <span>Sum of Abs Cone Area:</span>
-            <span id="val-abs" class="val-changing">0.000</span>
+            <section class="cad-pga-stat-group">
+                <div class="value-row">
+                    <span>Sum of abs cone area</span>
+                    <span id="val-abs" class="val-changing">0.000</span>
+                </div>
+                <p>The red value changes because each cone face gets a different Euclidean tilt and height.</p>
+
+                <div class="value-row">
+                    <span>Net signed area norm</span>
+                    <span id="val-net" class="val-constant">0.000</span>
+                </div>
+                <p>The green value is the invariant quantity: the true 2D area encoded by the polygon boundary.</p>
+            </section>
         </div>
-        <p style="font-size: 0.75rem; color: #888; margin-top: 0;">
-            Sum of the absolute areas of the 3D triangles. Changes as you move the apex.
-        </p>
-
-        <div class="value-row">
-            <span>Net Signed Area Norm:</span>
-            <span id="val-net" class="val-constant">0.000</span>
-        </div>
-        <p style="font-size: 0.75rem; color: #888; margin-top: 0;">
-            Invariant. The true 2D area of the base polygon.
-        </p>
     </div>
 
     <div id="instructions">
@@ -192,6 +210,10 @@
 
     <script>
         window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
+        window.CadPgaDemo.mountDemoShell({
+            slug: "mesh-cleanup",
+            title: "Mesh Cleanup"
+        });
 
         Algebra(3, 0, 1, () => {
             // 3D PGA cheat sheet: P = x e032 + y e013 + z e021 + e123.
@@ -268,5 +290,6 @@
             });
         });
     </script>
+    <script type="module" src="../src/demo-entry.js"></script>
 </body>
 </html>

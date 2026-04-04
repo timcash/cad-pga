@@ -7,8 +7,10 @@ Static Vite site for a growing library of PGA / ganja.js demos with MathJax comp
 | Library Home | Mesh Cleanup | CNC Kernel Simulator |
 | --- | --- | --- |
 | ![CAD PGA library home](docs/screenshots/library-home.png) | ![Mesh Cleanup demo](docs/screenshots/mesh-cleanup.png) | ![CNC Kernel Simulator demo](docs/screenshots/cnc-kernel-simulator.png) |
-| Gear Rotation Linkage | Meshless FEA WoS | Meshless FEA Notes |
-| ![Gear Rotation Linkage demo](docs/screenshots/gear-rotation-linkage.png) | ![Meshless FEA WoS demo](docs/screenshots/meshless-fea-wos.png) | ![Meshless FEA WoS notes page](docs/screenshots/meshless-fea-wos-notes.png) |
+| Gear Rotation Linkage | Meshless FEA WoS | Mobile Menu |
+| ![Gear Rotation Linkage demo](docs/screenshots/gear-rotation-linkage.png) | ![Meshless FEA WoS demo](docs/screenshots/meshless-fea-wos.png) | ![Responsive mobile menu](docs/screenshots/mobile-menu.png) |
+
+The screenshots at the top of this README are refreshed by `npm run test:ui`.
 
 ## Live Site
 
@@ -21,6 +23,11 @@ Static Vite site for a growing library of PGA / ganja.js demos with MathJax comp
 - Gear Rotation Linkage notes: `https://timcash.github.io/cad-pga/gear-rotation-linkage/readme/`
 - Meshless FEA WoS demo: `https://timcash.github.io/cad-pga/meshless-fea-wos/`
 - Meshless FEA WoS notes: `https://timcash.github.io/cad-pga/meshless-fea-wos/readme/`
+
+## Docs
+
+- Verified bibliography and source review: [docs/OUTLINE.md](docs/OUTLINE.md)
+- The per-demo `readme/` pages aim to keep the MathJax examples aligned with the code, including notes where a page is PGA-inspired rather than a literal ganja.js implementation.
 
 ## PWA Features
 
@@ -41,14 +48,21 @@ This repo keeps the parts of the `guitar-tabs` setup that are useful for a stati
 - `vite.config.js` reads `VITE_SITE_BASE_PATH` so the site can build for a GitHub Pages subpath.
 - `scripts/build-pages.mjs` runs the build, copies `dist/index.html` to `dist/404.html`, and writes `.nojekyll`.
 - `.github/workflows/deploy-pages.yml` publishes `dist/` to GitHub Pages on pushes to `main`.
+- `public/demo-shell.css` and `public/demo-runtime.js` provide the responsive `Menu` and `Details` overlays shared by the live demos.
 
-Unlike `guitar-tabs`, this repo is intentionally just a static demo gallery. There is no local bridge server, no TypeScript app shell, and no test harness yet.
+Unlike `guitar-tabs`, this repo is intentionally just a static demo gallery. There is no local bridge server or background Codex terminal, but there is now a small TypeScript + Puppeteer UI capture flow for the README screenshots.
 
 ## Local Dev
 
 ```bash
 npm install
 npm run dev
+```
+
+To refresh the screenshot grid in this README:
+
+```bash
+npm run test:ui
 ```
 
 ## Production Build

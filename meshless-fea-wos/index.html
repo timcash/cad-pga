@@ -13,6 +13,7 @@
     <meta name="description" content="Interactive meshless FEA demo using 2D PGA boundaries, a signed-distance obstacle, and a Walk on Spheres solver.">
     <meta name="theme-color" content="#0d0d12">
     <title>Meshless FEA WoS - CAD PGA</title>
+    <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
     <style>
         body, html {
             margin: 0;
@@ -27,11 +28,11 @@
 
         #ui-panel {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            right: 20px;
+            bottom: 20px;
             z-index: 10;
-            max-width: 440px;
-            background: rgba(15, 15, 20, 0.86);
+            max-width: 420px;
+            background: rgba(15, 15, 20, 0.82);
             padding: 20px;
             border: 1px solid #334;
             border-radius: 8px;
@@ -218,81 +219,97 @@
     <script src="../demo-runtime.js"></script>
 </head>
 <body>
-    <div id="nav-links">
-        <a class="nav-link" href="./readme/">Math Notes</a>
-        <a class="nav-link" href="../">Library Home</a>
-    </div>
-
     <div id="ui-panel">
-        <h1>Meshless FEA: PGA + SDF + Walk on Spheres</h1>
-        <p>
-            This example treats the hot and cold walls as exact <span class="highlight-green">PGA lines</span>, the inner
-            obstacle as a <span class="highlight-blue">signed-distance constraint</span>, and the field solve as a
-            <span class="highlight-pink">Walk on Spheres</span> Monte Carlo process.
-        </p>
+        <div class="cad-pga-panel-copy">
+            <header class="cad-pga-panel-head">
+                <p class="cad-pga-panel-eyebrow">Meshless FEA WoS</p>
+                <h1>PGA walls, an SDF obstacle, and random sphere walks give a meshless harmonic heat solve.</h1>
+                <p class="cad-pga-panel-lede">
+                    The outer box is encoded by exact 2D PGA lines, the inner disk is an SDF, and the temperature field is
+                    estimated by Walk on Spheres rather than by assembling a mesh. This is a WoS-style Dirichlet heat demo,
+                    not a full finite element or full Walk on Stars implementation.
+                </p>
+            </header>
 
-        <h2>Boundary conditions</h2>
-        <p>
-            Heat enters from the <span class="highlight-hot">top and left walls at 100&deg;</span>. It leaves through the
-            <span class="highlight-cold">right wall, bottom wall, and center ice block at 0&deg;</span>.
-        </p>
-
-        <h2>Distance kernel</h2>
-        <p>
-            For the polygonal walls, the boundary distance is read algebraically from
-            <span class="math">|P ^ L|</span>. For the center disk, it comes from the circle SDF
-            <span class="math">sqrt(x^2 + y^2) - r</span>.
-        </p>
-
-        <h2>Walk step</h2>
-        <p>
-            The pink walker queries the nearest boundary, draws the largest empty circle, then jumps to a random point on
-            that circle. Repeating that process estimates the harmonic temperature field without a volume mesh.
-        </p>
-        <p>
-            Sample dots follow an <span class="highlight-hot">orange</span> to
-            <span class="highlight-cold">blue</span> temperature ramp, so hotter solves read warmer and colder solves read bluer.
-        </p>
-
-        <div class="value-grid">
-            <span>Walker radius</span><span id="walker-radius">0.000</span>
-            <span>Nearest boundary</span><span id="walker-boundary">Cold wall</span>
-            <span>Solved samples</span><span id="sample-count">0</span>
-        </div>
-
-        <div class="legend-panel">
-            <div class="legend-block">
-                <div class="legend-label-row">
-                    <span>Global boundary range</span>
-                    <span><span id="global-hot">100.0&deg;</span> to <span id="global-cold">0.0&deg;</span></span>
-                </div>
-                <div class="legend-bar">
-                    <div class="legend-range" id="global-sample-span"></div>
-                    <div class="legend-marker" id="global-sample-max-marker"></div>
-                    <div class="legend-marker" id="global-sample-min-marker"></div>
-                </div>
-                <div class="legend-scale">
-                    <span>Hot 100&deg;</span>
-                    <span>Cold 0&deg;</span>
-                </div>
+            <div class="resource-row">
+                <a class="resource-card" href="./readme/">
+                    <span class="resource-title">Math Notes</span>
+                    <span class="resource-meta">Boundary queries, WoS steps, and the harmonic Monte Carlo interpretation.</span>
+                </a>
+                <a class="resource-card" href="http://www.cs.fsu.edu/~mascagni/Muller_1956_Annals_Mathematical_Statistics.pdf" target="_blank" rel="noreferrer">
+                    <span class="resource-title">WoS Origin Paper</span>
+                    <span class="resource-meta">Muller's 1956 paper on continuous Monte Carlo methods for the Dirichlet problem.</span>
+                </a>
+                <a class="resource-card" href="https://www.cs.cmu.edu/~kmcrane/Projects/WalkOnStars/" target="_blank" rel="noreferrer">
+                    <span class="resource-title">Walk on Stars</span>
+                    <span class="resource-meta">Modern CMU project page for the Neumann/Dirichlet grid-free extension.</span>
+                </a>
+                <a class="resource-card" href="https://bivector.net/2DPGA.pdf" target="_blank" rel="noreferrer">
+                    <span class="resource-title">2D PGA Cheat Sheet</span>
+                    <span class="resource-meta">A quick reference for points, lines, and distances in 2D PGA.</span>
+                </a>
             </div>
 
-            <div class="legend-block">
-                <div class="legend-label-row">
-                    <span>Live sample color window</span>
-                    <span><span id="sample-hot">100.0&deg;</span> to <span id="sample-cold">0.0&deg;</span></span>
+            <section class="cad-pga-panel-section">
+                <h2>Distance query</h2>
+                <div class="cad-pga-panel-equation">
+\[
+d(P,\partial\Omega)=
+\min\!\left(
+\min_i \left|(P \wedge \widehat{L}_i)\mathbf{e}_{012}\right|,
+\left|\sqrt{x^2+y^2}-r\right|
+\right)
+\]
                 </div>
-                <div class="legend-bar"></div>
-                <div class="legend-scale">
-                    <span id="sample-hot-scale">100.0&deg;</span>
-                    <span id="sample-cold-scale">0.0&deg;</span>
-                </div>
-            </div>
+                <p>
+                    Heat enters from the top and left walls at \(100^\circ\). It leaves through the right wall, bottom wall,
+                    and the center disk at \(0^\circ\).
+                </p>
+            </section>
 
-            <p class="legend-copy">
-                The top bar is the fixed physics range. The bright span on top of it tracks the temperatures that the live
-                samples have actually reached so far. The lower bar is the current min to max window used to color the dots.
-            </p>
+            <section class="cad-pga-stat-group">
+                <div class="value-grid">
+                    <span>Walker radius</span><span id="walker-radius">0.000</span>
+                    <span>Nearest boundary</span><span id="walker-boundary">Cold wall</span>
+                    <span>Solved samples</span><span id="sample-count">0</span>
+                    <span>Mean sample temp</span><span id="sample-mean">0.0&deg;</span>
+                    <span>Samples &gt;= 80&deg;</span><span id="sample-hot-count">0</span>
+                </div>
+            </section>
+
+            <div class="legend-panel">
+                <div class="legend-block">
+                    <div class="legend-label-row">
+                        <span>Global boundary range</span>
+                        <span><span id="global-hot">100.0&deg;</span> to <span id="global-cold">0.0&deg;</span></span>
+                    </div>
+                    <div class="legend-bar">
+                        <div class="legend-range" id="global-sample-span"></div>
+                        <div class="legend-marker" id="global-sample-max-marker"></div>
+                        <div class="legend-marker" id="global-sample-min-marker"></div>
+                    </div>
+                    <div class="legend-scale">
+                        <span>Hot 100&deg;</span>
+                        <span>Cold 0&deg;</span>
+                    </div>
+                </div>
+
+                <div class="legend-block">
+                    <div class="legend-label-row">
+                        <span>Live sample color window</span>
+                        <span><span id="sample-hot">100.0&deg;</span> to <span id="sample-cold">0.0&deg;</span></span>
+                    </div>
+                    <div class="legend-bar"></div>
+                    <div class="legend-scale">
+                        <span id="sample-hot-scale">100.0&deg;</span>
+                        <span id="sample-cold-scale">0.0&deg;</span>
+                    </div>
+                </div>
+
+                <p class="legend-copy">
+                    The top bar is the fixed physics range. The highlighted span tracks the live sample window used to color the dots.
+                </p>
+            </div>
         </div>
     </div>
 
@@ -304,6 +321,30 @@
 
     <script>
         window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
+        window.CadPgaDemo.mountDemoShell({
+            slug: "meshless-fea-wos",
+            title: "Meshless FEA WoS"
+        });
+
+        const feaColorUtils = (() => {
+            const clamp01 = (value) => Math.max(0, Math.min(1, value));
+            const lerp = (a, b, t) => a + (b - a) * t;
+            const packRgb = (r, g, b) => (r * 65536) + (g * 256) + b;
+
+            return {
+                clamp01,
+                heatColor(temp, minTemp, maxTemp, coldColor, hotColor) {
+                    const spread = Math.max(1e-6, maxTemp - minTemp);
+                    const normalized = clamp01((temp - minTemp) / spread);
+                    const eased = Math.pow(normalized, 0.55);
+                    return packRgb(
+                        Math.round(lerp(coldColor.r, hotColor.r, eased)),
+                        Math.round(lerp(coldColor.g, hotColor.g, eased)),
+                        Math.round(lerp(coldColor.b, hotColor.b, eased))
+                    );
+                }
+            };
+        })();
 
         Algebra(2, 0, 1, () => {
             const degreeText = "\u00b0";
@@ -371,6 +412,7 @@
             const globalMaxTemp = 100;
             const coldColor = { r: 54, g: 114, b: 255 };
             const hotColor = { r: 255, g: 146, b: 54 };
+            const sampleOutlineColor = 0xff090b10;
 
             const getShortestDistance = (p) => {
                 let minD = Infinity;
@@ -441,22 +483,10 @@
                 return pts;
             };
 
-            const lerp = (a, b, t) => a + (b - a) * t;
-            const mixColor = (a, b, t) => (
-                (Math.round(lerp(a.r, b.r, t)) << 16) |
-                (Math.round(lerp(a.g, b.g, t)) << 8) |
-                Math.round(lerp(a.b, b.b, t))
-            );
-            const clamp01 = (value) => Math.max(0, Math.min(1, value));
             const formatTemp = (temp) => `${temp.toFixed(1)}${degreeText}`;
             const globalLegendPosition = (temp) => (
-                clamp01((globalMaxTemp - temp) / (globalMaxTemp - globalMinTemp)) * 100
+                feaColorUtils.clamp01((globalMaxTemp - temp) / (globalMaxTemp - globalMinTemp)) * 100
             );
-            const heatColor = (temp, minTemp, maxTemp) => {
-                const spread = Math.max(1e-6, maxTemp - minTemp);
-                const normalized = clamp01((temp - minTemp) / spread);
-                return mixColor(coldColor, hotColor, Math.pow(normalized, 0.55));
-            };
 
             const heatMap = [];
             const maxHeatSamples = 5000;
@@ -491,7 +521,8 @@
                         const sampleTemp = solvePoint(getX(samplePoint), getY(samplePoint), 24);
                         pushHeatSample([
                             sampleTemp,
-                            drawCircle(samplePoint, heatDotRadius, 10)
+                            drawCircle(samplePoint, heatDotRadius, 10),
+                            drawCircle(samplePoint, heatDotRadius * 1.26, 10)
                         ]);
                     }
                 }
@@ -522,6 +553,8 @@
 
                 let minTemp = Infinity;
                 let maxTemp = -Infinity;
+                let totalTemp = 0;
+                let hotSampleCount = 0;
                 for (const [sampleTemp] of heatMap) {
                     if (sampleTemp < minTemp) {
                         minTemp = sampleTemp;
@@ -529,12 +562,20 @@
                     if (sampleTemp > maxTemp) {
                         maxTemp = sampleTemp;
                     }
+                    totalTemp += sampleTemp;
+                    if (sampleTemp >= 80) {
+                        hotSampleCount += 1;
+                    }
                 }
 
                 if (!heatMap.length) {
                     minTemp = globalMinTemp;
                     maxTemp = globalMaxTemp;
                 }
+
+                const meanTemp = heatMap.length ? totalTemp / heatMap.length : 0;
+                document.getElementById("sample-mean").innerText = formatTemp(meanTemp);
+                document.getElementById("sample-hot-count").innerText = String(hotSampleCount);
 
                 const sampleHotText = formatTemp(maxTemp);
                 const sampleColdText = formatTemp(minTemp);
@@ -560,8 +601,12 @@
                 globalSampleMinMarker.style.left = `${sampleColdPosition}%`;
 
                 const heatRender = [];
-                for (const [sampleTemp, sampleGlyph] of heatMap) {
-                    heatRender.push(heatColor(sampleTemp, minTemp, maxTemp), sampleGlyph);
+                for (const [sampleTemp, sampleGlyph, sampleOutlineGlyph] of heatMap) {
+                    heatRender.push(sampleOutlineColor, sampleOutlineGlyph);
+                    heatRender.push(
+                        feaColorUtils.heatColor(sampleTemp, minTemp, maxTemp, coldColor, hotColor),
+                        sampleGlyph
+                    );
                 }
 
                 const walkerRender = [];
@@ -574,8 +619,8 @@
                     0x17191d, ...minorGridSegments,
                     0x20242a, ...majorGridSegments,
                     0x173330, ...axisSegments,
-                    0x30ff8c42, ...hotBands,
-                    0x2648b0ff, ...coldBands,
+                    0x24ff8c42, ...hotBands,
+                    0x2048b0ff, ...coldBands,
                     ...heatRender,
                     0xff9a52, [pTL, pTR], [pTL, pBL],
                     0x6cb8ff, [pTR, pBR], [pBL, pBR],
@@ -600,5 +645,6 @@
             });
         });
     </script>
+    <script type="module" src="../src/demo-entry.js"></script>
 </body>
 </html>
