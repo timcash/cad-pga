@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'cad-pga-pwa-v7';
+const CACHE_VERSION = 'cad-pga-pwa-v8';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const CORE_ASSETS = [
@@ -103,12 +103,28 @@ async function handleNavigationRequest(request) {
 }
 
 async function handleRuntimeAssetRequest(request) {
+  const runtimeCache = await caches.open(RUNTIME_CACHE);
   const cachedResponse = await caches.match(request);
+
+  if (request.destination === 'script' || request.destination === 'style') {
+    try {
+      const networkResponse = await fetch(request);
+      if (networkResponse.ok) {
+        runtimeCache.put(request, networkResponse.clone());
+      }
+      return networkResponse;
+    } catch {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      throw new Error('Runtime asset unavailable.');
+    }
+  }
+
   const fetchPromise = fetch(request)
     .then(async (networkResponse) => {
       if (networkResponse.ok) {
-        const cache = await caches.open(RUNTIME_CACHE);
-        cache.put(request, networkResponse.clone());
+        runtimeCache.put(request, networkResponse.clone());
       }
 
       return networkResponse;
