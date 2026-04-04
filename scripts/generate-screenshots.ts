@@ -37,36 +37,36 @@ const screenshots: ScreenshotSpec[] = [
   {
     fileName: "library-home.png",
     path: "/",
-    viewport: { width: 1440, height: 1100 },
-    waitMs: 1200
+    viewport: { width: 430, height: 932 },
+    waitMs: 2200
   },
   {
     fileName: "mesh-cleanup.png",
     path: "/mesh-cleanup/",
-    viewport: { width: 1440, height: 960 },
+    viewport: { width: 430, height: 932 },
     waitMs: 2200,
-    prepare: hideDetails
+    prepare: ensureDetailsClosed
   },
   {
     fileName: "cnc-kernel-simulator.png",
     path: "/cnc-kernel-simulator/",
-    viewport: { width: 1440, height: 960 },
-    waitMs: 2200,
-    prepare: hideDetails
+    viewport: { width: 430, height: 932 },
+    waitMs: 3200,
+    prepare: ensureDetailsClosed
   },
   {
     fileName: "gear-rotation-linkage.png",
     path: "/gear-rotation-linkage/",
-    viewport: { width: 1440, height: 960 },
-    waitMs: 1800,
-    prepare: hideDetails
+    viewport: { width: 430, height: 932 },
+    waitMs: 700,
+    prepare: ensureDetailsClosed
   },
   {
     fileName: "meshless-fea-wos.png",
     path: "/meshless-fea-wos/",
-    viewport: { width: 1440, height: 960 },
+    viewport: { width: 430, height: 932 },
     waitMs: 4200,
-    prepare: hideDetails
+    prepare: ensureDetailsClosed
   },
   {
     fileName: "mobile-menu.png",
@@ -107,6 +107,7 @@ async function captureShot(browser: Browser, baseUrl: string, shot: ScreenshotSp
     await page.setViewport(shot.viewport);
     await page.goto(`${baseUrl}${shot.path}`, { waitUntil: "networkidle0" });
     await waitForStableUi(page);
+    await waitForMathIfNeeded(page);
 
     if (shot.prepare) {
       await shot.prepare(page);
@@ -139,6 +140,20 @@ async function waitForStableUi(page: Page) {
       })
     )
   );
+}
+
+async function waitForMathIfNeeded(page: Page) {
+  await page.waitForFunction(() => {
+    const root = document.documentElement;
+    const isDocsPage = !!document.querySelector("main.page-shell");
+    if (!isDocsPage) {
+      return true;
+    }
+
+    return root.classList.contains("docs-enhanced") &&
+      !root.classList.contains("math-loading") &&
+      !root.classList.contains("demo-math-loading");
+  }, { timeout: 20000 }).catch(() => undefined);
 }
 
 function createStaticServer(rootPath: string) {
@@ -207,12 +222,22 @@ function delay(ms: number) {
   });
 }
 
-async function hideDetails(page: Page) {
-  const button = await page.$('button[data-demo-toggle="details"]');
-  if (!button) {
-    return;
+async function ensureDetailsClosed(page: Page) {
+  const detailsOpen = await page.evaluate(() =>
+    document.body.classList.contains("cad-pga-details-open")
+  );
+
+  if (detailsOpen) {
+    const button = await page.$('button[data-demo-toggle="details"]');
+    if (button) {
+      await button.click();
+      await delay(250);
+    }
   }
 
-  await button.click();
-  await delay(250);
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  });
 }

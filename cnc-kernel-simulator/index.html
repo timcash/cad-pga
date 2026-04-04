@@ -183,7 +183,7 @@ p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
             // In ganja's basis ordering that becomes -x*e023 + y*e013 - z*e012 + e123.
             const point = (x, y, z) => 1e123 - x * 1e023 + y * 1e013 - z * 1e012;
             const orbitRotor = (h, p) => (p * 1e23).Exp().Mul((h * 1e13).Exp());
-            const view = { h: -0.28, p: -0.16, scale: 1.1 };
+            const view = { h: -0.28, p: -0.16, scale: 0.54 };
             const camera = 0e0;
             camera.set(orbitRotor(view.h, view.p));
 
@@ -245,6 +245,7 @@ p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
             const drillRadius = 0.3;
             const drillHeight = 0.8;
             const cutTravel = 1.7;
+            const startTime = performance.now();
 
             const stockWireframe = makeBoxWireframe(stockParams.w, stockParams.h, stockParams.d);
             const cutVolume = makeSolidBox(cutTravel + drillRadius, drillRadius, stockParams.d + 0.01);
@@ -260,7 +261,7 @@ p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
             };
 
             const canvas = this.graph(() => {
-                const time = performance.now() / 1000;
+                const time = (performance.now() - startTime) / 1000;
 
                 const spinAngle = time * -15;
                 const rotor = Math.cos(spinAngle / 2) + Math.sin(spinAngle / 2) * 1e12;

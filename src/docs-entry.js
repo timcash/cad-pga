@@ -9,6 +9,8 @@ import './docs.css';
 const root = document.documentElement;
 const prism = Prism;
 
+root.classList.add('docs-enhanced');
+
 window.Prism = prism;
 globalThis.Prism = prism;
 
@@ -23,6 +25,9 @@ highlightCode();
 try {
   await import('mathjax/tex-chtml.js');
   await window.MathJax?.startup?.promise;
+  root.classList.remove('math-loading');
+  root.classList.add('math-ready');
+  highlightCode();
 } catch (error) {
   root.classList.remove('math-loading');
   root.classList.add('math-error');

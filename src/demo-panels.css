@@ -31,7 +31,7 @@ body.cad-pga-demo-page select {
 .cad-pga-menu-copy strong,
 .cad-pga-menu-action,
 .cad-pga-controls-label {
-  letter-spacing: -0.02em;
+  letter-spacing: 0.02em;
 }
 
 .cad-pga-thumb-meta,
@@ -70,22 +70,22 @@ body.cad-pga-demo-page select {
   color: var(--demo-ink-strong) !important;
   font-family: "Space Grotesk", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-weight: 700;
-  letter-spacing: -0.05em;
+  letter-spacing: 0.03em;
 }
 
 .cad-pga-details-panel h1 {
   font-size: clamp(1.45rem, 2vw, 1.9rem) !important;
-  line-height: 0.96;
+  line-height: 1.14;
   border: 0 !important;
   padding: 0 !important;
 }
 
 .cad-pga-details-panel h2 {
   font-size: 0.86rem !important;
-  line-height: 1.2;
+  line-height: 1.42;
   color: var(--demo-faint) !important;
   text-transform: uppercase;
-  letter-spacing: 0.12em !important;
+  letter-spacing: 0.16em !important;
 }
 
 .cad-pga-details-panel p,
@@ -225,15 +225,6 @@ body.cad-pga-demo-page select {
 
 .cad-pga-details-panel mjx-container[jax="CHTML"][display="true"] {
   margin: 0;
-}
-
-html.demo-math-loading .cad-pga-details-panel::after {
-  content: "Rendering math...";
-  display: block;
-  margin-top: 8px;
-  color: var(--demo-faint);
-  font-size: 0.76rem;
-  font-family: "Space Mono", "Cascadia Code", "SFMono-Regular", Consolas, monospace;
 }
 
 html.demo-math-error .cad-pga-details-panel::after {

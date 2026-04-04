@@ -92,23 +92,23 @@ h3 {
   color: var(--ink-strong);
   font-family: "Space Grotesk", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.03em;
 }
 
 h1 {
   max-width: 10ch;
   font-size: clamp(2.8rem, 7vw, 5rem);
-  line-height: 0.88;
+  line-height: 1.08;
 }
 
 h2 {
   font-size: clamp(1.7rem, 3vw, 2.35rem);
-  line-height: 0.96;
+  line-height: 1.14;
 }
 
 h3 {
   font-size: clamp(1.3rem, 2vw, 1.65rem);
-  line-height: 0.98;
+  line-height: 1.16;
 }
 
 p,
@@ -238,15 +238,6 @@ code {
 
 .muted {
   color: var(--faint);
-}
-
-html.math-loading body::after {
-  content: "Rendering math...";
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  color: var(--faint);
-  font-size: 0.82rem;
 }
 
 html.math-error body::after {
