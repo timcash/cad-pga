@@ -2,6 +2,14 @@
 
 Static Vite site for a growing library of PGA / ganja.js demos with MathJax companion notes.
 
+## Live Pages
+
+- [Library home](https://timcash.github.io/cad-pga/)
+- [Mesh Cleanup demo](https://timcash.github.io/cad-pga/mesh-cleanup/) and [notes](https://timcash.github.io/cad-pga/mesh-cleanup/readme/)
+- [CNC Kernel Simulator demo](https://timcash.github.io/cad-pga/cnc-kernel-simulator/) and [notes](https://timcash.github.io/cad-pga/cnc-kernel-simulator/readme/)
+- [Gear Rotation Linkage demo](https://timcash.github.io/cad-pga/gear-rotation-linkage/) and [notes](https://timcash.github.io/cad-pga/gear-rotation-linkage/readme/)
+- [Meshless FEA WoS demo](https://timcash.github.io/cad-pga/meshless-fea-wos/) and [notes](https://timcash.github.io/cad-pga/meshless-fea-wos/readme/)
+
 ## Recent Screenshots
 
 | Library Home | Mesh Cleanup | CNC Kernel Simulator |
@@ -11,18 +19,6 @@ Static Vite site for a growing library of PGA / ganja.js demos with MathJax comp
 | ![Gear Rotation Linkage demo](docs/screenshots/gear-rotation-linkage.png) | ![Meshless FEA WoS demo](docs/screenshots/meshless-fea-wos.png) | ![Responsive mobile menu](docs/screenshots/mobile-menu.png) |
 
 The screenshots at the top of this README are refreshed by `npm run test:ui`.
-
-## Live Site
-
-- Landing page: `https://timcash.github.io/cad-pga/`
-- Mesh Cleanup demo: `https://timcash.github.io/cad-pga/mesh-cleanup/`
-- Mesh Cleanup notes: `https://timcash.github.io/cad-pga/mesh-cleanup/readme/`
-- CNC Kernel Simulator demo: `https://timcash.github.io/cad-pga/cnc-kernel-simulator/`
-- CNC Kernel Simulator notes: `https://timcash.github.io/cad-pga/cnc-kernel-simulator/readme/`
-- Gear Rotation Linkage demo: `https://timcash.github.io/cad-pga/gear-rotation-linkage/`
-- Gear Rotation Linkage notes: `https://timcash.github.io/cad-pga/gear-rotation-linkage/readme/`
-- Meshless FEA WoS demo: `https://timcash.github.io/cad-pga/meshless-fea-wos/`
-- Meshless FEA WoS notes: `https://timcash.github.io/cad-pga/meshless-fea-wos/readme/`
 
 ## Docs
 
