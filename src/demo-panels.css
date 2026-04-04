@@ -19,18 +19,25 @@ body.cad-pga-demo-page select {
   font-family: "Space Grotesk", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
-.cad-pga-toolbar,
+.cad-pga-topbar,
 .cad-pga-menu-panel,
-.cad-pga-details-panel {
+.cad-pga-details-panel,
+.cad-pga-thumb-button {
   font-family: "Space Grotesk", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
-.cad-pga-toolbar-title,
-.cad-pga-shell-button,
+.cad-pga-topbar-title,
+.cad-pga-thumb-label,
 .cad-pga-menu-copy strong,
 .cad-pga-menu-action,
 .cad-pga-controls-label {
   letter-spacing: -0.02em;
+}
+
+.cad-pga-thumb-meta,
+.cad-pga-menu-eyebrow,
+.cad-pga-menu-subtitle {
+  font-family: "Space Mono", "Cascadia Code", "SFMono-Regular", Consolas, monospace;
 }
 
 .cad-pga-menu-panel,
@@ -44,6 +51,16 @@ body.cad-pga-demo-page select {
   padding: 20px !important;
   color: var(--demo-ink) !important;
   backdrop-filter: blur(22px);
+}
+
+.cad-pga-topbar-title {
+  color: var(--demo-ink-strong);
+  font-family: "Space Grotesk", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+}
+
+.cad-pga-thumb-button {
+  color: var(--demo-ink-strong);
 }
 
 .cad-pga-details-panel h1,

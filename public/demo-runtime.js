@@ -174,8 +174,9 @@
     stageSlot.className = "cad-pga-stage-slot";
     stageSlot.appendChild(stageElement);
 
-    var toolbar = createToolbar(settings);
+    var topbar = createTopbar(settings);
     var menuPanel = createMenuPanel(settings);
+    var thumbbar = createThumbbar();
     var scrim = document.createElement("button");
     scrim.type = "button";
     scrim.className = "cad-pga-shell-scrim";
@@ -191,15 +192,16 @@
 
     stageGrid.appendChild(stageSlot);
     stageGrid.appendChild(scrim);
-    stageGrid.appendChild(toolbar.root);
+    stageGrid.appendChild(topbar);
     stageGrid.appendChild(menuPanel);
     detailsPanel.id = "cad-pga-details-panel";
     stageGrid.appendChild(detailsPanel);
+    stageGrid.appendChild(thumbbar.root);
     shell.appendChild(stageGrid);
 
     document.body.insertBefore(shell, document.body.firstChild);
 
-    var isDesktop = window.matchMedia("(min-width: 960px)");
+    var isDesktop = window.matchMedia("(min-width: 1040px)");
     var state = {
       menuOpen: false,
       detailsOpen: isDesktop.matches
@@ -230,16 +232,14 @@
     function applyState() {
       document.body.classList.toggle("cad-pga-menu-open", state.menuOpen);
       document.body.classList.toggle("cad-pga-details-open", state.detailsOpen);
-      toolbar.menuButton.textContent = state.menuOpen ? "Close menu" : "Menu";
-      toolbar.detailsButton.textContent = state.detailsOpen ? "Hide details" : "Details";
-      toolbar.menuButton.setAttribute("aria-expanded", state.menuOpen ? "true" : "false");
-      toolbar.detailsButton.setAttribute("aria-expanded", state.detailsOpen ? "true" : "false");
+      thumbbar.menuButton.setAttribute("aria-expanded", state.menuOpen ? "true" : "false");
+      thumbbar.detailsButton.setAttribute("aria-expanded", state.detailsOpen ? "true" : "false");
       menuPanel.setAttribute("aria-hidden", state.menuOpen ? "false" : "true");
       detailsPanel.setAttribute("aria-hidden", state.detailsOpen ? "false" : "true");
     }
 
-    toolbar.menuButton.addEventListener("click", toggleMenu);
-    toolbar.detailsButton.addEventListener("click", toggleDetails);
+    thumbbar.menuButton.addEventListener("click", toggleMenu);
+    thumbbar.detailsButton.addEventListener("click", toggleDetails);
     scrim.addEventListener("click", closeOverlays);
 
     document.addEventListener("keydown", function (event) {
@@ -267,45 +267,15 @@
     };
   }
 
-  function createToolbar(settings) {
-    var root = document.createElement("header");
-    root.className = "cad-pga-toolbar";
-
-    var leftGroup = document.createElement("div");
-    leftGroup.className = "cad-pga-toolbar-group";
-
-    var rightGroup = document.createElement("div");
-    rightGroup.className = "cad-pga-toolbar-group cad-pga-toolbar-group--right";
-
-    var menuButton = document.createElement("button");
-    menuButton.type = "button";
-    menuButton.className = "cad-pga-shell-button";
-    menuButton.setAttribute("data-demo-toggle", "menu");
-    menuButton.setAttribute("aria-controls", "cad-pga-menu-panel");
-    menuButton.textContent = "Menu";
-
-    var detailsButton = document.createElement("button");
-    detailsButton.type = "button";
-    detailsButton.className = "cad-pga-shell-button";
-    detailsButton.setAttribute("data-demo-toggle", "details");
-    detailsButton.setAttribute("aria-controls", "cad-pga-details-panel");
-    detailsButton.textContent = "Details";
-
+  function createTopbar(settings) {
     var title = document.createElement("div");
-    title.className = "cad-pga-toolbar-title";
+    title.className = "cad-pga-topbar-title";
     title.textContent = settings.title || document.title.replace(/\s+-\s+CAD PGA$/, "");
 
-    leftGroup.appendChild(menuButton);
-    rightGroup.appendChild(detailsButton);
-    root.appendChild(leftGroup);
+    var root = document.createElement("header");
+    root.className = "cad-pga-topbar";
     root.appendChild(title);
-    root.appendChild(rightGroup);
-
-    return {
-      root: root,
-      menuButton: menuButton,
-      detailsButton: detailsButton
-    };
+    return root;
   }
 
   function createMenuPanel(settings) {
@@ -316,9 +286,12 @@
     panel.setAttribute("aria-label", "CAD PGA example menu");
     panel.setAttribute("aria-hidden", "true");
 
-    var heading = document.createElement("h2");
-    heading.className = "cad-pga-menu-heading";
-    heading.textContent = "CAD PGA Library";
+    var head = document.createElement("div");
+    head.className = "cad-pga-menu-head";
+    head.innerHTML =
+      '<p class="cad-pga-menu-eyebrow">CAD PGA</p>' +
+      '<h2 class="cad-pga-menu-heading">Example library and notes routes.</h2>' +
+      '<p class="cad-pga-menu-subtitle">Use the bottom thumb buttons to open this menu, toggle the details panel, jump to the notes route, or return home. The menu fills the screen so it stays easy to use on a phone.</p>';
 
     var grid = document.createElement("div");
     grid.className = "cad-pga-menu-grid";
@@ -361,9 +334,62 @@
       grid.appendChild(card);
     });
 
-    panel.appendChild(heading);
+    panel.appendChild(head);
     panel.appendChild(grid);
     return panel;
+  }
+
+  function createThumbbar() {
+    var root = document.createElement("div");
+    root.className = "cad-pga-thumbbar";
+
+    var grid = document.createElement("div");
+    grid.className = "cad-pga-thumbbar-grid";
+
+    var menuButton = createThumbButton("button", "Menu", "All demos");
+    menuButton.type = "button";
+    menuButton.setAttribute("data-demo-toggle", "menu");
+    menuButton.setAttribute("aria-controls", "cad-pga-menu-panel");
+
+    var detailsButton = createThumbButton("button", "Details", "Math panel");
+    detailsButton.type = "button";
+    detailsButton.setAttribute("data-demo-toggle", "details");
+    detailsButton.setAttribute("aria-controls", "cad-pga-details-panel");
+
+    var notesLink = createThumbButton("link", "Notes", "Readme route");
+    notesLink.href = "./readme/";
+
+    var homeLink = createThumbButton("link", "Home", "Library index");
+    homeLink.href = "../";
+
+    grid.appendChild(menuButton);
+    grid.appendChild(detailsButton);
+    grid.appendChild(notesLink);
+    grid.appendChild(homeLink);
+    root.appendChild(grid);
+
+    return {
+      root: root,
+      menuButton: menuButton,
+      detailsButton: detailsButton
+    };
+  }
+
+  function createThumbButton(kind, labelText, metaText) {
+    var element = kind === "link" ? document.createElement("a") : document.createElement("button");
+    element.className = "cad-pga-thumb-button";
+
+    var label = document.createElement("span");
+    label.className = "cad-pga-thumb-label";
+    label.textContent = labelText;
+
+    var meta = document.createElement("span");
+    meta.className = "cad-pga-thumb-meta";
+    meta.textContent = metaText;
+
+    element.appendChild(label);
+    element.appendChild(meta);
+    return element;
   }
 
   function appendControlsBlock(detailsPanel, html) {

@@ -128,7 +128,7 @@ async function waitForStableUi(page: Page) {
     "main.page-shell",
     "canvas",
     "svg",
-    ".cad-pga-shell-button",
+    ".cad-pga-thumb-button",
     "#scene"
   ];
 
