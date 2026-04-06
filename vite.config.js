@@ -10,6 +10,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(rootDir, 'index.html'),
+        codex: resolve(rootDir, 'codex/index.html'),
+        legion: resolve(rootDir, 'legion/index.html'),
         'mesh-cleanup': resolve(rootDir, 'mesh-cleanup/index.html'),
         'mesh-cleanup-readme': resolve(rootDir, 'mesh-cleanup/readme/index.html'),
         'cnc-kernel-simulator': resolve(rootDir, 'cnc-kernel-simulator/index.html'),
@@ -22,7 +24,25 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5174
+    port: 5174,
+    proxy: {
+      '/api/codex': {
+        target: 'http://127.0.0.1:4186',
+        changeOrigin: false
+      },
+      '/api/ws-lab': {
+        target: 'http://127.0.0.1:4196',
+        changeOrigin: false
+      },
+      '/codex-bridge': {
+        target: 'ws://127.0.0.1:4186',
+        ws: true
+      },
+      '/ws-lab': {
+        target: 'ws://127.0.0.1:4196',
+        ws: true
+      }
+    }
   },
   preview: {
     port: 5174

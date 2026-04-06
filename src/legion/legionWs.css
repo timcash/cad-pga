@@ -1,0 +1,261 @@
+@import "@fontsource/space-grotesk/400.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/700.css";
+@import "@fontsource/space-mono/400.css";
+@import "@fontsource/space-mono/700.css";
+
+:root {
+  color-scheme: dark;
+  background: #050505;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #050505;
+}
+
+body {
+  color: #d7d7d7;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+#app {
+  min-height: 100svh;
+}
+
+.legion-shell {
+  min-height: 100svh;
+  display: grid;
+  gap: 16px;
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.04), transparent 28%),
+    #050505;
+}
+
+.legion-hero,
+.legion-grid,
+.legion-toolbar,
+.legion-console {
+  width: min(100%, 1080px);
+  margin: 0 auto;
+}
+
+.legion-hero {
+  display: grid;
+  gap: 10px;
+}
+
+.legion-back-link {
+  color: #f1ede6;
+  text-decoration: none;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.legion-eyebrow {
+  margin: 0;
+  color: #8f949b;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.legion-title {
+  margin: 0;
+  color: #f4f4f4;
+  font-size: clamp(1.7rem, 6vw, 3rem);
+  line-height: 1.16;
+  letter-spacing: 0.02em;
+}
+
+.legion-lede {
+  margin: 0;
+  max-width: 74ch;
+  color: #a9adb3;
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+
+.legion-note {
+  margin: 0;
+  max-width: 74ch;
+  color: #d0d3d8;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.legion-lede code {
+  font-family: "Space Mono", monospace;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.12rem 0.35rem;
+}
+
+.legion-note code {
+  font-family: "Space Mono", monospace;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.12rem 0.35rem;
+}
+
+.legion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.legion-card {
+  display: grid;
+  gap: 8px;
+  min-height: 94px;
+  padding: 14px;
+  background: rgba(12, 12, 12, 0.9);
+}
+
+.legion-card--wide {
+  grid-column: 1 / -1;
+}
+
+.legion-label {
+  color: #7b8088;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.legion-value {
+  margin: 0;
+  color: #d4d7db;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.legion-mode-toggle,
+.legion-toolbar {
+  display: grid;
+  gap: 10px;
+}
+
+.legion-mode-toggle {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.legion-mode-btn,
+.legion-action,
+.legion-input {
+  min-height: 50px;
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+}
+
+.legion-mode-btn,
+.legion-action {
+  padding: 12px 14px;
+  background: #111;
+  color: #f1ede6;
+  font-family: "Space Mono", monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.legion-mode-btn {
+  color: #9ca1a8;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.legion-mode-btn--active,
+.legion-action--primary {
+  background: #f1ede6;
+  color: #000;
+}
+
+.legion-toolbar {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.legion-console {
+  display: grid;
+  gap: 10px;
+}
+
+.legion-log {
+  min-height: 48svh;
+  max-height: 58svh;
+  overflow: auto;
+  padding: 14px;
+  background: #000;
+  font-family: "Space Mono", monospace;
+  font-size: 0.86rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.legion-log-entry {
+  margin: 0 0 12px;
+}
+
+.legion-log-entry--system {
+  color: #9ea4ac;
+}
+
+.legion-log-entry--local {
+  color: #f0c77a;
+}
+
+.legion-log-entry--remote {
+  color: #7cc7ff;
+}
+
+.legion-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.legion-input {
+  padding: 0 14px;
+  background: #111;
+  color: #f1ede6;
+  font-family: "Space Mono", monospace;
+  font-size: 0.96rem;
+}
+
+.legion-mode-btn:disabled,
+.legion-action:disabled,
+.legion-input:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.legion-mode-btn:focus-visible,
+.legion-action:focus-visible,
+.legion-input:focus-visible,
+.legion-back-link:focus-visible {
+  outline: 2px solid #f1ede6;
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .legion-grid,
+  .legion-toolbar,
+  .legion-input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .legion-log {
+    min-height: 44svh;
+  }
+}

@@ -18,6 +18,8 @@
     <main class="page-shell">
         <nav class="site-nav">
             <a href="#examples">Examples</a>
+            <a href="./codex/">Codex terminal</a>
+            <a href="./legion/">Legion websocket</a>
             <a href="./mesh-cleanup/">Area from Boundary</a>
             <a href="./cnc-kernel-simulator/">CNC Tool Motion</a>
             <a href="./gear-rotation-linkage/">Gear Hierarchy</a>
@@ -182,6 +184,27 @@ curr = point(
                     <a href="./meshless-fea-wos/readme/">Read notes</a>
                 </p>
             </article>
+        </section>
+
+        <section class="section">
+            <p class="section-label">Tools</p>
+            <h2>The repo also includes live bridge and tunnel routes.</h2>
+            <p>
+                <a href="./codex/">/codex</a> is a browser terminal for the real local Codex CLI. The GitHub Pages page is
+                static, but it is designed to talk to a local PTY bridge through <code>codex.dialtone.earth</code> once the
+                daemon and Cloudflare Tunnel are running on this machine.
+            </p>
+            <pre><code class="language-bash">npm run codex:bridge
+npm run codex:daemon:start -- --tunnel
+npm run codex:daemon:status</code></pre>
+            <p>
+                <a href="./legion/">/legion</a> is the simpler tunnel proof: a static page that connects over WebSocket to a
+                local echo server through <code>legion.dialtone.earth</code>. It exists to verify the tunnel path before we
+                put anything more sensitive behind it.
+            </p>
+            <pre><code class="language-bash">npm run legion:server
+npm run legion:daemon:start -- --tunnel
+npm run legion:tunnel:provision</code></pre>
         </section>
 
         <section class="section">

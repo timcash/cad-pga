@@ -1,9 +1,13 @@
-const CACHE_VERSION = 'cad-pga-pwa-v8';
+const CACHE_VERSION = 'cad-pga-pwa-v10';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const CORE_ASSETS = [
   './',
   './index.html',
+  './codex/',
+  './codex/index.html',
+  './legion/',
+  './legion/index.html',
   './mesh-cleanup/',
   './mesh-cleanup/index.html',
   './mesh-cleanup/readme/',
