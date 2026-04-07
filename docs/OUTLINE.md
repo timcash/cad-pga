@@ -1,22 +1,27 @@
 # CAD PGA Outline
 
-This outline keeps a verified bibliography plus code-faithful math notes for the repo demos. When a source could only be verified at the metadata or abstract level, that is stated explicitly.
+This outline incorporates the bibliography and MathJax summary we discussed, in a repo-facing form. Most of the requested material already lived here, but this version now follows the same two-part structure more closely:
 
-## Part 1: Verified Bibliography and Source Notes
+- Part 1: Verified Bibliography & Literature Links
+- Part 2: Our Examples & Important PGA/CGA LaTeX Notation
+
+When one of the originally supplied titles, links, or equations could not be verified exactly from the source record, that is called out explicitly rather than being repeated as if confirmed.
+
+## Part 1: Verified Bibliography & Literature Links
 
 ### 1. Ganja.js (Geometric Algebra for JavaScript)
 
 - Author: Steven De Keninck (Enki)
 - Verified link: <https://github.com/enkimute/ganja.js>
-- Why it is important: It is the math engine behind the demos in this repo. It lets JavaScript code stay close to geometric algebra notation while still compiling to efficient generated code.
-- Connection to this repo: The demos use ganja.js multivectors instead of manually building matrix-heavy intersection and rigid-motion pipelines.
+- Why it is important: It is the foundational math engine for the examples in this repo. By overloading standard JavaScript operators, it lets developers write mathematical expressions that compile into efficient generated JavaScript.
+- Connection to this repo: The HTML demos use this library to bypass standard \(4 \times 4\) matrix-heavy workflows and instead compute CAD intersections, rigid motions, and geometric queries with multivectors.
 
 ### 2. Bivector.net
 
 - Authors: Leo Dorst, Steven De Keninck, Charles Gunn, et al.
 - Verified link: <https://bivector.net/>
-- Why it is important: It is the main public hub for modern plane-based Projective Geometric Algebra (PGA), including the 2D and 3D cheat sheets, the PGA for Computer Science notes, and related teaching material.
-- Connection to this repo: The demo notation for points, lines, planes, motors, and sandwich actions follows the conventions documented here.
+- Why it is important: It is the central public hub for the modern Projective Geometric Algebra (PGA) movement, including the SIGGRAPH-oriented notes, cheat sheets, and interactive educational material.
+- Connection to this repo: The demo notation for points, lines, planes, motors, and sandwich actions follows the same 2D and 3D PGA conventions documented there, including the `Algebra(2,0,1)` and `Algebra(3,0,1)` style used in ganja.js examples.
 
 ### 3. "Clean up your Mesh! Part 1: Plane and simplex"
 
@@ -24,22 +29,22 @@ This outline keeps a verified bibliography plus code-faithful math notes for the
 - Verified record: <https://arxiv.org/abs/2511.08058>
 - Verified date: submitted November 11, 2025; revised November 14, 2025
 - Why it is important: The paper studies plane-based PGA representations of simplices and complexes, and explains how lengths, areas, volumes, centers of mass, and inertia quantities can be expressed through Euclidean and ideal norms.
-- Verification note: An earlier draft of this outline cited DOI `10.1098/rsta.2023.0116`, but that DOI could not be verified for this title. The live arXiv record above is the source used here.
-- Connection to this repo: The mesh cleanup demo uses exactly the boundary-sum viewpoint: the gauge point changes the fan of faces, but not the signed area encoded by the oriented boundary.
+- Verification note: The originally supplied DOI `10.1098/rsta.2023.0116` and fallback arXiv link `2503.10451` could not be confirmed as the matching source for this exact title. The live arXiv record above is the verified source used in this repo.
+- Connection to this repo: The mesh cleanup demo uses the same boundary-sum viewpoint: the gauge point changes the cone or fan decomposition, but not the signed area encoded by the oriented boundary.
 
-### 4. Walk on Spheres / Walk on Stars
+### 4. Walk on Stars (WoS) / Monte Carlo PDEs
 
 - Classic WoS source: <http://www.cs.fsu.edu/~mascagni/Muller_1956_Annals_Mathematical_Statistics.pdf>
 - Modern WoSt project page: <https://www.cs.cmu.edu/~kmcrane/Projects/WalkOnStars/>
 - Why it is important: Muller (1956) gives the classic Walk on Spheres idea for Dirichlet problems. Walk on Stars (Sawhney, Crane, et al., SIGGRAPH 2023) extends grid-free Monte Carlo PDE solving to more general mixed boundary conditions on complex geometry.
-- Connection to this repo: The current `meshless-fea-wos` demo is closest to classic WoS. It uses nearest-boundary distance queries and uniform angular jumps in a pure Dirichlet heat problem. It does not implement the visible-silhouette or star-domain machinery from the 2023 Walk on Stars paper.
+- Connection to this repo: The current `meshless-fea-wos` demo is closest to classic WoS. It combines the statistical walk loop with exact PGA wall-distance calculations for a Dirichlet heat problem. It does not yet implement the full visible-silhouette or star-domain machinery from the 2023 Walk on Stars paper.
 
 ### 5. Geometric Clifford Algebra Networks (GCANs)
 
 - Authors: David Ruhe, Jayesh K. Gupta, Steven De Keninck, Max Welling, Johannes Brandstetter
 - Verified link: <https://proceedings.mlr.press/v202/ruhe23a.html>
 - Why it is important: It shows how multivector-valued representations can make learned systems naturally equivariant to rigid motions and other symmetry actions.
-- Connection to this repo: It reinforces the same idea behind the demos: once geometry and motion are encoded algebraically, downstream algorithms can reason about them more directly.
+- Connection to this repo: It highlights the same future-facing idea behind the demos: once geometry and motion are encoded algebraically, downstream solvers and learning systems can reason about them more directly.
 
 ### 6. "Simulation of elastic rods using conformal geometric algebra"
 
@@ -47,12 +52,12 @@ This outline keeps a verified bibliography plus code-faithful math notes for the
 - Verified record: <https://publica.fraunhofer.de/handle/publica/359366>
 - Verified venue and date: International Symposium on Frontiers of Computational Science (FCS) 2008
 - Why it is important: The Fraunhofer abstract explicitly presents the work as a proof of concept that Geometric Algebra can improve Finite Element Methods, with elastic rod deformation as the target application and real-time behavior as a goal.
-- Verification note: The Fraunhofer record verifies the title, authors, year, conference, keywords, and abstract-level FEM claim. It does not expose the detailed update equations from the earlier draft of this outline, so the math in Part 2 uses generic CGA motor notation rather than attributing specific ODEs to the paper.
-- Connection to this repo: It is the strongest verified FEM-adjacent reference in the bibliography for the idea that one algebraic object can carry both translational and rotational state.
+- Verification note: The original wording about TU Darmstadt, GAALOP, and specific rod-update equations goes beyond what is directly exposed in the verified Fraunhofer record. The record does verify the paper title, authors, year, conference, keywords, and abstract-level FEM claim. That is the basis used here.
+- Connection to this repo: It is the strongest verified FEM-adjacent reference in the bibliography for the same high-level idea used throughout this repo: one algebraic object can carry both translational and rotational state.
 
-## Part 2: Example Review and MathJax Notes
+## Part 2: Our Examples & Important PGA/CGA LaTeX Notation
 
-### Example 1: Base CAD Kernel (Planes and Intersections)
+### Example 1: The Base CAD Kernel (Planes & Intersections)
 
 Concept: Replace ad hoc matrix-style intersection logic with meet operations between geometric primitives.
 
@@ -70,7 +75,7 @@ $$
 
 This is the right mental model for the repo's CAD-style examples: geometric incidence is encoded directly in the algebra rather than recovered from separate matrix solves.
 
-### Example 2: Rigid Motion with Motors (CNC and PGA-Based Motion Demos)
+### Example 2: Kinematic Gears & Scene Graph (Rigid Body Motors)
 
 Concept: Use one motor to carry rotation and translation together.
 
@@ -94,9 +99,9 @@ $$
 X'(t) = M(t) X \widetilde{M(t)}
 $$
 
-Because the current code builds `motor = translator * rotor`, the geometry is rotated about its local spindle axis and then translated along x.
+Because the current code builds `motor = translator * rotor`, the geometry is rotated about its local spindle axis and then translated along x. This is the same unifying rigid-body pattern behind the CNC demo and the broader scene-graph interpretation of the repo's motion examples.
 
-### Example 3: Mesh Cleanup (Boundary Sum Invariant)
+### Example 3: "Clean up your Mesh!" (Coordinate-Free Area)
 
 Concept: The invariant quantity is the oriented boundary sum, not the sum of absolute cone-face areas.
 
@@ -132,11 +137,11 @@ $$
 
 That absolute cone sum changes with the gauge point. The ideal-norm quantity does not.
 
-### Example 4: Meshless Heat Solve (WoS-Style)
+### Example 4: Meshless FEA (PGA + WoS + SDF)
 
 Concept: The current repo demo is a meshless harmonic heat solve driven by nearest-boundary distance queries.
 
-Despite the route name `meshless-fea-wos`, the implemented problem is a 2D Dirichlet Laplace solve, not a full finite element assembly.
+Despite the route name `meshless-fea-wos`, the implemented problem is a 2D Dirichlet Laplace solve, not a full finite element assembly. The name is kept because it points at the FEM/PDE motivation, but the present code is best read as a meshless heat example.
 
 For normalized wall lines \(\widehat{L}_i\) in 2D PGA, the wall distance is:
 
@@ -176,7 +181,7 @@ $$
 
 This is why the demo can stay meshless: it needs distance-to-boundary queries, not a stiffness matrix.
 
-### Example 5: Elastic Rod Deformation (CGA-Inspired State Update)
+### Example 5: Elastic FEM Deformation (Elmar Brendel's CGA Approach)
 
 Concept: Use one motor-valued state update to carry position and orientation together.
 
@@ -193,3 +198,7 @@ X_{k+1} = M_{k+1} X_0 \widetilde{M_{k+1}}
 $$
 
 This is generic CGA/PGA motor notation, not a verbatim equation extracted from the Fraunhofer page. It is included here because it matches the paper's verified high-level claim: pose and rotation are updated as one algebraic object rather than split into unrelated pipelines.
+
+## README Note
+
+This bibliography and the longer MathJax summary live in `docs/OUTLINE.md`. The `README.md` only links to this file; it does not duplicate the full bibliography.
