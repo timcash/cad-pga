@@ -37,6 +37,11 @@
       summary: "One motor combines spindle rotation, feed motion, and a swept cut sketch."
     },
     {
+      slug: "look-ma-no-matrices",
+      title: "Look, Ma, No Matrices!",
+      summary: "A 3D carrier frame and child sensor frame composed directly with PGA motors."
+    },
+    {
       slug: "gear-rotation-linkage",
       title: "Gear Hierarchy",
       summary: "A parent-child motion chain built from local and world transforms."
@@ -239,6 +244,7 @@
 
     var topbar = createTopbar(settings);
     var menuPanel = createMenuPanel(settings);
+    var readmePanel = createReadmePanel(settings);
     var thumbbar = createThumbbar();
     var scrim = document.createElement("button");
     scrim.type = "button";
@@ -259,6 +265,7 @@
     stageGrid.appendChild(menuPanel.root);
     detailsPanel.id = "cad-pga-details-panel";
     stageGrid.appendChild(detailsPanel);
+    stageGrid.appendChild(readmePanel.root);
     stageGrid.appendChild(thumbbar.root);
     shell.appendChild(stageGrid);
 
@@ -267,27 +274,44 @@
     var isDesktop = window.matchMedia("(min-width: 1040px)");
     var state = {
       menuOpen: false,
-      detailsOpen: isDesktop.matches
+      detailsOpen: isDesktop.matches,
+      readmeOpen: false
     };
 
     function closeOverlays() {
       state.menuOpen = false;
       state.detailsOpen = false;
+      state.readmeOpen = false;
       applyState();
     }
 
     function toggleMenu() {
       state.menuOpen = !state.menuOpen;
-      if (!isDesktop.matches && state.menuOpen) {
-        state.detailsOpen = false;
+      if (state.menuOpen) {
+        state.readmeOpen = false;
+        if (!isDesktop.matches) {
+          state.detailsOpen = false;
+        }
       }
       applyState();
     }
 
     function toggleDetails() {
       state.detailsOpen = !state.detailsOpen;
-      if (!isDesktop.matches && state.detailsOpen) {
+      if (state.detailsOpen) {
         state.menuOpen = false;
+        state.readmeOpen = false;
+      }
+      applyState();
+    }
+
+    function toggleReadme() {
+      state.readmeOpen = !state.readmeOpen;
+      if (state.readmeOpen) {
+        state.menuOpen = false;
+        if (!isDesktop.matches) {
+          state.detailsOpen = false;
+        }
       }
       applyState();
     }
@@ -295,15 +319,21 @@
     function applyState() {
       document.body.classList.toggle("cad-pga-menu-open", state.menuOpen);
       document.body.classList.toggle("cad-pga-details-open", state.detailsOpen);
+      document.body.classList.toggle("cad-pga-readme-open", state.readmeOpen);
       thumbbar.menuButton.setAttribute("aria-expanded", state.menuOpen ? "true" : "false");
       thumbbar.detailsButton.setAttribute("aria-expanded", state.detailsOpen ? "true" : "false");
+      thumbbar.readmeButton.setAttribute("aria-expanded", state.readmeOpen ? "true" : "false");
       menuPanel.root.setAttribute("aria-hidden", state.menuOpen ? "false" : "true");
       detailsPanel.setAttribute("aria-hidden", state.detailsOpen ? "false" : "true");
+      readmePanel.root.setAttribute("aria-hidden", state.readmeOpen ? "false" : "true");
     }
 
     thumbbar.menuButton.addEventListener("click", toggleMenu);
     thumbbar.detailsButton.addEventListener("click", toggleDetails);
+    thumbbar.readmeButton.addEventListener("click", toggleReadme);
+    menuPanel.readmeButton.addEventListener("click", toggleReadme);
     menuPanel.closeButton.addEventListener("click", closeOverlays);
+    readmePanel.closeButton.addEventListener("click", closeOverlays);
     scrim.addEventListener("click", closeOverlays);
 
     document.addEventListener("keydown", function (event) {
@@ -318,16 +348,25 @@
       } else {
         state.menuOpen = false;
         state.detailsOpen = false;
+        state.readmeOpen = false;
       }
       applyState();
     });
+
+    if (new URLSearchParams(window.location.search).get("readme") === "1") {
+      state.readmeOpen = true;
+      if (!isDesktop.matches) {
+        state.detailsOpen = false;
+      }
+    }
 
     applyState();
 
     return {
       closeOverlays: closeOverlays,
       toggleMenu: toggleMenu,
-      toggleDetails: toggleDetails
+      toggleDetails: toggleDetails,
+      toggleReadme: toggleReadme
     };
   }
 
@@ -370,7 +409,7 @@
 
     var subtitle = document.createElement("p");
     subtitle.className = "cad-pga-menu-subtitle";
-    subtitle.textContent = "Browse the example library, jump to the current notes route, or return to the library home page.";
+    subtitle.textContent = "Browse the example library, open the current README, or return to the library home page.";
 
     var utilities = document.createElement("div");
     utilities.className = "cad-pga-menu-utilities";
@@ -380,13 +419,13 @@
     homeLink.href = "../";
     homeLink.textContent = "Home";
 
-    var notesLink = document.createElement("a");
-    notesLink.className = "cad-pga-menu-utility";
-    notesLink.href = "./readme/";
-    notesLink.textContent = "Notes";
+    var readmeButton = document.createElement("button");
+    readmeButton.type = "button";
+    readmeButton.className = "cad-pga-menu-utility";
+    readmeButton.textContent = "README";
 
     utilities.appendChild(homeLink);
-    utilities.appendChild(notesLink);
+    utilities.appendChild(readmeButton);
     head.appendChild(headBar);
     head.appendChild(subtitle);
     head.appendChild(utilities);
@@ -428,7 +467,58 @@
     panel.appendChild(list);
     return {
       root: panel,
-      closeButton: closeButton
+      closeButton: closeButton,
+      readmeButton: readmeButton
+    };
+  }
+
+  function createReadmePanel(settings) {
+    var panel = document.createElement("section");
+    panel.className = "cad-pga-readme-panel";
+    panel.id = "cad-pga-readme-panel";
+    panel.setAttribute("aria-hidden", "true");
+    panel.setAttribute("aria-label", (settings.title || "Example") + " README");
+
+    var shell = document.createElement("div");
+    shell.className = "cad-pga-readme-shell";
+
+    var head = document.createElement("div");
+    head.className = "cad-pga-readme-head";
+
+    var titleBlock = document.createElement("div");
+    titleBlock.className = "cad-pga-readme-copy";
+    titleBlock.innerHTML =
+      '<p class="cad-pga-menu-eyebrow">README</p>' +
+      '<h2 class="cad-pga-menu-heading">' + escapeHtml(settings.title || "Example") + '</h2>';
+
+    var closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "cad-pga-menu-close";
+    closeButton.textContent = "Close";
+    closeButton.setAttribute("aria-label", "Close README");
+
+    head.appendChild(titleBlock);
+    head.appendChild(closeButton);
+
+    var status = document.createElement("p");
+    status.className = "cad-pga-readme-status";
+    status.setAttribute("data-demo-readme-status", "");
+    status.textContent = "Loading README...";
+
+    var body = document.createElement("div");
+    body.className = "cad-pga-readme-body";
+    body.setAttribute("data-demo-readme-body", "");
+
+    shell.appendChild(head);
+    shell.appendChild(status);
+    shell.appendChild(body);
+    panel.appendChild(shell);
+
+    return {
+      root: panel,
+      closeButton: closeButton,
+      status: status,
+      body: body
     };
   }
 
@@ -449,22 +539,25 @@
     detailsButton.setAttribute("data-demo-toggle", "details");
     detailsButton.setAttribute("aria-controls", "cad-pga-details-panel");
 
-    var notesLink = createThumbButton("link", "Notes");
-    notesLink.href = "./readme/";
+    var readmeButton = createThumbButton("button", "README");
+    readmeButton.type = "button";
+    readmeButton.setAttribute("data-demo-toggle", "readme");
+    readmeButton.setAttribute("aria-controls", "cad-pga-readme-panel");
 
     var homeLink = createThumbButton("link", "Home");
     homeLink.href = "../";
 
     grid.appendChild(menuButton);
     grid.appendChild(detailsButton);
-    grid.appendChild(notesLink);
+    grid.appendChild(readmeButton);
     grid.appendChild(homeLink);
     root.appendChild(grid);
 
     return {
       root: root,
       menuButton: menuButton,
-      detailsButton: detailsButton
+      detailsButton: detailsButton,
+      readmeButton: readmeButton
     };
   }
 
@@ -495,6 +588,13 @@
     block.appendChild(label);
     block.appendChild(copy);
     detailsPanel.appendChild(block);
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 
   window.CadPgaDemo = {

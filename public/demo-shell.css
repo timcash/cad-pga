@@ -85,7 +85,8 @@ body.cad-pga-demo-page {
 }
 
 body.cad-pga-menu-open .cad-pga-shell-scrim,
-body.cad-pga-details-open .cad-pga-shell-scrim {
+body.cad-pga-details-open .cad-pga-shell-scrim,
+body.cad-pga-readme-open .cad-pga-shell-scrim {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -192,6 +193,7 @@ body.cad-pga-menu-open .cad-pga-menu-panel {
 }
 
 .cad-pga-menu-utility {
+  appearance: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -201,8 +203,10 @@ body.cad-pga-menu-open .cad-pga-menu-panel {
   background: rgba(255, 255, 255, 0.03);
   color: var(--cad-shell-text);
   text-decoration: none;
+  font: inherit;
   font-size: 0.88rem;
   font-weight: 700;
+  cursor: pointer;
 }
 
 .cad-pga-menu-utility:hover,
@@ -295,6 +299,209 @@ body.cad-pga-details-open .cad-pga-details-panel {
   transform: translateY(0);
 }
 
+.cad-pga-readme-panel {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 29;
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 20px)
+    calc(env(safe-area-inset-right, 0px) + 16px)
+    calc(env(safe-area-inset-bottom, 0px) + 20px)
+    calc(env(safe-area-inset-left, 0px) + 16px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none !important;
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+body.cad-pga-readme-open .cad-pga-readme-panel {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto !important;
+}
+
+.cad-pga-readme-shell {
+  width: min(960px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+}
+
+.cad-pga-readme-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+}
+
+.cad-pga-readme-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.cad-pga-readme-status {
+  margin: 0;
+  color: var(--cad-shell-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.cad-pga-readme-body {
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(60, 120, 255, 0.08), transparent 24%),
+    radial-gradient(circle at 86% 16%, rgba(255, 140, 66, 0.07), transparent 24%),
+    rgba(7, 9, 14, 0.96);
+  color: var(--cad-shell-text);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--cad-shell-shadow);
+}
+
+.cad-pga-readme-body .markdown-body > :first-child {
+  margin-top: 0;
+}
+
+.cad-pga-readme-body h1,
+.cad-pga-readme-body h2,
+.cad-pga-readme-body h3 {
+  margin: 0.9em 0 0.4em;
+  color: var(--cad-shell-text);
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.cad-pga-readme-body h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.05;
+}
+
+.cad-pga-readme-body h2 {
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1.12;
+}
+
+.cad-pga-readme-body h3 {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  line-height: 1.2;
+}
+
+.cad-pga-readme-body p,
+.cad-pga-readme-body li,
+.cad-pga-readme-body blockquote {
+  color: var(--cad-shell-muted);
+  font-size: 0.98rem;
+  line-height: 1.75;
+}
+
+.cad-pga-readme-body ul,
+.cad-pga-readme-body ol {
+  padding-left: 20px;
+}
+
+.cad-pga-readme-body li + li {
+  margin-top: 8px;
+}
+
+.cad-pga-readme-body blockquote {
+  margin: 18px 0;
+  padding-left: 14px;
+  border-left: 2px solid rgba(255, 255, 255, 0.16);
+}
+
+.cad-pga-readme-body a {
+  color: var(--cad-shell-text);
+  text-underline-offset: 0.18em;
+}
+
+.cad-pga-readme-body a:hover,
+.cad-pga-readme-body a:focus-visible {
+  color: #fff;
+}
+
+.cad-pga-readme-body pre {
+  margin: 18px 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  background: rgba(0, 0, 0, 0.42);
+  color: var(--cad-shell-text);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  font-family: "Space Mono", "Cascadia Code", Consolas, monospace;
+  white-space: pre;
+}
+
+.cad-pga-readme-body code {
+  padding: 0.08rem 0.32rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--cad-shell-text);
+  font-size: 0.92em;
+  font-family: "Space Mono", "Cascadia Code", Consolas, monospace;
+}
+
+.cad-pga-readme-body pre code {
+  padding: 0;
+  background: transparent;
+}
+
+.cad-pga-readme-body mjx-container[jax="CHTML"] {
+  color: var(--cad-shell-text) !important;
+}
+
+.cad-pga-readme-body .token.comment,
+.cad-pga-readme-body .token.prolog,
+.cad-pga-readme-body .token.doctype,
+.cad-pga-readme-body .token.cdata {
+  color: #707070;
+}
+
+.cad-pga-readme-body .token.punctuation,
+.cad-pga-readme-body .token.operator {
+  color: #bebebe;
+}
+
+.cad-pga-readme-body .token.property,
+.cad-pga-readme-body .token.tag,
+.cad-pga-readme-body .token.constant,
+.cad-pga-readme-body .token.symbol,
+.cad-pga-readme-body .token.deleted {
+  color: #e4e4e4;
+}
+
+.cad-pga-readme-body .token.boolean,
+.cad-pga-readme-body .token.number {
+  color: #cfe7d7;
+}
+
+.cad-pga-readme-body .token.selector,
+.cad-pga-readme-body .token.attr-name,
+.cad-pga-readme-body .token.string,
+.cad-pga-readme-body .token.char,
+.cad-pga-readme-body .token.builtin,
+.cad-pga-readme-body .token.inserted {
+  color: #dccaa4;
+}
+
+.cad-pga-readme-body .token.atrule,
+.cad-pga-readme-body .token.attr-value,
+.cad-pga-readme-body .token.keyword {
+  color: #c8d3f0;
+}
+
+.cad-pga-readme-body .token.function,
+.cad-pga-readme-body .token.class-name {
+  color: #f3f3f3;
+}
+
+.cad-pga-readme-body .token.regex,
+.cad-pga-readme-body .token.important,
+.cad-pga-readme-body .token.variable {
+  color: #d7d7d7;
+}
+
 .cad-pga-controls-block {
   margin-top: 18px;
   padding-top: 16px;
@@ -333,7 +540,8 @@ body.cad-pga-details-open .cad-pga-details-panel {
   transition: opacity 160ms ease, visibility 160ms ease, transform 160ms ease;
 }
 
-body.cad-pga-menu-open .cad-pga-thumbbar {
+body.cad-pga-menu-open .cad-pga-thumbbar,
+body.cad-pga-readme-open .cad-pga-thumbbar {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;

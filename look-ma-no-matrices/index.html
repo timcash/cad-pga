@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="manifest" href="../manifest.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="application-name" content="cad-pga">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CAD PGA">
+    <meta name="description" content="A compact PGA frame-stack demo inspired by Look, Ma, No Matrices!">
+    <meta name="theme-color" content="#050505">
+    <title>Look, Ma, No Matrices! - CAD PGA</title>
+    <link rel="stylesheet" href="%BASE_URL%demo-shell.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050505;
+            color: #e0e0e0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        #ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(15, 15, 20, 0.85);
+            padding: 20px;
+            border: 1px solid #334;
+            border-radius: 8px;
+            max-width: 460px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            pointer-events: none;
+        }
+
+        #canvas-container {
+            position: absolute;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            color: #aaa;
+            pointer-events: none;
+        }
+    </style>
+    <script src="../vendor/ganja.js"></script>
+    <script src="../demo-runtime.js"></script>
+</head>
+<body>
+    <div id="ui-panel">
+        <div class="cad-pga-panel-copy">
+            <header class="cad-pga-panel-head">
+                <p class="cad-pga-panel-eyebrow">Look, Ma, No Matrices!</p>
+                <h1>A carrier frame and a child sensor frame move as PGA motors.</h1>
+                <p class="cad-pga-panel-lede">
+                    Inspired by Steven De Keninck's matrix-free renderer write-up, this page keeps the idea deliberately
+                    small: a <span class="scene-accent scene-accent--teal">body frame</span>, a
+                    <span class="scene-accent scene-accent--ice">sensor frustum</span>, and three carried axes are all
+                    moved by composed motors instead of a `4x4` transform stack.
+                </p>
+            </header>
+
+            <div class="resource-row">
+                <a class="resource-card" href="./?readme=1">
+                    <span class="resource-title">README</span>
+                    <span class="resource-meta">Open the example notes in the built-in README view.</span>
+                </a>
+                <a class="resource-card" href="https://enkimute.github.io/LookMaNoMatrices/" target="_blank" rel="noreferrer">
+                    <span class="resource-title">Primer Article</span>
+                    <span class="resource-meta">The original matrix-free renderer write-up by Steven De Keninck.</span>
+                </a>
+                <a class="resource-card" href="https://github.com/enkimute/LookMaNoMatrices" target="_blank" rel="noreferrer">
+                    <span class="resource-title">Source Repo</span>
+                    <span class="resource-meta">Renderer code and shader-side PGA kernels behind the article.</span>
+                </a>
+            </div>
+
+            <section class="cad-pga-panel-section">
+                <h2>Frame stack</h2>
+                <div class="cad-pga-panel-equation">
+\[
+\mathbf{M}_{\mathrm{sensor}}(t)=
+\mathbf{M}_{\mathrm{carrier}}(t)\,\mathbf{M}_{\mathrm{local}}(t),
+\qquad
+p' = \mathbf{M}\,p\,\widetilde{\mathbf{M}}
+\]
+                </div>
+                <p>
+                    The faint frame at the origin is the local authoring space. The moving
+                    <span class="scene-accent scene-accent--teal">carrier</span> and attached
+                    <span class="scene-accent scene-accent--ice">sensor</span> are obtained by motor composition, and the
+                    colored axis tips show the same frame-transport idea that the article later optimizes for renderer basis
+                    directions.
+                </p>
+            </section>
+        </div>
+    </div>
+
+    <div id="instructions">
+        <b>Controls:</b> left-drag orbit, mouse wheel zoom
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        window.CadPgaDemo.registerServiceWorker("../service-worker.js", "../");
+        window.CadPgaDemo.mountDemoShell({
+            slug: "look-ma-no-matrices",
+            title: "Look, Ma, No Matrices!"
+        });
+
+        Algebra(3, 0, 1, () => {
+            const theme = window.CadPgaDemo.theme;
+            const point = (x, y, z) => 1e123 - x * 1e023 + y * 1e013 - z * 1e012;
+            const orbitRotor = (h, p) => (p * 1e23).Exp().Mul((h * 1e13).Exp());
+            const translate3 = (x, y, z) => 1 - 0.5 * (x * 1e01 + y * 1e02 + z * 1e03);
+            const rotorX = (angle) => Math.cos(angle / 2) + Math.sin(angle / 2) * 1e23;
+            const rotorY = (angle) => Math.cos(angle / 2) + Math.sin(angle / 2) * 1e31;
+            const rotorZ = (angle) => Math.cos(angle / 2) + Math.sin(angle / 2) * 1e12;
+            const transformSegments = (segments, motor) => segments.map((segment) => segment.map((p) => motor >>> p));
+
+            const view = { h: -0.34, p: -0.18, scale: 0.6 };
+            const camera = 0e0;
+            camera.set(orbitRotor(view.h, view.p));
+
+            const makeBoxWireframe = (w, h, d, cx = 0, cy = 0, cz = 0) => {
+                const p = (dx, dy, dz) => point(cx + dx, cy + dy, cz + dz);
+                const v = [
+                    p(-w, -h, -d), p(w, -h, -d), p(w, h, -d), p(-w, h, -d),
+                    p(-w, -h, d), p(w, -h, d), p(w, h, d), p(-w, h, d)
+                ];
+
+                return [
+                    [v[0], v[1]], [v[1], v[2]], [v[2], v[3]], [v[3], v[0]],
+                    [v[4], v[5]], [v[5], v[6]], [v[6], v[7]], [v[7], v[4]],
+                    [v[0], v[4]], [v[1], v[5]], [v[2], v[6]], [v[3], v[7]]
+                ];
+            };
+
+            const makeAxisTripod = (length) => {
+                const origin = point(0, 0, 0);
+                return [
+                    [origin, point(length, 0, 0)],
+                    [origin, point(0, length, 0)],
+                    [origin, point(0, 0, length)]
+                ];
+            };
+
+            const makeFrustum = (length, spanY, spanZ) => {
+                const origin = point(0, 0, 0);
+                const corners = [
+                    point(length, -spanY, -spanZ),
+                    point(length, spanY, -spanZ),
+                    point(length, spanY, spanZ),
+                    point(length, -spanY, spanZ)
+                ];
+
+                return [
+                    [origin, corners[0]],
+                    [origin, corners[1]],
+                    [origin, corners[2]],
+                    [origin, corners[3]],
+                    [corners[0], corners[1]],
+                    [corners[1], corners[2]],
+                    [corners[2], corners[3]],
+                    [corners[3], corners[0]]
+                ];
+            };
+
+            const carrierBody = makeBoxWireframe(0.52, 0.28, 0.22);
+            const carrierAxes = makeAxisTripod(0.9);
+            const sensorAxes = makeAxisTripod(0.45);
+            const sensorFrustum = makeFrustum(0.8, 0.22, 0.16);
+            const sceneGrid = window.CadPgaDemo.createPlaneGrid3D(point, {
+                size: 5,
+                step: 1,
+                majorEvery: 2,
+                z: -1.2
+            });
+
+            const sensorMount = translate3(0.74, 0.0, 0.18);
+            const localGhostSensor = transformSegments(sensorFrustum, sensorMount);
+            const localGhostAxes = transformSegments(sensorAxes, sensorMount);
+
+            const graphOptions = {
+                animate: true,
+                grid: false,
+                h: view.h,
+                p: view.p,
+                scale: view.scale,
+                camera
+            };
+
+            const canvas = this.graph(() => {
+                const time = performance.now() / 1000;
+
+                const tx = 1.5 * Math.cos(time * 0.52);
+                const ty = 0.9 * Math.sin(time * 0.78);
+                const tz = 0.45 + 0.28 * Math.sin(time * 0.61);
+
+                const carrierMotor =
+                    translate3(tx, ty, tz) *
+                    rotorZ(time * 0.72) *
+                    rotorY(0.45 * Math.sin(time * 0.9)) *
+                    rotorX(0.28 * Math.cos(time * 1.1));
+
+                const sensorLocalMotor =
+                    sensorMount *
+                    rotorY(0.38 * Math.sin(time * 1.7)) *
+                    rotorZ(0.24 * Math.cos(time * 1.25));
+
+                const sensorMotor = carrierMotor * sensorLocalMotor;
+
+                const carrierWorld = transformSegments(carrierBody, carrierMotor);
+                const carrierAxesWorld = transformSegments(carrierAxes, carrierMotor);
+                const sensorWorld = transformSegments(sensorFrustum, sensorMotor);
+                const sensorAxesWorld = transformSegments(sensorAxes, sensorMotor);
+
+                return [
+                    theme.backgroundInt,
+                    ...sceneGrid,
+                    theme.gridMajorInt, ...carrierBody,
+                    theme.gridMinorInt, ...localGhostSensor,
+                    theme.gridAxisInt, ...localGhostAxes,
+                    theme.accents.tealInt, ...carrierWorld,
+                    theme.accents.iceInt, ...sensorWorld,
+                    theme.accents.coralInt, carrierAxesWorld[0], sensorAxesWorld[0],
+                    theme.accents.mintInt, carrierAxesWorld[1], sensorAxesWorld[1],
+                    theme.accents.ivoryInt, carrierAxesWorld[2], sensorAxesWorld[2]
+                ];
+            }, graphOptions);
+
+            canvas.style.width = "100%";
+            canvas.style.height = "100%";
+            document.getElementById("canvas-container").appendChild(canvas);
+
+            window.CadPgaDemo.attachGraphInteractions(canvas, graphOptions, {
+                minScale: 0.4,
+                maxScale: 3.2,
+                backgroundColor: theme.backgroundCss
+            });
+        });
+    </script>
+    <script type="module" src="../src/demo-entry.js"></script>
+</body>
+</html>

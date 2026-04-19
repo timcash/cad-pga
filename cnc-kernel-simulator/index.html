@@ -135,9 +135,9 @@
             </header>
 
             <div class="resource-row">
-                <a class="resource-card" href="./readme/">
-                    <span class="resource-title">Math Notes</span>
-                    <span class="resource-meta">Point embedding, motor action, and the swept-volume stand-in.</span>
+                <a class="resource-card" href="./?readme=1">
+                    <span class="resource-title">README</span>
+                    <span class="resource-meta">Open the example notes in the built-in README view.</span>
                 </a>
                 <a class="resource-card" href="https://bivector.net/3DPGA.pdf" target="_blank" rel="noreferrer">
                     <span class="resource-title">3D PGA Cheat Sheet</span>
@@ -159,9 +159,10 @@ p'(t) = \mathbf{M}(t)\,p\,\widetilde{\mathbf{M}(t)}
 \]
                 </div>
                 <p>
-                    The <span class="scene-accent scene-accent--coral">red volume</span> is a simple swept-volume stand-in.
-                    The <span class="scene-accent scene-accent--teal">wireframe stock</span> stays subdued, and the
-                    <span class="scene-accent scene-accent--ivory">white tool</span> keeps the motion easy to read.
+                    The <span class="scene-accent scene-accent--coral">red volume</span> is a fixed full-travel sweep proxy,
+                    not a frame-by-frame animated cut. The <span class="scene-accent scene-accent--teal">wireframe stock</span>
+                    stays subdued, and the <span class="scene-accent scene-accent--ivory">white tool</span> is the geometry
+                    that actually receives the motor update each frame.
                 </p>
             </section>
         </div>
